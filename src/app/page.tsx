@@ -17,6 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
+import { useMapEvents } from 'react-leaflet';
 
 const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
 const TileLayer = dynamic(() => import('react-leaflet').then(mod => mod.TileLayer), { ssr: false });
@@ -149,30 +150,11 @@ const SettingsItem = ({ icon, label, children }: { icon: React.ElementType, labe
 );
 
 const MapClickHandler = ({ onMapClick }: { onMapClick: (latlng: LatLngTuple) => void }) => {
-    const [map, setMap] = useState<Map | null>(null);
-
-    useEffect(() => {
-      const L = require('leaflet');
-      const mapInstance = L.map('map-container-for-events-only', {
-        center: [0,0],
-        zoom: 1,
-        attributionControl: false,
-        zoomControl: false,
-        dragging: false,
-        scrollWheelZoom: false,
-        doubleClickZoom: false,
-      });
-
-      mapInstance.on('click', (e: { latlng: { lat: number, lng: number }}) => {
-        onMapClick([e.latlng.lat, e.latlng.lng]);
-      });
-      setMap(mapInstance)
-
-      return () => {
-          mapInstance.remove();
-      }
-    }, [onMapClick]);
-
+    useMapEvents({
+        click(e) {
+            onMapClick([e.latlng.lat, e.latlng.lng]);
+        },
+    });
     return null;
 }
 
@@ -282,17 +264,14 @@ export default function DriverHomePage() {
                 scrollWheelZoom={true} 
                 zoomControl={false} 
                 className="h-full w-full absolute inset-0 z-0"
-                whenReady={() => {
-                   if (mapRef.current) {
-                      mapRef.current.on('click', (e) => handleMapClick([e.latlng.lat, e.latlng.lng]));
-                   }
-                }}
             >
                 <TileLayer
                     url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
                 />
                 
+                <MapClickHandler onMapClick={handleMapClick} />
+
                 {surgeZones.map((zone, i) => (
                     <SurgePolygon key={`poly-${i}`} center={zone.pos} rate={zone.value} />
                 ))}
@@ -701,3 +680,5 @@ export default function DriverHomePage() {
         </div>
     );
 }
+
+    
