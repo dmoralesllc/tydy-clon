@@ -105,25 +105,9 @@ export default function DriverHomePage() {
     );
 
     return (
-        <div className="relative h-screen w-screen overflow-hidden bg-gray-900 text-white">
-            <MapContainer ref={mapRef} center={currentPosition} zoom={14} scrollWheelZoom={true} zoomControl={false} className="h-full w-full">
-                <TileLayer
-                    url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-                />
-                <UserLocationMarker position={currentPosition} />
-                
-                {surgeZones.map((zone, i) => (
-                    <SurgePricingMarker key={i} position={zone.pos} rate={zone.rate} />
-                ))}
-
-                <Marker position={[-27.435, -58.985]}>
-                  <Popup>Hipermercado Libertad Resistencia</Popup>
-                </Marker>
-            </MapContainer>
-
+        <div className="h-screen w-screen bg-gray-900 text-white flex flex-col">
             {/* Top Bar */}
-            <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center z-[1000]">
+            <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center z-10">
                 <Sheet>
                     <SheetTrigger asChild>
                         <Button variant="secondary" size="icon" className="rounded-full shadow-lg relative bg-gray-800/80 hover:bg-gray-700/80">
@@ -206,34 +190,52 @@ export default function DriverHomePage() {
                 </Button>
             </div>
             
-            {/* Map Controls */}
-            <div className="absolute top-1/2 right-4 -translate-y-1/2 flex flex-col gap-3 z-[1000]">
-                 <Button variant="secondary" size="icon" className="rounded-full shadow-lg bg-gray-800/80 hover:bg-gray-700/80" onClick={() => mapRef.current?.setView(currentPosition, 14)}>
-                    <Crosshair className="h-6 w-6" />
-                </Button>
-                 <Button variant="secondary" size="icon" className="rounded-full shadow-lg bg-gray-800/80 hover:bg-gray-700/80">
-                    <Layers className="h-6 w-6" />
-                </Button>
-            </div>
+            <div className="relative flex-grow">
+                <MapContainer ref={mapRef} center={currentPosition} zoom={14} scrollWheelZoom={true} zoomControl={false} className="h-full w-full">
+                    <TileLayer
+                        url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                    />
+                    <UserLocationMarker position={currentPosition} />
+                    
+                    {surgeZones.map((zone, i) => (
+                        <SurgePricingMarker key={i} position={zone.pos} rate={zone.rate} />
+                    ))}
 
-             {/* Custom Zoom Controls */}
-            <div className="absolute bottom-[280px] right-4 flex flex-col gap-2 z-[1000]">
-                <Button variant="secondary" size="icon" className="rounded-full shadow-lg bg-gray-800/80 hover:bg-gray-700/80" onClick={zoomIn}>
-                    <Plus className="h-6 w-6" />
-                </Button>
-                <Button variant="secondary" size="icon" className="rounded-full shadow-lg bg-gray-800/80 hover:bg-gray-700/80" onClick={zoomOut}>
-                    <Minus className="h-6 w-6" />
-                </Button>
-            </div>
-            
-            {/* Google Shield */}
-            <div className="absolute bottom-[220px] left-4 flex items-center gap-2 z-[1000] bg-gray-800/80 rounded-full px-3 py-1 shadow-lg">
-                <Shield className="h-5 w-5 text-blue-400" />
-                <span className="font-semibold text-sm">Google</span>
+                    <Marker position={[-27.435, -58.985]}>
+                    <Popup>Hipermercado Libertad Resistencia</Popup>
+                    </Marker>
+                </MapContainer>
+
+                {/* Map Controls */}
+                <div className="absolute top-1/2 right-4 -translate-y-1/2 flex flex-col gap-3 z-10">
+                    <Button variant="secondary" size="icon" className="rounded-full shadow-lg bg-gray-800/80 hover:bg-gray-700/80" onClick={() => mapRef.current?.setView(currentPosition, 14)}>
+                        <Crosshair className="h-6 w-6" />
+                    </Button>
+                    <Button variant="secondary" size="icon" className="rounded-full shadow-lg bg-gray-800/80 hover:bg-gray-700/80">
+                        <Layers className="h-6 w-6" />
+                    </Button>
+                </div>
+
+                {/* Custom Zoom Controls */}
+                <div className="absolute bottom-16 right-4 flex flex-col gap-2 z-10">
+                    <Button variant="secondary" size="icon" className="rounded-full shadow-lg bg-gray-800/80 hover:bg-gray-700/80" onClick={zoomIn}>
+                        <Plus className="h-6 w-6" />
+                    </Button>
+                    <Button variant="secondary" size="icon" className="rounded-full shadow-lg bg-gray-800/80 hover:bg-gray-700/80" onClick={zoomOut}>
+                        <Minus className="h-6 w-6" />
+                    </Button>
+                </div>
+                
+                {/* Google Shield */}
+                <div className="absolute bottom-4 left-4 flex items-center gap-2 z-10 bg-gray-800/80 rounded-full px-3 py-1 shadow-lg">
+                    <Shield className="h-5 w-5 text-blue-400" />
+                    <span className="font-semibold text-sm">Google</span>
+                </div>
             </div>
 
             {/* Bottom Sheet */}
-            <div className="absolute bottom-0 left-0 right-0 p-4 bg-background z-[1000] rounded-t-2xl">
+            <div className="bg-background z-10 p-4 rounded-t-2xl shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.3)]">
                 {isReferralCardVisible && (
                     <Card className="bg-gradient-to-r from-orange-500 to-pink-500 border-0 mb-4 relative">
                          <Button variant="ghost" size="icon" className="absolute top-1 right-1 h-6 w-6 text-white/70 hover:text-white" onClick={() => setIsReferralCardVisible(false)}>
@@ -268,5 +270,4 @@ export default function DriverHomePage() {
             </div>
         </div>
     );
-
-    
+}
