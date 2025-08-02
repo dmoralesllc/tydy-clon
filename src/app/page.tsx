@@ -1,3 +1,4 @@
+
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -24,13 +25,17 @@ const useMap = dynamic(() => import('react-leaflet').then(mod => mod.useMap), { 
 const FARE_PER_KM = 1.5;
 
 export default function RideHailPage() {
-  const [currentPosition, setCurrentPosition] = useState<LatLngTuple | null>(null);
+  const [initialPosition, setInitialPosition] = useState<LatLngTuple | null>(null);
   const [leaflet, setLeaflet] = useState<typeof import('leaflet') | null>(null);
+  
+  const [currentPosition, setCurrentPosition] = useState<LatLngTuple | null>(null);
+  const [destination, setDestination] = useState<LatLngTuple | null>(null);
+  const [destinationName, setDestinationName] = useState('');
+  const [fare, setFare] = useState<string | null>(null);
+  const [appState, setAppState] = useState<'initial' | 'searching' | 'preview' | 'confirmed'>('initial');
 
   useEffect(() => {
-    // Import Leaflet dynamically on the client side
     import('leaflet').then(leafletModule => {
-       // Fix for default icon issue with webpack
       delete (leafletModule.Icon.Default.prototype as any)._getIconUrl;
       leafletModule.Icon.Default.mergeOptions({
         iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
@@ -42,40 +47,23 @@ export default function RideHailPage() {
   }, []);
 
   useEffect(() => {
-    // Check if window is defined to ensure this runs only on the client
     if (typeof window !== 'undefined') {
       navigator.geolocation.getCurrentPosition(
         (position) => {
-          setCurrentPosition([position.coords.latitude, position.coords.longitude]);
+          const pos: LatLngTuple = [position.coords.latitude, position.coords.longitude];
+          setInitialPosition(pos);
+          setCurrentPosition(pos);
         },
         (error) => {
           console.error("Geolocation error:", error);
-          // Fallback position
-          setCurrentPosition([37.7749, -122.4194]);
+          const fallbackPos: LatLngTuple = [37.7749, -122.4194];
+          setInitialPosition(fallbackPos);
+          setCurrentPosition(fallbackPos);
         },
         { enableHighAccuracy: true }
       );
     }
   }, []);
-
-  if (!currentPosition || !leaflet) {
-    return (
-      <div className="flex h-screen w-full items-center justify-center bg-background text-foreground">
-        <LoaderCircle className="animate-spin" size={48} />
-      </div>
-    );
-  }
-
-  return <RideHailApp initialPosition={currentPosition} L={leaflet} />;
-}
-
-function RideHailApp({ initialPosition, L }: { initialPosition: LatLngTuple, L: typeof import('leaflet') }) {
-  const [currentPosition, setCurrentPosition] = useState<LatLngTuple>(initialPosition);
-  const [destination, setDestination] = useState<LatLngTuple | null>(null);
-  const [destinationName, setDestinationName] = useState('');
-  const [fare, setFare] = useState<string | null>(null);
-  const [appState, setAppState] = useState<'initial' | 'searching' | 'preview' | 'confirmed'>('initial');
-
 
   const resetState = () => {
     setDestination(null);
@@ -107,10 +95,66 @@ function RideHailApp({ initialPosition, L }: { initialPosition: LatLngTuple, L: 
     }
     setAppState('confirmed');
   };
+
+  if (!initialPosition || !leaflet) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-background text-foreground">
+        <LoaderCircle className="animate-spin" size={48} />
+      </div>
+    );
+  }
+
+  return (
+    <RideHailApp
+      L={leaflet}
+      initialPosition={initialPosition}
+      currentPosition={currentPosition}
+      destination={destination}
+      destinationName={destinationName}
+      fare={fare}
+      setFare={setFare}
+      appState={appState}
+      setAppState={setAppState}
+      onDestinationSelect={handleDestinationSelect}
+      onConfirmRide={handleConfirmRide}
+      onReset={resetState}
+    />
+  );
+}
+
+type RideHailAppProps = {
+  L: typeof import('leaflet');
+  initialPosition: LatLngTuple;
+  currentPosition: LatLngTuple | null;
+  destination: LatLngTuple | null;
+  destinationName: string;
+  fare: string | null;
+  setFare: (fare: string | null) => void;
+  appState: 'initial' | 'searching' | 'preview' | 'confirmed';
+  setAppState: (state: 'initial' | 'searching' | 'preview' | 'confirmed') => void;
+  onDestinationSelect: (place: any, name?: string) => void;
+  onConfirmRide: () => void;
+  onReset: () => void;
+};
+
+function RideHailApp({
+  L,
+  initialPosition,
+  currentPosition,
+  destination,
+  destinationName,
+  fare,
+  setFare,
+  appState,
+  setAppState,
+  onDestinationSelect,
+  onConfirmRide,
+  onReset,
+}: RideHailAppProps) {
   
   return (
     <div className="relative h-screen w-screen overflow-hidden">
-      <MapContainer center={currentPosition} zoom={13} scrollWheelZoom={true} className="h-full w-full">
+      <MapContainer center={initialPosition} zoom={13} scrollWheelZoom={true} className="h-full w-full">
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
@@ -132,7 +176,7 @@ function RideHailApp({ initialPosition, L }: { initialPosition: LatLngTuple, L: 
 
           {appState === 'searching' && (
             <DestinationSearch 
-              onSelect={handleDestinationSelect}
+              onSelect={onDestinationSelect}
               onBack={() => setAppState('initial')}
               currentPosition={currentPosition}
             />
@@ -142,13 +186,13 @@ function RideHailApp({ initialPosition, L }: { initialPosition: LatLngTuple, L: 
             <RidePreview
               fare={fare}
               destinationName={destinationName}
-              onConfirm={handleConfirmRide}
-              onBack={resetState}
+              onConfirm={onConfirmRide}
+              onBack={onReset}
             />
           )}
 
           {appState === 'confirmed' && (
-            <RideConfirmed onNewRide={resetState} />
+            <RideConfirmed onNewRide={onReset} />
           )}
         </Card>
       </div>
