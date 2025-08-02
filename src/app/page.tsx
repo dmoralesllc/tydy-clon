@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import dynamic from 'next/dynamic';
-import type { LatLngTuple } from 'leaflet';
+import type { LatLngExpression, LatLngTuple } from 'leaflet';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Menu, ChevronDown, HelpCircle, Layers, Crosshair, Shield, Settings, Settings2, Zap, User, Edit, Plus, Minus, X, Eye, Wallet, Star, Bell, LifeBuoy, LogOut, ChevronRight, FileText, Smartphone, Lock, Languages, CircleHelp, Info } from 'lucide-react';
@@ -24,6 +24,8 @@ const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapCo
 const TileLayer = dynamic(() => import('react-leaflet').then(mod => mod.TileLayer), { ssr: false });
 const Marker = dynamic(() => import('react-leaflet').then(mod => mod.Marker), { ssr: false });
 const Popup = dynamic(() => import('react-leaflet').then(mod => mod.Popup), { ssr: false });
+const Polygon = dynamic(() => import('react-leaflet').then(mod => mod.Polygon), { ssr: false });
+
 
 const UserLocationMarker = ({ position }: { position: LatLngTuple }) => {
   const [L, setL] = useState<any>(null);
@@ -59,13 +61,43 @@ const SurgePricingMarker = ({ position, rate }: { position: LatLngTuple, rate: s
     
   const icon = L.divIcon({
     html: `<div class="bg-black/70 text-white text-sm rounded-full px-3 py-1 flex items-center gap-1"><svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-zap"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg> ${rate}</div>`,
-    className: '',
+    className: 'opacity-90',
     iconSize: L.point(80, 26),
     iconAnchor: L.point(40, 13),
   });
 
   return <Marker position={position} icon={icon} />;
 }
+
+const getSurgeColor = (rate: number): string => {
+    if (rate >= 2.5) return 'red';
+    if (rate >= 1.8) return 'orange';
+    return 'yellow';
+}
+
+const SurgePolygon = ({ center, rate }: { center: LatLngTuple, rate: number }) => {
+    const size = 0.003; // Size of the hexagon
+    const hexCoords: LatLngExpression[] = Array.from({ length: 6 }).map((_, i) => {
+        const angle_deg = 60 * i;
+        const angle_rad = Math.PI / 180 * angle_deg;
+        return [center[0] + size * Math.sin(angle_rad), center[1] + size * Math.cos(angle_rad)];
+    });
+
+    const color = getSurgeColor(rate);
+    const pathOptions = {
+        fillColor: color,
+        color: color,
+        weight: 1,
+        opacity: 0.5,
+        fillOpacity: 0.2
+    };
+
+    return (
+        <Polygon pathOptions={pathOptions} positions={hexCoords}>
+            <Popup>Tarifa dinámica: {rate.toFixed(1)}x</Popup>
+        </Polygon>
+    );
+};
 
 const MenuItem = ({ icon, label, badge, children }: { icon: React.ElementType, label: string, badge?: string, children: React.ReactNode }) => (
     <Dialog>
@@ -128,15 +160,21 @@ export default function DriverHomePage() {
         }
     };
 
-    const surgeZones: { pos: LatLngTuple, rate: string }[] = [
-        { pos: [-27.445, -58.99], rate: "2.9~3.0x" },
-        { pos: [-27.452, -59.00], rate: "2.7~2.9x" },
-        { pos: [-27.46, -59.01], rate: "1.8~2.9x" },
-        { pos: [-27.47, -59.005], rate: "1.3~3.0x" },
-        { pos: [-27.475, -58.995], rate: "1.7~1.9x" },
-        { pos: [-27.485, -59.015], rate: "1.1~1.9x" },
-        { pos: [-27.49, -59.00], rate: "2.1~3.0x" },
-        { pos: [-27.46, -58.97], rate: "3.0x" },
+    const surgeZones: { pos: LatLngTuple, rate: string, value: number }[] = [
+        { pos: [-27.445, -58.99], rate: "2.9~3.0x", value: 2.95 },
+        { pos: [-27.452, -59.00], rate: "2.7~2.9x", value: 2.8 },
+        { pos: [-27.46, -59.01], rate: "1.8~2.9x", value: 2.35 },
+        { pos: [-27.47, -59.005], rate: "1.3~3.0x", value: 2.15 },
+        { pos: [-27.475, -58.995], rate: "1.7~1.9x", value: 1.8 },
+        { pos: [-27.485, -59.015], rate: "1.1~1.9x", value: 1.5 },
+        { pos: [-27.49, -59.00], rate: "2.1~3.0x", value: 2.55 },
+        { pos: [-27.46, -58.97], rate: "3.0x", value: 3.0 },
+        // Adding more zones for hexagonal grid
+        { pos: [-27.440, -58.995], rate: "2.5x", value: 2.5 },
+        { pos: [-27.443, -58.985], rate: "2.8x", value: 2.8 },
+        { pos: [-27.455, -58.992], rate: "2.6x", value: 2.6 },
+        { pos: [-27.465, -59.003], rate: "2.2x", value: 2.2 },
+        { pos: [-27.458, -58.980], rate: "2.9x", value: 2.9 },
     ];
 
     const zoomIn = () => mapRef.current?.zoomIn();
@@ -153,10 +191,15 @@ export default function DriverHomePage() {
                     url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
                 />
+                
+                {surgeZones.map((zone, i) => (
+                    <SurgePolygon key={`poly-${i}`} center={zone.pos} rate={zone.value} />
+                ))}
+
                 <UserLocationMarker position={currentPosition} />
                 
                 {surgeZones.map((zone, i) => (
-                    <SurgePricingMarker key={i} position={zone.pos} rate={zone.rate} />
+                    <SurgePricingMarker key={`marker-${i}`} position={zone.pos} rate={zone.rate} />
                 ))}
 
                 <Marker position={[-27.435, -58.985]}>
@@ -499,3 +542,5 @@ export default function DriverHomePage() {
         </div>
     );
 }
+
+    
