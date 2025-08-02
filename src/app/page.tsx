@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic';
 import type { LatLngExpression, LatLngTuple, Map } from 'leaflet';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Menu, ChevronDown, HelpCircle, Layers, Crosshair, Shield, Settings, Settings2, Zap, Edit, Plus, Minus, X, Eye, Wallet, Star, Bell, LogOut, ChevronRight, FileText, Smartphone, Lock, Languages, CircleHelp, Info, MapPin } from 'lucide-react';
+import { Menu, ChevronDown, HelpCircle, Layers, Crosshair, Shield, Settings2, Zap, Edit, Plus, Minus, X, Eye, Wallet, Star, Bell, LogOut, ChevronRight, FileText, Smartphone, Lock, Languages, CircleHelp, Info, MapPin, ChevronUp } from 'lucide-react';
 import Image from 'next/image';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
@@ -170,6 +170,7 @@ export default function DriverHomePage() {
     const [endPoint, setEndPoint] = useState<LatLngTuple | null>(null);
     const [selecting, setSelecting] = useState<'start' | 'end' | null>(null);
     const [tripDetails, setTripDetails] = useState<{distance: number, cost: number} | null>(null);
+    const [isTripDetailsVisible, setIsTripDetailsVisible] = useState(true);
 
     useEffect(() => {
         setCurrentPosition([-27.45, -58.983333]);
@@ -193,6 +194,7 @@ export default function DriverHomePage() {
         const cost = baseFare + distance * costPerKm;
 
         setTripDetails({ distance: parseFloat(distance.toFixed(1)), cost: parseFloat(cost.toFixed(0))});
+        setIsTripDetailsVisible(true);
       } else {
         setTripDetails(null);
       }
@@ -438,7 +440,7 @@ export default function DriverHomePage() {
                                         </DialogHeader>
                                     </DialogContent>
                                 </MenuItem>
-                                <MenuItem icon={Settings} label="Configuración">
+                                <MenuItem icon={Settings2} label="Configuración">
                                     <DialogContent className="bg-gray-900 text-white border-gray-700">
                                         <DialogHeader>
                                             <DialogTitle>Configuración</DialogTitle>
@@ -555,7 +557,7 @@ export default function DriverHomePage() {
                     </Button>
                 </div>
 
-                <div className="absolute bottom-[180px] right-4 flex flex-col gap-2 pointer-events-auto">
+                <div className="absolute bottom-[220px] right-4 flex flex-col gap-2 pointer-events-auto">
                     <Button variant="secondary" size="icon" className="rounded-full shadow-lg bg-gray-800/80 hover:bg-gray-700/80" onClick={zoomIn}>
                         <Plus className="h-6 w-6" />
                     </Button>
@@ -571,34 +573,43 @@ export default function DriverHomePage() {
 
                 <div className="absolute bottom-0 left-0 right-0 p-4 pointer-events-auto">
                     {tripDetails ? (
-                         <div className="bg-gray-900/90 backdrop-blur-sm rounded-t-2xl shadow-2xl border-t border-gray-700/50">
+                         <div className="bg-gray-900/90 backdrop-blur-sm rounded-t-2xl shadow-2xl border-t border-gray-700/50 transition-all duration-300">
                             <div className="p-4">
-                                <div className="flex justify-between items-center mb-3">
+                                <div className="flex justify-between items-center">
                                   <h3 className="text-lg font-semibold">Detalles del Viaje</h3>
-                                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={resetTrip}>
-                                      <X className="h-5 w-5" />
-                                  </Button>
+                                  <div>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setIsTripDetailsVisible(!isTripDetailsVisible)}>
+                                        {isTripDetailsVisible ? <ChevronDown className="h-5 w-5" /> : <ChevronUp className="h-5 w-5" />}
+                                    </Button>
+                                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={resetTrip}>
+                                        <X className="h-5 w-5" />
+                                    </Button>
+                                  </div>
                                 </div>
-                               <div className="flex justify-around items-center text-center bg-gray-800/50 p-3 rounded-lg">
-                                   <div>
-                                       <p className="text-lg font-bold">{tripDetails.distance} km</p>
-                                       <p className="text-xs text-gray-400">Distancia</p>
+                               {isTripDetailsVisible && (
+                                   <div className="mt-3">
+                                       <div className="flex justify-around items-center text-center bg-gray-800/50 p-3 rounded-lg">
+                                           <div>
+                                               <p className="text-lg font-bold">{tripDetails.distance} km</p>
+                                               <p className="text-xs text-gray-400">Distancia</p>
+                                           </div>
+                                           <Separator orientation="vertical" className="h-8 bg-gray-700" />
+                                           <div>
+                                               <p className="text-lg font-bold">~{Math.round(tripDetails.distance * 1.5)} min</p>
+                                               <p className="text-xs text-gray-400">Tiempo</p>
+                                           </div>
+                                           <Separator orientation="vertical" className="h-8 bg-gray-700" />
+                                           <div>
+                                               <p className="text-lg font-bold">${tripDetails.cost}</p>
+                                               <p className="text-xs text-gray-400">Costo</p>
+                                           </div>
+                                       </div>
+                                        <Button size="lg" className="w-full text-lg h-14 mt-4 rounded-lg font-bold bg-orange-600 hover:bg-orange-700">
+                                            Confirmar Viaje
+                                        </Button>
                                    </div>
-                                   <Separator orientation="vertical" className="h-8 bg-gray-700" />
-                                   <div>
-                                       <p className="text-lg font-bold">~{Math.round(tripDetails.distance * 1.5)} min</p>
-                                       <p className="text-xs text-gray-400">Tiempo</p>
-                                   </div>
-                                   <Separator orientation="vertical" className="h-8 bg-gray-700" />
-                                   <div>
-                                       <p className="text-lg font-bold">${tripDetails.cost}</p>
-                                       <p className="text-xs text-gray-400">Costo</p>
-                                   </div>
-                               </div>
+                               )}
                             </div>
-                            <Button size="lg" className="w-full text-lg h-14 rounded-none rounded-b-2xl font-bold bg-orange-600 hover:bg-orange-700">
-                                Confirmar Viaje
-                            </Button>
                          </div>
                     ) : (
                     <div className="bg-gray-900/90 backdrop-blur-sm rounded-t-2xl shadow-2xl border-t border-gray-700/50 p-4">
