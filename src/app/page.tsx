@@ -117,7 +117,7 @@ export default function DriverHomePage() {
     const MenuItem = ({ icon, label, badge, children }: { icon: React.ElementType, label: string, badge?: string, children: React.ReactNode }) => (
         <Dialog>
             <DialogTrigger asChild>
-                <a href="#" className="flex items-center p-3 text-white hover:bg-gray-700 rounded-md">
+                <button className="flex items-center p-3 text-white hover:bg-gray-700 rounded-md w-full text-left">
                     <div className="p-2 bg-gray-600 rounded-full mr-4">
                         {React.createElement(icon, { className: "h-5 w-5" })}
                     </div>
@@ -126,7 +126,7 @@ export default function DriverHomePage() {
                         <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">{badge}</span>
                     )}
                     <ChevronDown className="h-5 w-5 text-gray-500 -rotate-90 ml-2" />
-                </a>
+                </button>
             </DialogTrigger>
             <DialogContent className="bg-gray-800 text-white border-gray-700">
                 {children}
@@ -372,4 +372,3 @@ export default function DriverHomePage() {
         </div>
     );
 }
-
