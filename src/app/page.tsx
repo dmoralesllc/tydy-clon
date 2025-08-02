@@ -1,7 +1,7 @@
 
 'use client';
 
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import type { LatLngTuple } from 'leaflet';
 import { Button } from '@/components/ui/button';
@@ -12,7 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { suggestDestination, SuggestDestinationOutput } from '@/ai/flows/suggest-destination';
 import { Car, CircleDot, LoaderCircle, MapPin, Search } from 'lucide-react';
 
-const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false, loading: () => <LoaderCircle className="animate-spin" /> });
+const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false, loading: () => <div className="flex h-full w-full items-center justify-center bg-background"><LoaderCircle className="animate-spin" size={48} /></div> });
 const TileLayer = dynamic(() => import('react-leaflet').then(mod => mod.TileLayer), { ssr: false });
 const Marker = dynamic(() => import('react-leaflet').then(mod => mod.Marker), { ssr: false });
 const Popup = dynamic(() => import('react-leaflet').then(mod => mod.Popup), { ssr: false });
@@ -21,157 +21,132 @@ const useMap = dynamic(() => import('react-leaflet').then(mod => mod.useMap), { 
 
 const FARE_PER_KM = 1.5;
 
-function MapUpdater({ currentPosition, destination, L }: { currentPosition: LatLngTuple, destination: LatLngTuple | null, L: any }) {
-  const map = useMap();
-  useEffect(() => {
-    if (destination) {
-        const bounds = L.latLngBounds([currentPosition, destination]);
-        map.fitBounds(bounds, { padding: [50, 50] });
-    } else {
-        map.setView(currentPosition, 13);
-    }
-  }, [map, L, currentPosition, destination]);
-
-  return null;
-}
-
-function MapView({
-  L,
-  currentPosition,
-  destination,
-  destinationName,
-}: {
-  L: any;
-  currentPosition: LatLngTuple;
-  destination: LatLngTuple | null;
-  destinationName: string;
-}) {
-  return (
-    <>
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
-      <Marker position={currentPosition}><Popup>You are here</Popup></Marker>
-      {destination && <Marker position={destination}><Popup>{destinationName}</Popup></Marker>}
-      {destination && <Polyline positions={[currentPosition, destination]} color="red" />}
-      <MapUpdater L={L} currentPosition={currentPosition} destination={destination} />
-    </>
-  );
-}
-
+// A component to automatically fit the map bounds to the polyline
+const FitBoundsToPolyline = ({ polyline }: { polyline: LatLngTuple[] }) => {
+    const map = useMap();
+    useEffect(() => {
+        if (polyline.length > 0 && map) {
+            map.fitBounds(polyline, { padding: [50, 50] });
+        }
+    }, [polyline, map]);
+    return null;
+};
 
 export default function RideHailPage() {
-  const [L, setL] = useState<any>(null);
-  const [currentPosition, setCurrentPosition] = useState<LatLngTuple | null>(null);
-  const [destination, setDestination] = useState<LatLngTuple | null>(null);
-  const [destinationName, setDestinationName] = useState('');
-  const [fare, setFare] = useState<string | null>(null);
-  
-  const [isRideConfirmed, setIsRideConfirmed] = useState(false);
+    const [L, setL] = useState<any>(null);
+    const [currentPosition, setCurrentPosition] = useState<LatLngTuple | null>(null);
+    const [destination, setDestination] = useState<LatLngTuple | null>(null);
+    const [destinationName, setDestinationName] = useState('');
+    const [fare, setFare] = useState<string | null>(null);
+    const [isRideConfirmed, setIsRideConfirmed] = useState(false);
 
-  useEffect(() => {
-    import('leaflet').then(leaflet => {
-       delete (leaflet.Icon.Default.prototype as any)._getIconUrl;
-        leaflet.Icon.Default.mergeOptions({
-            iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-            iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-            shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+    useEffect(() => {
+        import('leaflet').then(leaflet => {
+            delete (leaflet.Icon.Default.prototype as any)._getIconUrl;
+            leaflet.Icon.Default.mergeOptions({
+                iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+                iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+                shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+            });
+            setL(leaflet);
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    setCurrentPosition([position.coords.latitude, position.coords.longitude]);
+                },
+                () => {
+                    // Fallback to a default location if geolocation fails
+                    setCurrentPosition([37.7749, -122.4194]);
+                },
+                { enableHighAccuracy: true }
+            );
         });
-      setL(leaflet);
+    }, []);
 
-      navigator.geolocation.getCurrentPosition(
-        (position) => {
-          setCurrentPosition([position.coords.latitude, position.coords.longitude]);
-        },
-        () => {
-          setCurrentPosition([37.7749, -122.4194]); // Fallback
-        },
-        { enableHighAccuracy: true }
-      );
-    });
-  }, []);
+    const handleDestinationSelect = (place: { lat: number, lon: number, display_name: string } | null, name?: string) => {
+        if (place && currentPosition) {
+            const dest: LatLngTuple = [parseFloat(String(place.lat)), parseFloat(String(place.lon))];
+            setDestination(dest);
+            setDestinationName(name || place.display_name);
 
-  const handleDestinationSelect = (place: { lat: number, lon: number, display_name: string } | null, name?: string) => {
-    if (place && currentPosition) {
-      const dest: LatLngTuple = [parseFloat(String(place.lat)), parseFloat(String(place.lon))];
-      setDestination(dest);
-      setDestinationName(name || place.display_name);
-      
-      const R = 6371; // Radius of the earth in km
-      const dLat = (dest[0] - currentPosition[0]) * Math.PI / 180;
-      const dLon = (dest[1] - currentPosition[1]) * Math.PI / 180;
-      const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(currentPosition[0] * Math.PI / 180) * Math.cos(dest[0] * Math.PI / 180) *
-        Math.sin(dLon / 2) * Math.sin(dLon / 2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      const distanceInKm = R * c;
-      const calculatedFare = distanceInKm * FARE_PER_KM;
-      setFare(calculatedFare.toFixed(2));
-      
-      setIsRideConfirmed(false);
-    }
-  };
-
-  const handleConfirmRide = () => {
-    if (destinationName) {
-      try {
-        const history = JSON.parse(localStorage.getItem('locationHistory') || '[]');
-        if (!history.includes(destinationName)) {
-          history.unshift(destinationName);
-          localStorage.setItem('locationHistory', JSON.stringify(history.slice(0, 10)));
+            const R = 6371; // Radius of the earth in km
+            const dLat = (dest[0] - currentPosition[0]) * Math.PI / 180;
+            const dLon = (dest[1] - currentPosition[1]) * Math.PI / 180;
+            const a =
+                Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                Math.cos(currentPosition[0] * Math.PI / 180) * Math.cos(dest[0] * Math.PI / 180) *
+                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+            const distanceInKm = R * c;
+            const calculatedFare = distanceInKm * FARE_PER_KM;
+            setFare(calculatedFare.toFixed(2));
+            setIsRideConfirmed(false);
         }
-      } catch (e) {
-        console.error("Failed to update location history:", e);
-      }
+    };
+
+    const handleConfirmRide = () => {
+        if (destinationName) {
+            try {
+                const history = JSON.parse(localStorage.getItem('locationHistory') || '[]');
+                if (!history.includes(destinationName)) {
+                    history.unshift(destinationName);
+                    localStorage.setItem('locationHistory', JSON.stringify(history.slice(0, 10)));
+                }
+            } catch (e) {
+                console.error("Failed to update location history:", e);
+            }
+        }
+        setIsRideConfirmed(true);
+    };
+
+    const resetRide = () => {
+        setDestination(null);
+        setDestinationName('');
+        setFare(null);
+        setIsRideConfirmed(false);
+    };
+
+    if (!currentPosition || !L) {
+        return (
+            <div className="flex h-screen w-full items-center justify-center bg-background text-foreground">
+                <LoaderCircle className="animate-spin" size={48} />
+            </div>
+        );
     }
-    setIsRideConfirmed(true);
-  };
 
-  const resetRide = () => {
-    setDestination(null);
-    setDestinationName('');
-    setFare(null);
-    setIsRideConfirmed(false);
-  };
+    const polyline: LatLngTuple[] = destination ? [currentPosition, destination] : [];
 
-  if (!currentPosition || !L) {
     return (
-      <div className="flex h-screen w-full items-center justify-center bg-background text-foreground">
-        <LoaderCircle className="animate-spin" size={48} />
-      </div>
+        <div className="relative h-screen w-screen overflow-hidden">
+            <MapContainer center={currentPosition} zoom={13} scrollWheelZoom={true} className="h-full w-full">
+                <TileLayer
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+                />
+                <Marker position={currentPosition}><Popup>You are here</Popup></Marker>
+                {destination && <Marker position={destination}><Popup>{destinationName}</Popup></Marker>}
+                {polyline.length > 0 && <Polyline positions={polyline} color="red" />}
+                {polyline.length > 0 && <FitBoundsToPolyline polyline={polyline} />}
+            </MapContainer>
+            <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-background via-background/90 to-transparent z-[1000]">
+                <Card className="max-w-md mx-auto shadow-2xl bg-background/80 backdrop-blur-sm border-2 border-border">
+                    {isRideConfirmed ? (
+                        <RideConfirmed onNewRide={resetRide} />
+                    ) : (
+                        <RideBooking
+                            currentPosition={currentPosition}
+                            onDestinationSelect={handleDestinationSelect}
+                            destinationName={destinationName}
+                            fare={fare}
+                            onConfirmRide={handleConfirmRide}
+                        />
+                    )}
+                </Card>
+            </div>
+        </div>
     );
-  }
-
-  return (
-    <div className="relative h-screen w-screen overflow-hidden">
-      <MapContainer center={currentPosition} zoom={13} scrollWheelZoom={true} className="h-full w-full">
-        <MapView
-          L={L}
-          currentPosition={currentPosition}
-          destination={destination}
-          destinationName={destinationName}
-        />
-      </MapContainer>
-      <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-background via-background/90 to-transparent z-[1000]">
-        <Card className="max-w-md mx-auto shadow-2xl bg-background/80 backdrop-blur-sm border-2 border-border">
-          {isRideConfirmed ? (
-            <RideConfirmed onNewRide={resetRide} />
-          ) : (
-            <RideBooking
-              currentPosition={currentPosition}
-              onDestinationSelect={handleDestinationSelect}
-              destinationName={destinationName}
-              fare={fare}
-              onConfirmRide={handleConfirmRide}
-            />
-          )}
-        </Card>
-      </div>
-    </div>
-  );
 }
+
 
 function RideBooking({ currentPosition, onDestinationSelect, destinationName, fare, onConfirmRide }) {
   return (
@@ -329,5 +304,3 @@ function RideConfirmed({ onNewRide }: { onNewRide: () => void }) {
     </CardContent>
   );
 }
-
-    
