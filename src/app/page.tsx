@@ -90,7 +90,6 @@ export default function DriverHomePage() {
         }
     };
 
-
     const surgeZones: { pos: LatLngTuple, rate: string }[] = [
         { pos: [-27.445, -58.99], rate: "2.9~3.0x" },
         { pos: [-27.452, -59.00], rate: "2.7~2.9x" },
@@ -114,7 +113,7 @@ export default function DriverHomePage() {
         return <div className="flex h-screen w-full items-center justify-center bg-gray-900 text-white">Cargando...</div>;
     }
     
-    const MenuItem = ({ icon, label, badge, children }: { icon: React.ElementType, label: string, badge?: string, children: React.ReactNode }) => (
+    const MenuItem = ({ icon, label, badge, dialogTitle, dialogDescription }: { icon: React.ElementType, label: string, badge?: string, dialogTitle: string, dialogDescription: string }) => (
         <Dialog>
             <DialogTrigger asChild>
                 <button className="flex items-center p-3 text-white hover:bg-gray-700 rounded-md w-full text-left">
@@ -129,7 +128,10 @@ export default function DriverHomePage() {
                 </button>
             </DialogTrigger>
             <DialogContent className="bg-gray-800 text-white border-gray-700">
-                {children}
+                 <DialogHeader>
+                    <DialogTitle>{dialogTitle}</DialogTitle>
+                    <DialogDescription>{dialogDescription}</DialogDescription>
+                </DialogHeader>
             </DialogContent>
         </Dialog>
     );
@@ -217,48 +219,13 @@ export default function DriverHomePage() {
                             </SheetHeader>
                             <Separator className="bg-gray-700" />
                             <div className="flex-grow overflow-y-auto p-4 space-y-2">
-                                <MenuItem icon={Zap} label="Ganancias">
-                                    <DialogHeader>
-                                        <DialogTitle>Ganancias</DialogTitle>
-                                        <DialogDescription>Aquí se mostrará el historial de ganancias.</DialogDescription>
-                                    </DialogHeader>
-                                </MenuItem>
-                                <MenuItem icon={User} label="Premios">
-                                     <DialogHeader>
-                                        <DialogTitle>Premios</DialogTitle>
-                                        <DialogDescription>Aquí se mostrarán los premios disponibles.</DialogDescription>
-                                    </DialogHeader>
-                                </MenuItem>
-                                <MenuItem icon={Menu} label="Notificaciones" badge="3">
-                                     <DialogHeader>
-                                        <DialogTitle>Notificaciones</DialogTitle>
-                                        <DialogDescription>Aquí se mostrará la lista de notificaciones.</DialogDescription>
-                                    </DialogHeader>
-                                </MenuItem>
-                                <MenuItem icon={Wallet} label="Mi Billetera">
-                                     <DialogHeader>
-                                        <DialogTitle>Mi Billetera</DialogTitle>
-                                        <DialogDescription>Aquí se mostrará la información de la billetera.</DialogDescription>
-                                    </DialogHeader>
-                                </MenuItem>
-                                <MenuItem icon={Settings2} label="Preferencias de viaje">
-                                     <DialogHeader>
-                                        <DialogTitle>Preferencias de Viaje</DialogTitle>
-                                        <DialogDescription>Aquí se podrán configurar las preferencias de viaje.</DialogDescription>
-                                    </DialogHeader>
-                                </MenuItem>
-                                <MenuItem icon={HelpCircle} label="Ayuda">
-                                     <DialogHeader>
-                                        <DialogTitle>Ayuda</DialogTitle>
-                                        <DialogDescription>Aquí se mostrará el centro de ayuda.</DialogDescription>
-                                    </DialogHeader>
-                                </MenuItem>
-                                <MenuItem icon={Settings} label="Configuración">
-                                     <DialogHeader>
-                                        <DialogTitle>Configuración</DialogTitle>
-                                        <DialogDescription>Aquí se mostrarán las opciones de configuración de la cuenta.</DialogDescription>
-                                    </DialogHeader>
-                                </MenuItem>
+                                <MenuItem icon={Zap} label="Ganancias" dialogTitle="Ganancias" dialogDescription="Aquí se mostrará el historial de ganancias." />
+                                <MenuItem icon={User} label="Premios" dialogTitle="Premios" dialogDescription="Aquí se mostrarán los premios disponibles." />
+                                <MenuItem icon={Menu} label="Notificaciones" badge="3" dialogTitle="Notificaciones" dialogDescription="Aquí se mostrará la lista de notificaciones." />
+                                <MenuItem icon={Wallet} label="Mi Billetera" dialogTitle="Mi Billetera" dialogDescription="Aquí se mostrará la información de la billetera." />
+                                <MenuItem icon={Settings2} label="Preferencias de viaje" dialogTitle="Preferencias de Viaje" dialogDescription="Aquí se podrán configurar las preferencias de viaje." />
+                                <MenuItem icon={HelpCircle} label="Ayuda" dialogTitle="Ayuda" dialogDescription="Aquí se mostrará el centro de ayuda." />
+                                <MenuItem icon={Settings} label="Configuración" dialogTitle="Configuración" dialogDescription="Aquí se mostrarán las opciones de configuración de la cuenta." />
                             </div>
                             <Separator className="bg-gray-700" />
                             <div className="p-4">
@@ -317,7 +284,7 @@ export default function DriverHomePage() {
                 </div>
 
                 {/* Custom Zoom Controls */}
-                <div className="absolute bottom-40 right-4 flex flex-col gap-2 z-10 pointer-events-auto">
+                <div className="absolute bottom-52 right-4 flex flex-col gap-2 z-10 pointer-events-auto">
                     <Button variant="secondary" size="icon" className="rounded-full shadow-lg bg-gray-800/80 hover:bg-gray-700/80" onClick={zoomIn}>
                         <Plus className="h-6 w-6" />
                     </Button>
@@ -353,10 +320,20 @@ export default function DriverHomePage() {
                             </Card>
                         )}
                         <div className="flex items-center justify-between">
-                            <Button variant="ghost" className="relative pointer-events-auto">
-                                <Settings2 className="h-7 w-7" />
-                                <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500" />
-                            </Button>
+                            <Dialog>
+                                <DialogTrigger asChild>
+                                     <Button variant="ghost" className="relative pointer-events-auto">
+                                        <Settings2 className="h-7 w-7" />
+                                        <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500" />
+                                    </Button>
+                                </DialogTrigger>
+                                <DialogContent className="bg-gray-800 text-white border-gray-700">
+                                    <DialogHeader>
+                                        <DialogTitle>Preferencias de Viaje</DialogTitle>
+                                        <DialogDescription>Aquí se podrán configurar las preferencias de viaje.</DialogDescription>
+                                    </DialogHeader>
+                                </DialogContent>
+                            </Dialog>
                             <Button 
                                 size="lg" 
                                 className={`w-full max-w-xs text-xl h-14 rounded-full font-bold transition-colors pointer-events-auto ${isConnected ? 'bg-gray-600 hover:bg-gray-700' : 'bg-orange-600 hover:bg-orange-700'}`}
@@ -372,3 +349,5 @@ export default function DriverHomePage() {
         </div>
     );
 }
+
+    
