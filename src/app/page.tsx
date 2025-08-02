@@ -65,6 +65,30 @@ const SurgePricingMarker = ({ position, rate }: { position: LatLngTuple, rate: s
   return <Marker position={position} icon={icon} />;
 }
 
+const MenuItem = ({ icon, label, badge, dialogTitle, dialogDescription }: { icon: React.ElementType, label: string, badge?: string, dialogTitle: string, dialogDescription: string }) => (
+    <Dialog>
+        <DialogTrigger asChild>
+            <button className="flex items-center p-3 text-white hover:bg-gray-700 rounded-md w-full text-left">
+                <div className="p-2 bg-gray-600 rounded-full mr-4">
+                    {React.createElement(icon, { className: "h-5 w-5" })}
+                </div>
+                <span className="flex-grow font-medium">{label}</span>
+                {badge && (
+                    <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">{badge}</span>
+                )}
+                <ChevronDown className="h-5 w-5 text-gray-500 -rotate-90 ml-2" />
+            </button>
+        </DialogTrigger>
+        <DialogContent className="bg-gray-800 text-white border-gray-700">
+             <DialogHeader>
+                <DialogTitle>{dialogTitle}</DialogTitle>
+                <DialogDescription>{dialogDescription}</DialogDescription>
+            </DialogHeader>
+        </DialogContent>
+    </Dialog>
+);
+
+
 export default function DriverHomePage() {
     const [currentPosition, setCurrentPosition] = useState<LatLngTuple | null>(null);
     const [isConnected, setIsConnected] = useState(false);
@@ -112,54 +136,29 @@ export default function DriverHomePage() {
     if (!currentPosition) {
         return <div className="flex h-screen w-full items-center justify-center bg-gray-900 text-white">Cargando...</div>;
     }
-    
-    const MenuItem = ({ icon, label, badge, dialogTitle, dialogDescription }: { icon: React.ElementType, label: string, badge?: string, dialogTitle: string, dialogDescription: string }) => (
-        <Dialog>
-            <DialogTrigger asChild>
-                <button className="flex items-center p-3 text-white hover:bg-gray-700 rounded-md w-full text-left">
-                    <div className="p-2 bg-gray-600 rounded-full mr-4">
-                        {React.createElement(icon, { className: "h-5 w-5" })}
-                    </div>
-                    <span className="flex-grow font-medium">{label}</span>
-                    {badge && (
-                        <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">{badge}</span>
-                    )}
-                    <ChevronDown className="h-5 w-5 text-gray-500 -rotate-90 ml-2" />
-                </button>
-            </DialogTrigger>
-            <DialogContent className="bg-gray-800 text-white border-gray-700">
-                 <DialogHeader>
-                    <DialogTitle>{dialogTitle}</DialogTitle>
-                    <DialogDescription>{dialogDescription}</DialogDescription>
-                </DialogHeader>
-            </DialogContent>
-        </Dialog>
-    );
 
     return (
         <div className="h-screen w-screen bg-gray-900 text-white relative">
-            <div className="absolute inset-0 z-0">
-                <MapContainer ref={mapRef} center={currentPosition} zoom={14} scrollWheelZoom={true} zoomControl={false} className="h-full w-full">
-                    <TileLayer
-                        url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
-                        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-                    />
-                    <UserLocationMarker position={currentPosition} />
-                    
-                    {surgeZones.map((zone, i) => (
-                        <SurgePricingMarker key={i} position={zone.pos} rate={zone.rate} />
-                    ))}
+            <MapContainer ref={mapRef} center={currentPosition} zoom={14} scrollWheelZoom={true} zoomControl={false} className="h-full w-full absolute inset-0 z-0">
+                <TileLayer
+                    url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
+                />
+                <UserLocationMarker position={currentPosition} />
+                
+                {surgeZones.map((zone, i) => (
+                    <SurgePricingMarker key={i} position={zone.pos} rate={zone.rate} />
+                ))}
 
-                    <Marker position={[-27.435, -58.985]}>
-                        <Popup>Hipermercado Libertad Resistencia</Popup>
-                    </Marker>
-                </MapContainer>
-            </div>
+                <Marker position={[-27.435, -58.985]}>
+                    <Popup>Hipermercado Libertad Resistencia</Popup>
+                </Marker>
+            </MapContainer>
 
             {/* UI Overlay */}
-            <div className="absolute inset-0 flex flex-col pointer-events-none">
+            <div className="absolute inset-0 z-10 pointer-events-none">
                 {/* Top Bar */}
-                <div className="p-4 flex justify-between items-center z-10 pointer-events-auto">
+                <div className="p-4 flex justify-between items-center pointer-events-auto">
                     <Sheet>
                         <SheetTrigger asChild>
                             <Button variant="secondary" size="icon" className="rounded-full shadow-lg relative bg-gray-800/80 hover:bg-gray-700/80">
@@ -274,7 +273,7 @@ export default function DriverHomePage() {
                 </div>
                 
                 {/* Map Controls Area */}
-                <div className="absolute top-1/2 right-4 -translate-y-1/2 flex flex-col gap-3 z-10 pointer-events-auto">
+                <div className="absolute top-1/2 right-4 -translate-y-1/2 flex flex-col gap-3 pointer-events-auto">
                     <Button variant="secondary" size="icon" className="rounded-full shadow-lg bg-gray-800/80 hover:bg-gray-700/80" onClick={() => currentPosition && mapRef.current?.setView(currentPosition, 14)}>
                         <Crosshair className="h-6 w-6" />
                     </Button>
@@ -284,7 +283,7 @@ export default function DriverHomePage() {
                 </div>
 
                 {/* Custom Zoom Controls */}
-                <div className="absolute bottom-52 right-4 flex flex-col gap-2 z-10 pointer-events-auto">
+                <div className="absolute bottom-52 right-4 flex flex-col gap-2 pointer-events-auto">
                     <Button variant="secondary" size="icon" className="rounded-full shadow-lg bg-gray-800/80 hover:bg-gray-700/80" onClick={zoomIn}>
                         <Plus className="h-6 w-6" />
                     </Button>
@@ -294,13 +293,13 @@ export default function DriverHomePage() {
                 </div>
                 
                 {/* Google Shield */}
-                <div className="absolute bottom-28 left-4 flex items-center gap-2 z-10 bg-gray-800/80 rounded-full px-3 py-1 shadow-lg pointer-events-auto">
+                <div className="absolute bottom-40 left-4 flex items-center gap-2 bg-gray-800/80 rounded-full px-3 py-1 shadow-lg pointer-events-auto">
                     <Shield className="h-5 w-5 text-blue-400" />
                     <span className="font-semibold text-sm">Google</span>
                 </div>
 
                 {/* Bottom Sheet Area */}
-                <div className="absolute bottom-0 left-0 right-0 p-4 z-10 pointer-events-auto">
+                <div className="absolute bottom-0 left-0 right-0 p-4 pointer-events-auto">
                     <div className="bg-gray-900 rounded-t-2xl shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.3)] p-4">
                         {isReferralCardVisible && (
                             <Card className="bg-gradient-to-r from-orange-500 to-pink-500 border-0 mb-4 relative">
@@ -322,7 +321,7 @@ export default function DriverHomePage() {
                         <div className="flex items-center justify-between">
                             <Dialog>
                                 <DialogTrigger asChild>
-                                     <Button variant="ghost" className="relative pointer-events-auto">
+                                     <Button variant="ghost" className="relative">
                                         <Settings2 className="h-7 w-7" />
                                         <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500" />
                                     </Button>
@@ -336,7 +335,7 @@ export default function DriverHomePage() {
                             </Dialog>
                             <Button 
                                 size="lg" 
-                                className={`w-full max-w-xs text-xl h-14 rounded-full font-bold transition-colors pointer-events-auto ${isConnected ? 'bg-gray-600 hover:bg-gray-700' : 'bg-orange-600 hover:bg-orange-700'}`}
+                                className={`w-full max-w-xs text-xl h-14 rounded-full font-bold transition-colors ${isConnected ? 'bg-gray-600 hover:bg-gray-700' : 'bg-orange-600 hover:bg-orange-700'}`}
                                 onClick={() => setIsConnected(!isConnected)}
                             >
                                 {isConnected ? 'Desconectarse' : 'Conectarse'}
@@ -348,6 +347,5 @@ export default function DriverHomePage() {
             </div>
         </div>
     );
-}
 
     
