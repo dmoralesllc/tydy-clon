@@ -17,10 +17,20 @@ const FARE_PER_KM = 1.5; // Simple fare rate
 type LatLngLiteral = google.maps.LatLngLiteral;
 
 export default function RideHailPage() {
-  if (!API_KEY) {
+  if (!API_KEY || API_KEY === "YOUR_API_KEY_HERE") {
     return (
-      <div className="flex h-screen w-full items-center justify-center bg-background text-foreground">
-        <p>Google Maps API key is missing. Please add it to your .env.local file.</p>
+      <div className="flex h-screen w-full items-center justify-center bg-background text-foreground p-4">
+        <Card>
+          <CardHeader>
+            <CardTitle>Configuración Requerida</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p>Falta la clave de API de Google Maps.</p>
+            <p className="mt-2">
+              Por favor, añade tu clave al fichero <code className="bg-muted p-1 rounded-sm">.env.local</code> y reinicia la aplicación.
+            </p>
+          </CardContent>
+        </Card>
       </div>
     );
   }
