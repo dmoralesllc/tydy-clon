@@ -6,8 +6,7 @@ import dynamic from 'next/dynamic';
 import type { LatLngTuple } from 'leaflet';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { useToast } from '@/hooks/use-toast';
-import { Menu, ChevronDown, HelpCircle, Layers, Crosshair, Shield, Settings, Settings2, Zap, User, Edit, Plus, Minus, X, Eye, Wallet } from 'lucide-react';
+import { Menu, ChevronDown, HelpCircle, Layers, Crosshair, Shield, Settings, Settings2, Zap, User, Edit, Plus, Minus, X, Eye, Wallet, Star, Bell, LifeBuoy, LogOut, ChevronRight, FileText, Smartphone, Lock, Languages, CircleHelp, Info } from 'lucide-react';
 import Image from 'next/image';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
@@ -17,6 +16,9 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { Progress } from '@/components/ui/progress';
+import { Switch } from '@/components/ui/switch';
+import { toast } from '@/hooks/use-toast';
 
 const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
 const TileLayer = dynamic(() => import('react-leaflet').then(mod => mod.TileLayer), { ssr: false });
@@ -65,7 +67,7 @@ const SurgePricingMarker = ({ position, rate }: { position: LatLngTuple, rate: s
   return <Marker position={position} icon={icon} />;
 }
 
-const MenuItem = ({ icon, label, badge, dialogTitle, dialogDescription }: { icon: React.ElementType, label: string, badge?: string, dialogTitle: string, dialogDescription: string }) => (
+const MenuItem = ({ icon, label, badge, children }: { icon: React.ElementType, label: string, badge?: string, children: React.ReactNode }) => (
     <Dialog>
         <DialogTrigger asChild>
             <button className="flex items-center p-3 text-white hover:bg-gray-700 rounded-md w-full text-left">
@@ -76,15 +78,10 @@ const MenuItem = ({ icon, label, badge, dialogTitle, dialogDescription }: { icon
                 {badge && (
                     <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">{badge}</span>
                 )}
-                <ChevronDown className="h-5 w-5 text-gray-500 -rotate-90 ml-2" />
+                <ChevronRight className="h-5 w-5 text-gray-500 ml-2" />
             </button>
         </DialogTrigger>
-        <DialogContent className="bg-gray-800 text-white border-gray-700">
-             <DialogHeader>
-                <DialogTitle>{dialogTitle}</DialogTitle>
-                <DialogDescription>{dialogDescription}</DialogDescription>
-            </DialogHeader>
-        </DialogContent>
+        {children}
     </Dialog>
 );
 
@@ -98,7 +95,6 @@ export default function DriverHomePage() {
     const mapRef = useRef<Map>(null);
 
     useEffect(() => {
-        // Fallback to a default location in Resistencia, Chaco
         setCurrentPosition([-27.45, -58.983333]);
     }, []);
 
@@ -110,7 +106,12 @@ export default function DriverHomePage() {
 
     const handleAvatarUpdate = () => {
         if (selectedFile) {
-            setAvatarUrl(URL.createObjectURL(selectedFile));
+            const newAvatarUrl = URL.createObjectURL(selectedFile);
+            setAvatarUrl(newAvatarUrl);
+            toast({
+                title: "Foto de perfil actualizada",
+                description: "Tu nueva foto se ha guardado correctamente.",
+            });
         }
     };
 
@@ -125,13 +126,8 @@ export default function DriverHomePage() {
         { pos: [-27.46, -58.97], rate: "3.0x" },
     ];
 
-    const zoomIn = () => {
-        mapRef.current?.zoomIn();
-    }
-    
-    const zoomOut = () => {
-        mapRef.current?.zoomOut();
-    }
+    const zoomIn = () => mapRef.current?.zoomIn();
+    const zoomOut = () => mapRef.current?.zoomOut();
     
     if (!currentPosition) {
         return <div className="flex h-screen w-full items-center justify-center bg-gray-900 text-white">Cargando...</div>;
@@ -157,7 +153,6 @@ export default function DriverHomePage() {
 
             {/* UI Overlay */}
             <div className="absolute inset-0 z-10 pointer-events-none">
-                {/* Top Bar */}
                 <div className="p-4 flex justify-between items-center pointer-events-auto">
                     <Sheet>
                         <SheetTrigger asChild>
@@ -187,12 +182,14 @@ export default function DriverHomePage() {
                                                     Sube una nueva foto para tu perfil.
                                                 </DialogDescription>
                                             </DialogHeader>
-                                            <div className="grid w-full max-w-sm items-center gap-1.5">
+                                            <div className="grid w-full max-w-sm items-center gap-1.5 py-4">
                                                 <Label htmlFor="picture">Foto</Label>
-                                                <Input id="picture" type="file" className="text-white" onChange={handleFileChange}/>
+                                                <Input id="picture" type="file" className="text-white file:text-white" onChange={handleFileChange}/>
                                             </div>
                                             <DialogFooter>
-                                                <Button type="submit" onClick={handleAvatarUpdate}>Guardar Cambios</Button>
+                                                <DialogTrigger asChild>
+                                                  <Button type="submit" onClick={handleAvatarUpdate}>Guardar Cambios</Button>
+                                                </DialogTrigger>
                                             </DialogFooter>
                                         </DialogContent>
                                     </Dialog>
@@ -217,18 +214,109 @@ export default function DriverHomePage() {
                                 </div>
                             </SheetHeader>
                             <Separator className="bg-gray-700" />
-                            <div className="flex-grow overflow-y-auto p-4 space-y-2">
-                                <MenuItem icon={Zap} label="Ganancias" dialogTitle="Ganancias" dialogDescription="Aquí se mostrará el historial de ganancias." />
-                                <MenuItem icon={User} label="Premios" dialogTitle="Premios" dialogDescription="Aquí se mostrarán los premios disponibles." />
-                                <MenuItem icon={Menu} label="Notificaciones" badge="3" dialogTitle="Notificaciones" dialogDescription="Aquí se mostrará la lista de notificaciones." />
-                                <MenuItem icon={Wallet} label="Mi Billetera" dialogTitle="Mi Billetera" dialogDescription="Aquí se mostrará la información de la billetera." />
-                                <MenuItem icon={Settings2} label="Preferencias de viaje" dialogTitle="Preferencias de Viaje" dialogDescription="Aquí se podrán configurar las preferencias de viaje." />
-                                <MenuItem icon={HelpCircle} label="Ayuda" dialogTitle="Ayuda" dialogDescription="Aquí se mostrará el centro de ayuda." />
-                                <MenuItem icon={Settings} label="Configuración" dialogTitle="Configuración" dialogDescription="Aquí se mostrarán las opciones de configuración de la cuenta." />
+                            <div className="flex-grow overflow-y-auto p-4 space-y-1">
+                                <MenuItem icon={Zap} label="Ganancias">
+                                   <DialogContent className="bg-gray-900 text-white border-gray-700">
+                                      <DialogHeader>
+                                        <DialogTitle>Ganancias de la semana</DialogTitle>
+                                      </DialogHeader>
+                                      <div className="py-4 space-y-6">
+                                        <div className="text-center">
+                                            <p className="text-sm text-gray-400">Del 10 al 16 de mar</p>
+                                            <p className="text-4xl font-bold">$3,880.80</p>
+                                        </div>
+                                        <Button className="w-full bg-gray-700 hover:bg-gray-600">Ver ganancias detalladas</Button>
+                                        <div className="grid grid-cols-2 gap-4 text-center">
+                                            <div>
+                                                <p className="text-lg font-bold">18</p>
+                                                <p className="text-sm text-gray-400">Viajes</p>
+                                            </div>
+                                            <div>
+                                                <p className="text-lg font-bold">12h 2m</p>
+                                                <p className="text-sm text-gray-400">Horas conectado</p>
+                                            </div>
+                                        </div>
+                                      </div>
+                                    </DialogContent>
+                                </MenuItem>
+                                <MenuItem icon={Star} label="Premios">
+                                     <DialogContent className="bg-gray-800 text-white border-gray-700">
+                                        <DialogHeader>
+                                            <DialogTitle>Premios</DialogTitle>
+                                            <DialogDescription>Aquí se mostrarán los premios disponibles.</DialogDescription>
+                                        </DialogHeader>
+                                    </DialogContent>
+                                </MenuItem>
+                                <MenuItem icon={Bell} label="Notificaciones" badge="3">
+                                     <DialogContent className="bg-gray-800 text-white border-gray-700">
+                                        <DialogHeader>
+                                            <DialogTitle>Notificaciones</DialogTitle>
+                                            <DialogDescription>Aquí se mostrará la lista de notificaciones.</DialogDescription>
+                                        </DialogHeader>
+                                    </DialogContent>
+                                </MenuItem>
+                                <MenuItem icon={Wallet} label="Mi Billetera">
+                                     <DialogContent className="bg-gray-900 text-white border-gray-700">
+                                        <DialogHeader>
+                                            <DialogTitle>Mi Billetera</DialogTitle>
+                                        </DialogHeader>
+                                        <div className="py-4 space-y-4">
+                                            <Card className="bg-gray-800 border-gray-700">
+                                                <CardContent className="p-4">
+                                                    <p className="text-sm text-gray-400">Balance</p>
+                                                    <p className="text-2xl font-bold">$1,500.00</p>
+                                                </CardContent>
+                                            </Card>
+                                            <Button className="w-full bg-gray-700 hover:bg-gray-600">Transferir a mi cuenta</Button>
+                                            <Button variant="outline" className="w-full border-gray-600 text-white hover:bg-gray-700">Agregar método de pago</Button>
+                                        </div>
+                                    </DialogContent>
+                                </MenuItem>
+                                <MenuItem icon={Settings2} label="Preferencias de viaje">
+                                     <DialogContent className="bg-gray-900 text-white border-gray-700">
+                                        <DialogHeader>
+                                            <DialogTitle>Preferencias de viaje</DialogTitle>
+                                        </DialogHeader>
+                                        <div className="py-4 space-y-4">
+                                            <div className="flex items-center justify-between p-3 bg-gray-800 rounded-md">
+                                                <Label htmlFor="accept-cash">Aceptar efectivo</Label>
+                                                <Switch id="accept-cash" defaultChecked />
+                                            </div>
+                                            <div className="flex items-center justify-between p-3 bg-gray-800 rounded-md">
+                                                <Label htmlFor="auto-accept">Aceptación automática</Label>
+                                                <Switch id="auto-accept" />
+                                            </div>
+                                        </div>
+                                    </DialogContent>
+                                </MenuItem>
+                                <MenuItem icon={HelpCircle} label="Ayuda">
+                                     <DialogContent className="bg-gray-800 text-white border-gray-700">
+                                        <DialogHeader>
+                                            <DialogTitle>Centro de Ayuda</DialogTitle>
+                                            <DialogDescription>Aquí encontrarás respuestas a tus preguntas.</DialogDescription>
+                                        </DialogHeader>
+                                    </DialogContent>
+                                </MenuItem>
+                                <MenuItem icon={Settings} label="Configuración">
+                                    <DialogContent className="bg-gray-900 text-white border-gray-700">
+                                        <DialogHeader>
+                                            <DialogTitle>Configuración</DialogTitle>
+                                        </DialogHeader>
+                                        <div className="py-2 flex flex-col">
+                                            <button className="flex items-center p-3 text-white hover:bg-gray-700 rounded-md w-full text-left"><FileText className="mr-4 h-5 w-5" /><span>Documentos</span><ChevronRight className="h-5 w-5 text-gray-500 ml-auto" /></button>
+                                            <button className="flex items-center p-3 text-white hover:bg-gray-700 rounded-md w-full text-left"><Smartphone className="mr-4 h-5 w-5" /><span>App del conductor</span><ChevronRight className="h-5 w-5 text-gray-500 ml-auto" /></button>
+                                            <button className="flex items-center p-3 text-white hover:bg-gray-700 rounded-md w-full text-left"><Lock className="mr-4 h-5 w-5" /><span>Privacidad</span><ChevronRight className="h-5 w-5 text-gray-500 ml-auto" /></button>
+                                            <button className="flex items-center p-3 text-white hover:bg-gray-700 rounded-md w-full text-left"><Languages className="mr-4 h-5 w-5" /><span>Idioma</span><ChevronRight className="h-5 w-5 text-gray-500 ml-auto" /></button>
+                                            <button className="flex items-center p-3 text-white hover:bg-gray-700 rounded-md w-full text-left"><CircleHelp className="mr-4 h-5 w-5" /><span>Acerca de</span><ChevronRight className="h-5 w-5 text-gray-500 ml-auto" /></button>
+                                        </div>
+                                    </DialogContent>
+                                </MenuItem>
                             </div>
                             <Separator className="bg-gray-700" />
                             <div className="p-4">
-                                <Button variant="outline" className="w-full border-gray-600 hover:bg-gray-700">Cerrar Sesión</Button>
+                                <Button variant="outline" className="w-full border-gray-600 hover:bg-gray-700 flex items-center justify-center gap-2">
+                                  <LogOut className="h-5 w-5"/> Cerrar Sesión
+                                </Button>
                             </div>
                         </SheetContent>
                     </Sheet>
@@ -267,12 +355,21 @@ export default function DriverHomePage() {
                         </DropdownMenuContent>
                     </DropdownMenu>
 
-                    <Button variant="secondary" size="icon" className="rounded-full shadow-lg bg-gray-800/80 hover:bg-gray-700/80">
-                        <HelpCircle className="h-6 w-6" />
-                    </Button>
+                    <Dialog>
+                        <DialogTrigger asChild>
+                            <Button variant="secondary" size="icon" className="rounded-full shadow-lg bg-gray-800/80 hover:bg-gray-700/80">
+                                <HelpCircle className="h-6 w-6" />
+                            </Button>
+                        </DialogTrigger>
+                        <DialogContent className="bg-gray-800 text-white border-gray-700">
+                            <DialogHeader>
+                                <DialogTitle>Centro de Ayuda</DialogTitle>
+                                <DialogDescription>Aquí encontrarás respuestas a tus preguntas.</DialogDescription>
+                            </DialogHeader>
+                        </DialogContent>
+                    </Dialog>
                 </div>
                 
-                {/* Map Controls Area */}
                 <div className="absolute top-1/2 right-4 -translate-y-1/2 flex flex-col gap-3 pointer-events-auto">
                     <Button variant="secondary" size="icon" className="rounded-full shadow-lg bg-gray-800/80 hover:bg-gray-700/80" onClick={() => currentPosition && mapRef.current?.setView(currentPosition, 14)}>
                         <Crosshair className="h-6 w-6" />
@@ -282,8 +379,7 @@ export default function DriverHomePage() {
                     </Button>
                 </div>
 
-                {/* Custom Zoom Controls */}
-                <div className="absolute bottom-52 right-4 flex flex-col gap-2 pointer-events-auto">
+                <div className="absolute bottom-[240px] right-4 flex flex-col gap-2 pointer-events-auto">
                     <Button variant="secondary" size="icon" className="rounded-full shadow-lg bg-gray-800/80 hover:bg-gray-700/80" onClick={zoomIn}>
                         <Plus className="h-6 w-6" />
                     </Button>
@@ -292,13 +388,11 @@ export default function DriverHomePage() {
                     </Button>
                 </div>
                 
-                {/* Google Shield */}
                 <div className="absolute bottom-40 left-4 flex items-center gap-2 bg-gray-800/80 rounded-full px-3 py-1 shadow-lg pointer-events-auto">
                     <Shield className="h-5 w-5 text-blue-400" />
                     <span className="font-semibold text-sm">Google</span>
                 </div>
 
-                {/* Bottom Sheet Area */}
                 <div className="absolute bottom-0 left-0 right-0 p-4 pointer-events-auto">
                     <div className="bg-gray-900 rounded-t-2xl shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.3)] p-4">
                         {isReferralCardVisible && (
@@ -319,18 +413,27 @@ export default function DriverHomePage() {
                             </Card>
                         )}
                         <div className="flex items-center justify-between">
-                            <Dialog>
+                             <Dialog>
                                 <DialogTrigger asChild>
                                      <Button variant="ghost" className="relative">
                                         <Settings2 className="h-7 w-7" />
                                         <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500" />
                                     </Button>
                                 </DialogTrigger>
-                                <DialogContent className="bg-gray-800 text-white border-gray-700">
+                                <DialogContent className="bg-gray-900 text-white border-gray-700">
                                     <DialogHeader>
-                                        <DialogTitle>Preferencias de Viaje</DialogTitle>
-                                        <DialogDescription>Aquí se podrán configurar las preferencias de viaje.</DialogDescription>
+                                        <DialogTitle>Preferencias de viaje</DialogTitle>
                                     </DialogHeader>
+                                    <div className="py-4 space-y-4">
+                                        <div className="flex items-center justify-between p-3 bg-gray-800 rounded-md">
+                                            <Label htmlFor="accept-cash-dialog">Aceptar efectivo</Label>
+                                            <Switch id="accept-cash-dialog" defaultChecked />
+                                        </div>
+                                        <div className="flex items-center justify-between p-3 bg-gray-800 rounded-md">
+                                            <Label htmlFor="auto-accept-dialog">Aceptación automática</Label>
+                                            <Switch id="auto-accept-dialog" />
+                                        </div>
+                                    </div>
                                 </DialogContent>
                             </Dialog>
                             <Button 
@@ -347,5 +450,4 @@ export default function DriverHomePage() {
             </div>
         </div>
     );
-
-    
+}
