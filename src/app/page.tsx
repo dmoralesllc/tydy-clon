@@ -555,7 +555,7 @@ export default function DriverHomePage() {
                     </Button>
                 </div>
 
-                <div className="absolute bottom-[240px] right-4 flex flex-col gap-2 pointer-events-auto">
+                <div className="absolute bottom-[180px] right-4 flex flex-col gap-2 pointer-events-auto">
                     <Button variant="secondary" size="icon" className="rounded-full shadow-lg bg-gray-800/80 hover:bg-gray-700/80" onClick={zoomIn}>
                         <Plus className="h-6 w-6" />
                     </Button>
@@ -571,71 +571,52 @@ export default function DriverHomePage() {
 
                 <div className="absolute bottom-0 left-0 right-0 p-4 pointer-events-auto">
                     {tripDetails ? (
-                         <Card className="bg-gray-900 rounded-t-2xl shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.3)] p-4 border-none">
-                            <CardHeader className="p-2">
-                               <div className="flex justify-between items-center">
-                                 <CardTitle>Detalles del Viaje</CardTitle>
-                                 <Button variant="ghost" size="icon" onClick={resetTrip}>
-                                     <X className="h-5 w-5" />
-                                 </Button>
+                         <div className="bg-gray-900/90 backdrop-blur-sm rounded-t-2xl shadow-2xl border-t border-gray-700/50">
+                            <div className="p-4">
+                                <div className="flex justify-between items-center mb-3">
+                                  <h3 className="text-lg font-semibold">Detalles del Viaje</h3>
+                                  <Button variant="ghost" size="icon" className="h-8 w-8" onClick={resetTrip}>
+                                      <X className="h-5 w-5" />
+                                  </Button>
+                                </div>
+                               <div className="flex justify-around items-center text-center bg-gray-800/50 p-3 rounded-lg">
+                                   <div>
+                                       <p className="text-lg font-bold">{tripDetails.distance} km</p>
+                                       <p className="text-xs text-gray-400">Distancia</p>
+                                   </div>
+                                   <Separator orientation="vertical" className="h-8 bg-gray-700" />
+                                   <div>
+                                       <p className="text-lg font-bold">~{Math.round(tripDetails.distance * 1.5)} min</p>
+                                       <p className="text-xs text-gray-400">Tiempo</p>
+                                   </div>
+                                   <Separator orientation="vertical" className="h-8 bg-gray-700" />
+                                   <div>
+                                       <p className="text-lg font-bold">${tripDetails.cost}</p>
+                                       <p className="text-xs text-gray-400">Costo</p>
+                                   </div>
                                </div>
-                            </CardHeader>
-                            <CardContent className="p-2 space-y-4">
-                               <div className="flex justify-around text-center">
-                                   <div>
-                                       <p className="text-xl font-bold">{tripDetails.distance} km</p>
-                                       <p className="text-sm text-gray-400">Distancia</p>
-                                   </div>
-                                   <div>
-                                       <p className="text-xl font-bold">~{Math.round(tripDetails.distance * 1.5)} min</p>
-                                       <p className="text-sm text-gray-400">Tiempo Est.</p>
-                                   </div>
-                                   <div>
-                                       <p className="text-xl font-bold">${tripDetails.cost}</p>
-                                       <p className="text-sm text-gray-400">Costo Est.</p>
-                                   </div>
-                               </div>
-                               <Button size="lg" className="w-full text-lg h-12 rounded-full font-bold bg-orange-600 hover:bg-orange-700">
-                                   Confirmar Viaje
-                               </Button>
-                            </CardContent>
-                         </Card>
+                            </div>
+                            <Button size="lg" className="w-full text-lg h-14 rounded-none rounded-b-2xl font-bold bg-orange-600 hover:bg-orange-700">
+                                Confirmar Viaje
+                            </Button>
+                         </div>
                     ) : (
-                    <div className="bg-gray-900 rounded-t-2xl shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.3)] p-4">
+                    <div className="bg-gray-900/90 backdrop-blur-sm rounded-t-2xl shadow-2xl border-t border-gray-700/50 p-4">
                        { isConnected ? (
-                           <Card className="bg-gray-800 border-gray-700">
-                             <CardContent className="p-4 text-center">
+                           <div className="text-center py-4">
                                <p className="text-lg font-semibold">Buscando viajes...</p>
                                <p className="text-sm text-gray-400">Estás conectado y listo para recibir solicitudes.</p>
-                             </CardContent>
-                           </Card>
+                           </div>
                        ) : (
                         <>
-                        {isReferralCardVisible && (
-                            <Card className="bg-gradient-to-r from-orange-500 to-pink-500 border-0 mb-4 relative">
-                                <Button variant="ghost" size="icon" className="absolute top-1 right-1 h-6 w-6 text-white/70 hover:text-white" onClick={() => setIsReferralCardVisible(false)}>
-                                    <X className="h-4 w-4" />
-                                </Button>
-                                <CardContent className="p-4 flex items-center justify-between">
-                                    <div>
-                                        <h3 className="font-bold text-lg">Referí y generá $50.000</h3>
-                                        <p className="text-sm">Invitá amigos a registrarse y conducir con la app de TyDy</p>
-                                        <Button variant="secondary" size="sm" className="mt-2 h-8 rounded-full bg-white/30 text-white hover:bg-white/40">
-                                            Conocé más
-                                        </Button>
-                                    </div>
-                                    <Image src="https://placehold.co/80x60.png" data-ai-hint="logo illustration" alt="TyDy logos" width={80} height={60} />
-                                </CardContent>
-                            </Card>
-                        )}
                         <div className="space-y-2 mb-4">
-                            <Button variant="outline" className="w-full justify-start h-12 text-left" onClick={() => setSelecting('start')}>
-                                <MapPin className="mr-2 h-5 w-5 text-blue-400" />
-                                {startPoint ? `Desde: ${startPoint[0].toFixed(4)}, ${startPoint[1].toFixed(4)}` : '¿Desde dónde?'}
+                            <Button variant="outline" className="w-full justify-start h-12 text-left bg-gray-800/50 border-gray-700 hover:bg-gray-800/80" onClick={() => setSelecting('start')}>
+                                <MapPin className="mr-3 h-5 w-5 text-blue-400" />
+                                {startPoint ? <span className="text-white">{`Desde: ${startPoint[0].toFixed(4)}, ${startPoint[1].toFixed(4)}`}</span> : <span className="text-gray-400">¿Desde dónde?</span>}
                             </Button>
-                            <Button variant="outline" className="w-full justify-start h-12 text-left" onClick={() => setSelecting('end')}>
-                                <MapPin className="mr-2 h-5 w-5 text-orange-400" />
-                                {endPoint ? `Hasta: ${endPoint[0].toFixed(4)}, ${endPoint[1].toFixed(4)}` : '¿Hacia dónde?'}
+                            <Button variant="outline" className="w-full justify-start h-12 text-left bg-gray-800/50 border-gray-700 hover:bg-gray-800/80" onClick={() => setSelecting('end')}>
+                                <MapPin className="mr-3 h-5 w-5 text-orange-400" />
+                                {endPoint ? <span className="text-white">{`Hasta: ${endPoint[0].toFixed(4)}, ${endPoint[1].toFixed(4)}`}</span> : <span className="text-gray-400">¿Hacia dónde?</span>}
                             </Button>
                         </div>
                         <div className="flex items-center justify-between">
@@ -680,5 +661,3 @@ export default function DriverHomePage() {
         </div>
     );
 }
-
-    
