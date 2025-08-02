@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic';
 import type { LatLngTuple } from 'leaflet';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardHeader } from '@/components/ui/card';
+import { Card, CardHeader, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { suggestDestination, SuggestDestinationOutput } from '@/ai/flows/suggest-destination';
@@ -200,7 +200,7 @@ function RideHailApp({
   );
 }
 
-function Routing({ L, origin, destination, setFare }: { L: typeof import('leaflet'), origin: LatLngTuple, destination: LatLngTuple, setFare: (fare: string) => void }) {
+function Routing({ L, origin, destination, setFare }: { L: typeof import('leaflet'), origin: LatLngTuple, destination: LatLngTuple, setFare: (fare: string | null) => void }) {
   const map = useMap();
   const routingLayerRef = useRef<any>(null);
 
@@ -319,7 +319,7 @@ function DestinationSearch({ onSelect, onBack, currentPosition }: { onSelect: (p
   };
 
   return (
-    <div className="p-4">
+    <CardContent className="p-4">
       <div className="flex items-center gap-2 mb-4">
         <Button variant="ghost" size="icon" onClick={onBack}><ArrowLeft /></Button>
         <div className="relative w-full">
@@ -354,14 +354,14 @@ function DestinationSearch({ onSelect, onBack, currentPosition }: { onSelect: (p
             </button>
         ))}
       </div>
-    </div>
+    </CardContent>
   );
 }
 
 function RidePreview({ fare, destinationName, onConfirm, onBack }: { fare: string | null, destinationName: string, onConfirm: () => void, onBack: () => void }) {
 
   return (
-    <div className="p-4">
+    <CardContent className="p-4">
       <div className="flex items-center gap-2 mb-2">
         <Button variant="ghost" size="icon" onClick={onBack}><ArrowLeft /></Button>
         <h2 className="text-xl font-bold">Trip Details</h2>
@@ -381,20 +381,20 @@ function RidePreview({ fare, destinationName, onConfirm, onBack }: { fare: strin
       <Button size="lg" className="w-full text-lg" onClick={onConfirm}>
         Confirm Ride
       </Button>
-    </div>
+    </CardContent>
   );
 }
 
 function RideConfirmed({ onNewRide }: { onNewRide: () => void }) {
   return (
-    <div className="p-6 text-center">
+    <CardContent className="p-6 text-center">
       <Car size={48} className="mx-auto text-primary animate-pulse" />
       <h2 className="text-2xl font-bold mt-4">Ride Confirmed!</h2>
       <p className="text-muted-foreground mt-2">Your driver is on the way.</p>
       <Button size="lg" className="w-full mt-6" onClick={onNewRide}>
         Book a New Ride
       </Button>
-    </div>
+    </CardContent>
   );
 }
 
