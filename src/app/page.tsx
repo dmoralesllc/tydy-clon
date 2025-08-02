@@ -1,16 +1,19 @@
 
 'use client';
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import type { LatLngTuple } from 'leaflet';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Menu, ChevronDown, HelpCircle, Layers, Crosshair, Shield, Settings2, Zap, Trophy, Users, AlertCircle, Car, User, Settings, X, Eye, Edit } from 'lucide-react';
+import { Menu, ChevronDown, HelpCircle, Layers, Crosshair, Shield, Settings2, Zap, Trophy, Users, AlertCircle, Car, User, Settings, X, Eye, Edit, Plus, Minus } from 'lucide-react';
 import Image from 'next/image';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import type { Map } from 'leaflet';
+
 
 const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
 const TileLayer = dynamic(() => import('react-leaflet').then(mod => mod.TileLayer), { ssr: false });
@@ -63,7 +66,7 @@ export default function DriverHomePage() {
     const [currentPosition, setCurrentPosition] = useState<LatLngTuple | null>(null);
     const [isConnected, setIsConnected] = useState(false);
     const [isReferralCardVisible, setIsReferralCardVisible] = useState(true);
-
+    const mapRef = useRef<Map>(null);
 
     useEffect(() => {
         // Fallback to a default location in Resistencia, Chaco
@@ -81,6 +84,14 @@ export default function DriverHomePage() {
         { pos: [-27.46, -58.97], rate: "3.0x" },
     ];
 
+    const zoomIn = () => {
+        mapRef.current?.zoomIn();
+    }
+    
+    const zoomOut = () => {
+        mapRef.current?.zoomOut();
+    }
+    
 
     if (!currentPosition) {
         return <div className="flex h-screen w-full items-center justify-center bg-gray-900 text-white">Cargando...</div>;
@@ -95,7 +106,7 @@ export default function DriverHomePage() {
 
     return (
         <div className="relative h-screen w-screen overflow-hidden bg-gray-900 text-white">
-            <MapContainer center={currentPosition} zoom={14} scrollWheelZoom={true} className="h-full w-full">
+            <MapContainer ref={mapRef} center={currentPosition} zoom={14} scrollWheelZoom={true} zoomControl={false} className="h-full w-full">
                 <TileLayer
                     url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
@@ -176,11 +187,20 @@ export default function DriverHomePage() {
                         </div>
                     </SheetContent>
                 </Sheet>
-                <Button variant="secondary" className="rounded-full shadow-lg h-10 px-4 bg-gray-800/80 hover:bg-gray-700/80 flex items-center gap-2">
-                    <Eye className="h-5 w-5" />
-                    <span className="text-lg font-semibold">$0,00</span>
-                    <ChevronDown className="h-5 w-5 ml-1" />
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="secondary" className="rounded-full shadow-lg h-10 px-4 bg-gray-800/80 hover:bg-gray-700/80 flex items-center gap-2">
+                        <Eye className="h-5 w-5" />
+                        <span className="text-lg font-semibold">$0,00</span>
+                        <ChevronDown className="h-5 w-5 ml-1" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="bg-gray-800 text-white border-gray-700">
+                    <DropdownMenuItem>Ver historial de ganancias</DropdownMenuItem>
+                    <DropdownMenuItem>Configurar pagos</DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
                 <Button variant="secondary" size="icon" className="rounded-full shadow-lg bg-gray-800/80 hover:bg-gray-700/80">
                     <HelpCircle className="h-6 w-6" />
                 </Button>
@@ -188,11 +208,21 @@ export default function DriverHomePage() {
             
             {/* Map Controls */}
             <div className="absolute top-1/2 right-4 -translate-y-1/2 flex flex-col gap-3 z-[1000]">
-                 <Button variant="secondary" size="icon" className="rounded-full shadow-lg bg-gray-800/80 hover:bg-gray-700/80">
+                 <Button variant="secondary" size="icon" className="rounded-full shadow-lg bg-gray-800/80 hover:bg-gray-700/80" onClick={() => mapRef.current?.setView(currentPosition, 14)}>
                     <Crosshair className="h-6 w-6" />
                 </Button>
                  <Button variant="secondary" size="icon" className="rounded-full shadow-lg bg-gray-800/80 hover:bg-gray-700/80">
                     <Layers className="h-6 w-6" />
+                </Button>
+            </div>
+
+             {/* Custom Zoom Controls */}
+            <div className="absolute bottom-[280px] right-4 flex flex-col gap-2 z-[1000]">
+                <Button variant="secondary" size="icon" className="rounded-full shadow-lg bg-gray-800/80 hover:bg-gray-700/80" onClick={zoomIn}>
+                    <Plus className="h-6 w-6" />
+                </Button>
+                <Button variant="secondary" size="icon" className="rounded-full shadow-lg bg-gray-800/80 hover:bg-gray-700/80" onClick={zoomOut}>
+                    <Minus className="h-6 w-6" />
                 </Button>
             </div>
             
