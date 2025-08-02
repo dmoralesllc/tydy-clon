@@ -7,14 +7,16 @@ import type { LatLngTuple } from 'leaflet';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Menu, ChevronDown, HelpCircle, Layers, Crosshair, Shield, Settings, Settings2, Zap, User, Edit, Plus, Minus, X, Eye } from 'lucide-react';
+import { Menu, ChevronDown, HelpCircle, Layers, Crosshair, Shield, Settings, Settings2, Zap, User, Edit, Plus, Minus, X, Eye, Wallet } from 'lucide-react';
 import Image from 'next/image';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import type { Map } from 'leaflet';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 
 const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
 const TileLayer = dynamic(() => import('react-leaflet').then(mod => mod.TileLayer), { ssr: false });
@@ -96,25 +98,25 @@ export default function DriverHomePage() {
     if (!currentPosition) {
         return <div className="flex h-screen w-full items-center justify-center bg-gray-900 text-white">Cargando...</div>;
     }
-
-    const StatCard = ({ title, value }: { title: string; value: string }) => (
-        <div className="text-center">
-            <p className="text-xl font-bold">{value}</p>
-            <p className="text-xs text-gray-400">{title}</p>
-        </div>
-    );
     
-    const MenuItem = ({ icon, label, badge, href = "#" }: { icon: React.ElementType, label: string, badge?: string, href?: string }) => (
-        <a href={href} className="flex items-center p-3 text-white hover:bg-gray-700 rounded-md">
-            <div className="p-2 bg-gray-600 rounded-full mr-4">
-                {React.createElement(icon, { className: "h-5 w-5" })}
-            </div>
-            <span className="flex-grow font-medium">{label}</span>
-            {badge && (
-                <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">{badge}</span>
-            )}
-            <ChevronDown className="h-5 w-5 text-gray-500 -rotate-90 ml-2" />
-        </a>
+    const MenuItem = ({ icon, label, badge, children }: { icon: React.ElementType, label: string, badge?: string, children: React.ReactNode }) => (
+        <Dialog>
+            <DialogTrigger asChild>
+                <a href="#" className="flex items-center p-3 text-white hover:bg-gray-700 rounded-md">
+                    <div className="p-2 bg-gray-600 rounded-full mr-4">
+                        {React.createElement(icon, { className: "h-5 w-5" })}
+                    </div>
+                    <span className="flex-grow font-medium">{label}</span>
+                    {badge && (
+                        <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">{badge}</span>
+                    )}
+                    <ChevronDown className="h-5 w-5 text-gray-500 -rotate-90 ml-2" />
+                </a>
+            </DialogTrigger>
+            <DialogContent className="bg-gray-800 text-white border-gray-700">
+                {children}
+            </DialogContent>
+        </Dialog>
     );
 
     return (
@@ -150,10 +152,34 @@ export default function DriverHomePage() {
                         <SheetContent side="left" className="w-full max-w-sm bg-gray-800 text-white border-gray-700 p-0 flex flex-col">
                             <SheetHeader className="p-4 space-y-4 text-left">
                                 <div className="flex items-center space-x-4">
-                                    <Avatar className="h-16 w-16">
-                                        <AvatarImage src="https://placehold.co/100x100.png" alt="Driver" />
-                                        <AvatarFallback>U</AvatarFallback>
-                                    </Avatar>
+                                    <Dialog>
+                                        <DialogTrigger asChild>
+                                            <div className="relative cursor-pointer">
+                                                <Avatar className="h-16 w-16">
+                                                    <AvatarImage src="https://placehold.co/100x100.png" alt="Driver" />
+                                                    <AvatarFallback>U</AvatarFallback>
+                                                </Avatar>
+                                                <div className="absolute bottom-0 right-0 bg-gray-600 p-1 rounded-full border-2 border-gray-800">
+                                                    <Edit className="h-3 w-3 text-white" />
+                                                </div>
+                                            </div>
+                                        </DialogTrigger>
+                                        <DialogContent className="bg-gray-800 text-white border-gray-700">
+                                             <DialogHeader>
+                                                <DialogTitle>Actualizar foto de perfil</DialogTitle>
+                                                <DialogDescription>
+                                                    Sube una nueva foto para tu perfil.
+                                                </DialogDescription>
+                                            </DialogHeader>
+                                            <div className="grid w-full max-w-sm items-center gap-1.5">
+                                                <Label htmlFor="picture">Foto</Label>
+                                                <Input id="picture" type="file" className="text-white" />
+                                            </div>
+                                            <DialogFooter>
+                                                <Button type="submit">Guardar Cambios</Button>
+                                            </DialogFooter>
+                                        </DialogContent>
+                                    </Dialog>
                                     <div>
                                         <SheetTitle className="text-xl">Conductor</SheetTitle>
                                         <p className="text-gray-400">Nivel: Oro</p>
@@ -176,13 +202,48 @@ export default function DriverHomePage() {
                             </SheetHeader>
                             <Separator className="bg-gray-700" />
                             <div className="flex-grow overflow-y-auto p-4 space-y-2">
-                                <MenuItem icon={Zap} label="Ganancias" />
-                                <MenuItem icon={User} label="Premios" />
-                                <MenuItem icon={Menu} label="Notificaciones" badge="3" />
-                                <MenuItem icon={Menu} label="Mi Billetera" />
-                                <MenuItem icon={Settings2} label="Preferencias de viaje" />
-                                <MenuItem icon={HelpCircle} label="Ayuda" />
-                                <MenuItem icon={Settings} label="Configuración" />
+                                <MenuItem icon={Zap} label="Ganancias">
+                                    <DialogHeader>
+                                        <DialogTitle>Ganancias</DialogTitle>
+                                        <DialogDescription>Aquí se mostrará el historial de ganancias.</DialogDescription>
+                                    </DialogHeader>
+                                </MenuItem>
+                                <MenuItem icon={User} label="Premios">
+                                     <DialogHeader>
+                                        <DialogTitle>Premios</DialogTitle>
+                                        <DialogDescription>Aquí se mostrarán los premios disponibles.</DialogDescription>
+                                    </DialogHeader>
+                                </MenuItem>
+                                <MenuItem icon={Menu} label="Notificaciones" badge="3">
+                                     <DialogHeader>
+                                        <DialogTitle>Notificaciones</DialogTitle>
+                                        <DialogDescription>Aquí se mostrará la lista de notificaciones.</DialogDescription>
+                                    </DialogHeader>
+                                </MenuItem>
+                                <MenuItem icon={Wallet} label="Mi Billetera">
+                                     <DialogHeader>
+                                        <DialogTitle>Mi Billetera</DialogTitle>
+                                        <DialogDescription>Aquí se mostrará la información de la billetera.</DialogDescription>
+                                    </DialogHeader>
+                                </MenuItem>
+                                <MenuItem icon={Settings2} label="Preferencias de viaje">
+                                     <DialogHeader>
+                                        <DialogTitle>Preferencias de Viaje</DialogTitle>
+                                        <DialogDescription>Aquí se podrán configurar las preferencias de viaje.</DialogDescription>
+                                    </DialogHeader>
+                                </MenuItem>
+                                <MenuItem icon={HelpCircle} label="Ayuda">
+                                     <DialogHeader>
+                                        <DialogTitle>Ayuda</DialogTitle>
+                                        <DialogDescription>Aquí se mostrará el centro de ayuda.</DialogDescription>
+                                    </DialogHeader>
+                                </MenuItem>
+                                <MenuItem icon={Settings} label="Configuración">
+                                     <DialogHeader>
+                                        <DialogTitle>Configuración</DialogTitle>
+                                        <DialogDescription>Aquí se mostrarán las opciones de configuración de la cuenta.</DialogDescription>
+                                    </DialogHeader>
+                                </MenuItem>
                             </div>
                             <Separator className="bg-gray-700" />
                             <div className="p-4">
@@ -200,8 +261,28 @@ export default function DriverHomePage() {
                             </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent className="bg-gray-800 text-white border-gray-700">
-                            <DropdownMenuItem>Ver historial de ganancias</DropdownMenuItem>
-                            <DropdownMenuItem>Configurar pagos</DropdownMenuItem>
+                             <Dialog>
+                                <DialogTrigger asChild>
+                                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Ver historial de ganancias</DropdownMenuItem>
+                                </DialogTrigger>
+                                <DialogContent className="bg-gray-800 text-white border-gray-700">
+                                    <DialogHeader>
+                                        <DialogTitle>Historial de Ganancias</DialogTitle>
+                                        <DialogDescription>Aquí se mostrará el historial detallado.</DialogDescription>
+                                    </DialogHeader>
+                                </DialogContent>
+                            </Dialog>
+                             <Dialog>
+                                <DialogTrigger asChild>
+                                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Configurar pagos</DropdownMenuItem>
+                                </DialogTrigger>
+                                <DialogContent className="bg-gray-800 text-white border-gray-700">
+                                     <DialogHeader>
+                                        <DialogTitle>Configurar Pagos</DialogTitle>
+                                        <DialogDescription>Aquí podrás configurar tus métodos de pago.</DialogDescription>
+                                    </DialogHeader>
+                                </DialogContent>
+                            </Dialog>
                         </DropdownMenuContent>
                     </DropdownMenu>
 
@@ -277,4 +358,3 @@ export default function DriverHomePage() {
     );
 }
 
-    
