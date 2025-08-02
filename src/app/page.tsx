@@ -20,42 +20,6 @@ const useMap = dynamic(() => import('react-leaflet').then(mod => mod.useMap), { 
 
 const FARE_PER_KM = 1.5;
 
-function Routing({ L, origin, destination, setFare }: { L: any, origin: LatLngTuple, destination: LatLngTuple | null, setFare: (fare: string | null) => void }) {
-  const map = useMap();
-  const polylineRef = useRef<import('leaflet').Polyline | null>(null);
-
-  useEffect(() => {
-    if (!map || !L) return;
-
-    if (!polylineRef.current) {
-      polylineRef.current = L.polyline([], { color: 'red' }).addTo(map);
-    }
-
-    if (origin && destination) {
-      const latLngs = [origin, destination];
-      polylineRef.current.setLatLngs(latLngs);
-      map.fitBounds(L.latLngBounds(latLngs), { padding: [50, 50] });
-
-      const R = 6371;
-      const dLat = (destination[0] - origin[0]) * Math.PI / 180;
-      const dLon = (destination[1] - origin[1]) * Math.PI / 180;
-      const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(origin[0] * Math.PI / 180) * Math.cos(destination[0] * Math.PI / 180) *
-        Math.sin(dLon / 2) * Math.sin(dLon / 2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      const distanceInKm = R * c;
-      const calculatedFare = distanceInKm * FARE_PER_KM;
-      setFare(calculatedFare.toFixed(2));
-    } else if (polylineRef.current) {
-      polylineRef.current.setLatLngs([]);
-      setFare(null);
-    }
-  }, [map, origin, destination, setFare, L]);
-
-  return null;
-}
-
 function MapView({
   L,
   currentPosition,
@@ -69,18 +33,50 @@ function MapView({
   destinationName: string;
   setFare: (fare: string | null) => void;
 }) {
+  const map = useMap();
+  const polylineRef = useRef<import('leaflet').Polyline | null>(null);
+
+  useEffect(() => {
+    if (!map || !L) return;
+
+    if (!polylineRef.current) {
+      polylineRef.current = L.polyline([], { color: 'red' }).addTo(map);
+    }
+
+    if (destination) {
+      const latLngs = [currentPosition, destination];
+      polylineRef.current.setLatLngs(latLngs);
+      map.fitBounds(L.latLngBounds(latLngs), { padding: [50, 50] });
+
+      const R = 6371;
+      const dLat = (destination[0] - currentPosition[0]) * Math.PI / 180;
+      const dLon = (destination[1] - currentPosition[1]) * Math.PI / 180;
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(currentPosition[0] * Math.PI / 180) * Math.cos(destination[0] * Math.PI / 180) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      const distanceInKm = R * c;
+      const calculatedFare = distanceInKm * FARE_PER_KM;
+      setFare(calculatedFare.toFixed(2));
+    } else {
+      polylineRef.current.setLatLngs([]);
+      setFare(null);
+    }
+  }, [map, L, currentPosition, destination, setFare]);
+
   return (
-    <MapContainer center={currentPosition} zoom={13} scrollWheelZoom={true} className="h-full w-full">
+    <>
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
       />
       <Marker position={currentPosition}><Popup>You are here</Popup></Marker>
       {destination && <Marker position={destination}><Popup>{destinationName}</Popup></Marker>}
-      <Routing L={L} origin={currentPosition} destination={destination} setFare={setFare} />
-    </MapContainer>
+    </>
   );
 }
+
 
 export default function RideHailPage() {
   const [L, setL] = useState<any>(null);
@@ -153,13 +149,15 @@ export default function RideHailPage() {
 
   return (
     <div className="relative h-screen w-screen overflow-hidden">
-      <MapView
-        L={L}
-        currentPosition={currentPosition}
-        destination={destination}
-        destinationName={destinationName}
-        setFare={setFare}
-      />
+      <MapContainer center={currentPosition} zoom={13} scrollWheelZoom={true} className="h-full w-full">
+        <MapView
+          L={L}
+          currentPosition={currentPosition}
+          destination={destination}
+          destinationName={destinationName}
+          setFare={setFare}
+        />
+      </MapContainer>
       <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-background via-background/90 to-transparent z-[1000]">
         <Card className="max-w-md mx-auto shadow-2xl bg-background/80 backdrop-blur-sm border-2 border-border">
           {isRideConfirmed ? (
