@@ -85,6 +85,19 @@ const MenuItem = ({ icon, label, badge, children }: { icon: React.ElementType, l
     </Dialog>
 );
 
+const SettingsItem = ({ icon, label, children }: { icon: React.ElementType, label: string, children: React.ReactNode }) => (
+  <Dialog>
+    <DialogTrigger asChild>
+      <button className="flex items-center p-3 text-white hover:bg-gray-700 rounded-md w-full text-left">
+        {React.createElement(icon, { className: "mr-4 h-5 w-5" })}
+        <span>{label}</span>
+        <ChevronRight className="h-5 w-5 text-gray-500 ml-auto" />
+      </button>
+    </DialogTrigger>
+    {children}
+  </Dialog>
+);
+
 
 export default function DriverHomePage() {
     const [currentPosition, setCurrentPosition] = useState<LatLngTuple | null>(null);
@@ -303,11 +316,46 @@ export default function DriverHomePage() {
                                             <DialogTitle>Configuración</DialogTitle>
                                         </DialogHeader>
                                         <div className="py-2 flex flex-col">
-                                            <button className="flex items-center p-3 text-white hover:bg-gray-700 rounded-md w-full text-left"><FileText className="mr-4 h-5 w-5" /><span>Documentos</span><ChevronRight className="h-5 w-5 text-gray-500 ml-auto" /></button>
-                                            <button className="flex items-center p-3 text-white hover:bg-gray-700 rounded-md w-full text-left"><Smartphone className="mr-4 h-5 w-5" /><span>App del conductor</span><ChevronRight className="h-5 w-5 text-gray-500 ml-auto" /></button>
-                                            <button className="flex items-center p-3 text-white hover:bg-gray-700 rounded-md w-full text-left"><Lock className="mr-4 h-5 w-5" /><span>Privacidad</span><ChevronRight className="h-5 w-5 text-gray-500 ml-auto" /></button>
-                                            <button className="flex items-center p-3 text-white hover:bg-gray-700 rounded-md w-full text-left"><Languages className="mr-4 h-5 w-5" /><span>Idioma</span><ChevronRight className="h-5 w-5 text-gray-500 ml-auto" /></button>
-                                            <button className="flex items-center p-3 text-white hover:bg-gray-700 rounded-md w-full text-left"><CircleHelp className="mr-4 h-5 w-5" /><span>Acerca de</span><ChevronRight className="h-5 w-5 text-gray-500 ml-auto" /></button>
+                                            <SettingsItem icon={FileText} label="Documentos">
+                                                <DialogContent className="bg-gray-800 text-white border-gray-700">
+                                                    <DialogHeader>
+                                                        <DialogTitle>Documentos</DialogTitle>
+                                                        <DialogDescription>Aquí se mostrará la información de tus documentos.</DialogDescription>
+                                                    </DialogHeader>
+                                                </DialogContent>
+                                            </SettingsItem>
+                                            <SettingsItem icon={Smartphone} label="App del conductor">
+                                                <DialogContent className="bg-gray-800 text-white border-gray-700">
+                                                    <DialogHeader>
+                                                        <DialogTitle>App del conductor</DialogTitle>
+                                                        <DialogDescription>Aquí se mostrarán las opciones de la app.</DialogDescription>
+                                                    </DialogHeader>
+                                                </DialogContent>
+                                            </SettingsItem>
+                                            <SettingsItem icon={Lock} label="Privacidad">
+                                                <DialogContent className="bg-gray-800 text-white border-gray-700">
+                                                    <DialogHeader>
+                                                        <DialogTitle>Privacidad</DialogTitle>
+                                                        <DialogDescription>Aquí se mostrarán las opciones de privacidad.</DialogDescription>
+                                                    </DialogHeader>
+                                                </DialogContent>
+                                            </SettingsItem>
+                                            <SettingsItem icon={Languages} label="Idioma">
+                                                <DialogContent className="bg-gray-800 text-white border-gray-700">
+                                                    <DialogHeader>
+                                                        <DialogTitle>Idioma</DialogTitle>
+                                                        <DialogDescription>Aquí podrás cambiar el idioma de la app.</DialogDescription>
+                                                    </DialogHeader>
+                                                </DialogContent>
+                                            </SettingsItem>
+                                            <SettingsItem icon={CircleHelp} label="Acerca de">
+                                                <DialogContent className="bg-gray-800 text-white border-gray-700">
+                                                    <DialogHeader>
+                                                        <DialogTitle>Acerca de</DialogTitle>
+                                                        <DialogDescription>Aquí se mostrará la información sobre la app.</DialogDescription>
+                                                    </DialogHeader>
+                                                </DialogContent>
+                                            </SettingsItem>
                                         </div>
                                     </DialogContent>
                                 </MenuItem>
