@@ -21,20 +21,21 @@ const useMap = dynamic(() => import('react-leaflet').then(mod => mod.useMap), { 
 
 const FARE_PER_KM = 1.5;
 
-function Routing({ L, origin, destination, setFare }: { L: typeof import('leaflet'), origin: LatLngTuple, destination: LatLngTuple | null, setFare: (fare: string | null) => void }) {
+function Routing({ origin, destination, setFare }: { origin: LatLngTuple, destination: LatLngTuple | null, setFare: (fare: string | null) => void }) {
   const map = useMap();
   const polylineRef = useRef<import('leaflet').Polyline | null>(null);
 
   useEffect(() => {
-    if (!map || !L) return;
+    if (!map) return;
 
     if (!polylineRef.current) {
       polylineRef.current = L.polyline([], { color: 'red' }).addTo(map);
     }
 
     if (origin && destination) {
-      polylineRef.current.setLatLngs([origin, destination]);
-      map.fitBounds(polylineRef.current.getBounds(), { padding: [50, 50] });
+      const latLngs = [origin, destination];
+      polylineRef.current.setLatLngs(latLngs);
+      map.fitBounds(L.latLngBounds(latLngs), { padding: [50, 50] });
 
       const R = 6371;
       const dLat = (destination[0] - origin[0]) * Math.PI / 180;
@@ -51,19 +52,17 @@ function Routing({ L, origin, destination, setFare }: { L: typeof import('leafle
       polylineRef.current.setLatLngs([]);
       setFare(null);
     }
-  }, [map, origin, destination, L, setFare]);
+  }, [map, origin, destination, setFare]);
 
   return null;
 }
 
 function MapView({
-  L,
   currentPosition,
   destination,
   destinationName,
   setFare,
 }: {
-  L: typeof import('leaflet');
   currentPosition: LatLngTuple;
   destination: LatLngTuple | null;
   destinationName: string;
@@ -77,7 +76,7 @@ function MapView({
       />
       <Marker position={currentPosition}><Popup>You are here</Popup></Marker>
       {destination && <Marker position={destination}><Popup>{destinationName}</Popup></Marker>}
-      <Routing L={L} origin={currentPosition} destination={destination} setFare={setFare} />
+      <Routing origin={currentPosition} destination={destination} setFare={setFare} />
     </MapContainer>
   );
 }
@@ -87,23 +86,20 @@ export default function RideHailPage() {
   const [destination, setDestination] = useState<LatLngTuple | null>(null);
   const [destinationName, setDestinationName] = useState('');
   const [fare, setFare] = useState<string | null>(null);
-  const [leaflet, setLeaflet] = useState<typeof import('leaflet') | null>(null);
   
   const [isRideConfirmed, setIsRideConfirmed] = useState(false);
 
   useEffect(() => {
-    import('leaflet').then(leafletModule => {
-      delete (leafletModule.Icon.Default.prototype as any)._getIconUrl;
-      leafletModule.Icon.Default.mergeOptions({
+    // This effect runs only once on the client
+    import('leaflet').then(L => {
+      delete (L.Icon.Default.prototype as any)._getIconUrl;
+      L.Icon.Default.mergeOptions({
         iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
         iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
         shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
       });
-      setLeaflet(leafletModule);
     });
-  }, []);
 
-  useEffect(() => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
         setCurrentPosition([position.coords.latitude, position.coords.longitude]);
@@ -145,7 +141,7 @@ export default function RideHailPage() {
     setIsRideConfirmed(false);
   };
 
-  if (!currentPosition || !leaflet) {
+  if (!currentPosition) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background text-foreground">
         <LoaderCircle className="animate-spin" size={48} />
@@ -156,7 +152,6 @@ export default function RideHailPage() {
   return (
     <div className="relative h-screen w-screen overflow-hidden">
       <MapView
-        L={leaflet}
         currentPosition={currentPosition}
         destination={destination}
         destinationName={destinationName}
@@ -337,5 +332,3 @@ function RideConfirmed({ onNewRide }: { onNewRide: () => void }) {
     </CardContent>
   );
 }
-
-    
