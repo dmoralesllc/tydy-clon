@@ -12,8 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import { suggestDestination, SuggestDestinationOutput } from '@/ai/flows/suggest-destination';
 import { Car, CircleDot, LoaderCircle, MapPin, Search } from 'lucide-react';
 
-const L = dynamic(() => import('leaflet'), { ssr: false });
-const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
+const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false, loading: () => <LoaderCircle className="animate-spin" /> });
 const TileLayer = dynamic(() => import('react-leaflet').then(mod => mod.TileLayer), { ssr: false });
 const Marker = dynamic(() => import('react-leaflet').then(mod => mod.Marker), { ssr: false });
 const Popup = dynamic(() => import('react-leaflet').then(mod => mod.Popup), { ssr: false });
@@ -21,12 +20,12 @@ const useMap = dynamic(() => import('react-leaflet').then(mod => mod.useMap), { 
 
 const FARE_PER_KM = 1.5;
 
-function Routing({ origin, destination, setFare }: { origin: LatLngTuple, destination: LatLngTuple | null, setFare: (fare: string | null) => void }) {
+function Routing({ L, origin, destination, setFare }: { L: any, origin: LatLngTuple, destination: LatLngTuple | null, setFare: (fare: string | null) => void }) {
   const map = useMap();
   const polylineRef = useRef<import('leaflet').Polyline | null>(null);
 
   useEffect(() => {
-    if (!map) return;
+    if (!map || !L) return;
 
     if (!polylineRef.current) {
       polylineRef.current = L.polyline([], { color: 'red' }).addTo(map);
@@ -48,21 +47,23 @@ function Routing({ origin, destination, setFare }: { origin: LatLngTuple, destin
       const distanceInKm = R * c;
       const calculatedFare = distanceInKm * FARE_PER_KM;
       setFare(calculatedFare.toFixed(2));
-    } else {
+    } else if (polylineRef.current) {
       polylineRef.current.setLatLngs([]);
       setFare(null);
     }
-  }, [map, origin, destination, setFare]);
+  }, [map, origin, destination, setFare, L]);
 
   return null;
 }
 
 function MapView({
+  L,
   currentPosition,
   destination,
   destinationName,
   setFare,
 }: {
+  L: any;
   currentPosition: LatLngTuple;
   destination: LatLngTuple | null;
   destinationName: string;
@@ -76,12 +77,13 @@ function MapView({
       />
       <Marker position={currentPosition}><Popup>You are here</Popup></Marker>
       {destination && <Marker position={destination}><Popup>{destinationName}</Popup></Marker>}
-      <Routing origin={currentPosition} destination={destination} setFare={setFare} />
+      <Routing L={L} origin={currentPosition} destination={destination} setFare={setFare} />
     </MapContainer>
   );
 }
 
 export default function RideHailPage() {
+  const [L, setL] = useState<any>(null);
   const [currentPosition, setCurrentPosition] = useState<LatLngTuple | null>(null);
   const [destination, setDestination] = useState<LatLngTuple | null>(null);
   const [destinationName, setDestinationName] = useState('');
@@ -90,25 +92,25 @@ export default function RideHailPage() {
   const [isRideConfirmed, setIsRideConfirmed] = useState(false);
 
   useEffect(() => {
-    // This effect runs only once on the client
-    import('leaflet').then(L => {
-      delete (L.Icon.Default.prototype as any)._getIconUrl;
-      L.Icon.Default.mergeOptions({
-        iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-        iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-      });
-    });
+    import('leaflet').then(leaflet => {
+       delete (leaflet.Icon.Default.prototype as any)._getIconUrl;
+        leaflet.Icon.Default.mergeOptions({
+            iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+            iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+            shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+        });
+      setL(leaflet);
 
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setCurrentPosition([position.coords.latitude, position.coords.longitude]);
-      },
-      () => {
-        setCurrentPosition([37.7749, -122.4194]); // Fallback
-      },
-      { enableHighAccuracy: true }
-    );
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setCurrentPosition([position.coords.latitude, position.coords.longitude]);
+        },
+        () => {
+          setCurrentPosition([37.7749, -122.4194]); // Fallback
+        },
+        { enableHighAccuracy: true }
+      );
+    });
   }, []);
 
   const handleDestinationSelect = (place: { lat: number, lon: number, display_name: string } | null, name?: string) => {
@@ -141,7 +143,7 @@ export default function RideHailPage() {
     setIsRideConfirmed(false);
   };
 
-  if (!currentPosition) {
+  if (!currentPosition || !L) {
     return (
       <div className="flex h-screen w-full items-center justify-center bg-background text-foreground">
         <LoaderCircle className="animate-spin" size={48} />
@@ -152,6 +154,7 @@ export default function RideHailPage() {
   return (
     <div className="relative h-screen w-screen overflow-hidden">
       <MapView
+        L={L}
         currentPosition={currentPosition}
         destination={destination}
         destinationName={destinationName}
