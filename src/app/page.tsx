@@ -161,7 +161,7 @@ function RideHailApp({
         />
         {currentPosition && <Marker position={currentPosition}><Popup>You are here</Popup></Marker>}
         {destination && <Marker position={destination}><Popup>{destinationName}</Popup></Marker>}
-        {currentPosition && destination && <Routing L={L} origin={currentPosition} destination={destination} setFare={setFare} />}
+        {currentPosition && <Routing L={L} origin={currentPosition} destination={destination} setFare={setFare} />}
       </MapContainer>
 
       <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-background via-background/90 to-transparent z-[1000]">
@@ -200,24 +200,21 @@ function RideHailApp({
   );
 }
 
-function Routing({ L, origin, destination, setFare }: { L: typeof import('leaflet'), origin: LatLngTuple, destination: LatLngTuple, setFare: (fare: string | null) => void }) {
+function Routing({ L, origin, destination, setFare }: { L: typeof import('leaflet'), origin: LatLngTuple, destination: LatLngTuple | null, setFare: (fare: string | null) => void }) {
   const map = useMap();
-  const routingLayerRef = useRef<any>(null);
+  const polylineRef = useRef<import('leaflet').Polyline | null>(null);
 
   useEffect(() => {
-    if (!map || !origin || !destination || !L) return;
+    if (!map || !L) return;
 
-    if (routingLayerRef.current) {
-        map.removeLayer(routingLayerRef.current);
+    if (!polylineRef.current) {
+        polylineRef.current = L.polyline([], { color: 'red' }).addTo(map);
     }
+    
+    if (origin && destination) {
+        polylineRef.current.setLatLngs([origin, destination]);
+        map.fitBounds(polylineRef.current.getBounds(), { padding: [50, 50] });
 
-    const polyline = L.polyline([origin, destination], { color: 'red' });
-    routingLayerRef.current = polyline;
-    polyline.addTo(map);
-
-    map.fitBounds(polyline.getBounds());
-
-    const calculateFare = () => {
         const R = 6371; // Radius of the earth in km
         const dLat = (destination[0] - origin[0]) * Math.PI / 180;
         const dLon = (destination[1] - origin[1]) * Math.PI / 180;
@@ -229,16 +226,12 @@ function Routing({ L, origin, destination, setFare }: { L: typeof import('leafle
         const distanceInKm = R * c; // Distance in km
         const calculatedFare = distanceInKm * FARE_PER_KM;
         setFare(calculatedFare.toFixed(2));
+    } else {
+        polylineRef.current.setLatLngs([]);
+        setFare(null);
     }
-    
-    calculateFare();
 
-    return () => {
-      if (routingLayerRef.current && map.hasLayer(routingLayerRef.current)) {
-        map.removeLayer(routingLayerRef.current);
-      }
-    };
-  }, [map, origin, destination, setFare, L]);
+  }, [map, origin, destination, L, setFare]);
 
   return null;
 }
