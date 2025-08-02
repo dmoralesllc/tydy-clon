@@ -16,55 +16,36 @@ const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapCo
 const TileLayer = dynamic(() => import('react-leaflet').then(mod => mod.TileLayer), { ssr: false });
 const Marker = dynamic(() => import('react-leaflet').then(mod => mod.Marker), { ssr: false });
 const Popup = dynamic(() => import('react-leaflet').then(mod => mod.Popup), { ssr: false });
+const Polyline = dynamic(() => import('react-leaflet').then(mod => mod.Polyline), { ssr: false });
 const useMap = dynamic(() => import('react-leaflet').then(mod => mod.useMap), { ssr: false });
 
 const FARE_PER_KM = 1.5;
+
+function MapUpdater({ L, currentPosition, destination }: { L: any, currentPosition: LatLngTuple, destination: LatLngTuple | null }) {
+    const map = useMap();
+    useEffect(() => {
+        if (destination) {
+            const bounds = L.latLngBounds([currentPosition, destination]);
+            map.fitBounds(bounds, { padding: [50, 50] });
+        } else {
+            map.setView(currentPosition, 13);
+        }
+    }, [map, L, currentPosition, destination]);
+
+    return null;
+}
 
 function MapView({
   L,
   currentPosition,
   destination,
   destinationName,
-  setFare,
 }: {
   L: any;
   currentPosition: LatLngTuple;
   destination: LatLngTuple | null;
   destinationName: string;
-  setFare: (fare: string | null) => void;
 }) {
-  const map = useMap();
-  const polylineRef = useRef<import('leaflet').Polyline | null>(null);
-
-  useEffect(() => {
-    if (!map || !L) return;
-
-    if (!polylineRef.current) {
-      polylineRef.current = L.polyline([], { color: 'red' }).addTo(map);
-    }
-
-    if (destination) {
-      const latLngs = [currentPosition, destination];
-      polylineRef.current.setLatLngs(latLngs);
-      map.fitBounds(L.latLngBounds(latLngs), { padding: [50, 50] });
-
-      const R = 6371;
-      const dLat = (destination[0] - currentPosition[0]) * Math.PI / 180;
-      const dLon = (destination[1] - currentPosition[1]) * Math.PI / 180;
-      const a =
-        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(currentPosition[0] * Math.PI / 180) * Math.cos(destination[0] * Math.PI / 180) *
-        Math.sin(dLon / 2) * Math.sin(dLon / 2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      const distanceInKm = R * c;
-      const calculatedFare = distanceInKm * FARE_PER_KM;
-      setFare(calculatedFare.toFixed(2));
-    } else {
-      polylineRef.current.setLatLngs([]);
-      setFare(null);
-    }
-  }, [map, L, currentPosition, destination, setFare]);
-
   return (
     <>
       <TileLayer
@@ -73,6 +54,8 @@ function MapView({
       />
       <Marker position={currentPosition}><Popup>You are here</Popup></Marker>
       {destination && <Marker position={destination}><Popup>{destinationName}</Popup></Marker>}
+      {destination && <Polyline positions={[currentPosition, destination]} color="red" />}
+      <MapUpdater L={L} currentPosition={currentPosition} destination={destination} />
     </>
   );
 }
@@ -110,9 +93,23 @@ export default function RideHailPage() {
   }, []);
 
   const handleDestinationSelect = (place: { lat: number, lon: number, display_name: string } | null, name?: string) => {
-    if (place) {
-      setDestination([parseFloat(String(place.lat)), parseFloat(String(place.lon))]);
+    if (place && currentPosition) {
+      const dest: LatLngTuple = [parseFloat(String(place.lat)), parseFloat(String(place.lon))];
+      setDestination(dest);
       setDestinationName(name || place.display_name);
+      
+      const R = 6371; // Radius of the earth in km
+      const dLat = (dest[0] - currentPosition[0]) * Math.PI / 180;
+      const dLon = (dest[1] - currentPosition[1]) * Math.PI / 180;
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(currentPosition[0] * Math.PI / 180) * Math.cos(dest[0] * Math.PI / 180) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      const distanceInKm = R * c;
+      const calculatedFare = distanceInKm * FARE_PER_KM;
+      setFare(calculatedFare.toFixed(2));
+      
       setIsRideConfirmed(false);
     }
   };
@@ -155,7 +152,6 @@ export default function RideHailPage() {
           currentPosition={currentPosition}
           destination={destination}
           destinationName={destinationName}
-          setFare={setFare}
         />
       </MapContainer>
       <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-background via-background/90 to-transparent z-[1000]">
