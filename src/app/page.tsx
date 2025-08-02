@@ -7,12 +7,13 @@ import type { LatLngTuple } from 'leaflet';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Menu, ChevronDown, HelpCircle, Layers, Crosshair, Shield, Settings2, Zap, Trophy, Users, AlertCircle, Car, User, Settings, X, Eye, Edit, Plus, Minus } from 'lucide-react';
+import { Menu, ChevronDown, HelpCircle, Layers, Crosshair, Shield, Settings2, Zap, User, Edit, Plus, Minus, X, Eye } from 'lucide-react';
 import Image from 'next/image';
-import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import type { Map } from 'leaflet';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 
 
 const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
@@ -92,7 +93,6 @@ export default function DriverHomePage() {
         mapRef.current?.zoomOut();
     }
     
-
     if (!currentPosition) {
         return <div className="flex h-screen w-full items-center justify-center bg-gray-900 text-white">Cargando...</div>;
     }
@@ -103,11 +103,23 @@ export default function DriverHomePage() {
             <p className="text-xs text-gray-400">{title}</p>
         </div>
     );
+    
+    const MenuItem = ({ icon, label, badge, href = "#" }: { icon: React.ElementType, label: string, badge?: string, href?: string }) => (
+        <a href={href} className="flex items-center p-3 text-white hover:bg-gray-700 rounded-md">
+            <div className="p-2 bg-gray-600 rounded-full mr-4">
+                {React.createElement(icon, { className: "h-5 w-5" })}
+            </div>
+            <span className="flex-grow font-medium">{label}</span>
+            {badge && (
+                <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">{badge}</span>
+            )}
+            <ChevronDown className="h-5 w-5 text-gray-500 -rotate-90 ml-2" />
+        </a>
+    );
 
     return (
-        <div className="h-screen w-screen bg-gray-900 text-white flex flex-col relative">
-            {/* Map */}
-            <div className="flex-grow h-full w-full">
+        <div className="h-screen w-screen bg-gray-900 text-white relative">
+            <div className="absolute inset-0 z-0">
                 <MapContainer ref={mapRef} center={currentPosition} zoom={14} scrollWheelZoom={true} zoomControl={false} className="h-full w-full">
                     <TileLayer
                         url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
@@ -120,7 +132,7 @@ export default function DriverHomePage() {
                     ))}
 
                     <Marker position={[-27.435, -58.985]}>
-                    <Popup>Hipermercado Libertad Resistencia</Popup>
+                        <Popup>Hipermercado Libertad Resistencia</Popup>
                     </Marker>
                 </MapContainer>
             </div>
@@ -135,76 +147,64 @@ export default function DriverHomePage() {
                                 <Menu className="h-6 w-6" />
                             </Button>
                         </SheetTrigger>
-                        <SheetContent side="left" className="w-full max-w-sm bg-gray-900 text-white border-gray-800 p-0 overflow-y-auto">
-                            <div className="flex flex-col h-full">
-                                <div className="p-4 space-y-4">
-                                    <Card className="bg-gray-800 border-gray-700">
-                                        <CardContent className="p-4 space-y-4">
-                                            <div className="flex justify-between items-center">
-                                                <h3 className="text-lg font-semibold">Tablero</h3>
-                                                <div className="flex items-center gap-4">
-                                                    <Button variant="ghost" size="sm" className="p-0 h-auto text-gray-400"><Edit className="mr-1 h-4 w-4" /> Editar</Button>
-                                                    <Button variant="ghost" size="sm" className="p-0 h-auto text-gray-400">Más <ChevronDown className="ml-1 h-4 w-4" /></Button>
-                                                </div>
-                                            </div>
-                                            <div className="grid grid-cols-3 gap-4">
-                                                <StatCard title="Ganancias último viaje >" value="$905,00" />
-                                                <StatCard title="Ganancias/hora (hoy) >" value="0" />
-                                                <StatCard title="Ganancias/hora (sem) >" value="$1.157,96" />
-                                                <StatCard title="Ganancias efectivo >" value="$0,00" />
-                                                <StatCard title="Ganancias tarjeta (hoy) >" value="$0,00" />
-                                                <StatCard title="Saldo >" value="-$549,00" />
-                                            </div>
-                                            <Button variant="outline" className="w-full border-gray-700 hover:bg-gray-700">Ver Centro de ganancias</Button>
-                                        </CardContent>
-                                    </Card>
-                                    <Card className="bg-gray-800 border-gray-700">
-                                        <CardContent className="p-4 space-y-4">
-                                            <div className="flex justify-between items-center">
-                                                <h3 className="text-lg font-semibold">Premios/promos</h3>
-                                                <Button variant="ghost" size="sm" className="p-0 h-auto text-gray-400">Más <ChevronDown className="ml-1 h-4 w-4" /></Button>
-                                            </div>
-                                            <div className="space-y-3">
-                                                <div className="flex items-center">
-                                                    <div className="p-2 bg-orange-500 rounded-full mr-3">
-                                                        <Shield className="h-5 w-5 text-white"/>
-                                                    </div>
-                                                    <div className="flex-grow">
-                                                        <p className="font-semibold">$20.000 <span className="text-green-400 text-xs font-bold ml-1">Nuevo</span></p>
-                                                        <p className="text-xs text-gray-400">garantizados</p>
-                                                    </div>
-                                                    <p className="text-sm text-gray-400">Completa 15 viaje(s)</p>
-                                                </div>
-                                                 <div className="flex items-center">
-                                                    <div className="p-2 bg-blue-500 rounded-full mr-3">
-                                                        <Zap className="h-5 w-5 text-white"/>
-                                                    </div>
-                                                    <div className="flex-grow">
-                                                        <p className="font-semibold">$1.000 <span className="text-green-400 text-xs font-bold ml-1">Nuevo</span></p>
-                                                        <p className="text-xs text-gray-400">Viaja más, gana más</p>
-                                                    </div>
-                                                    <p className="text-sm text-gray-400">Completa 9 viaje(s)</p>
-                                                </div>
-                                            </div>
-                                        </CardContent>
-                                    </Card>
+                        <SheetContent side="left" className="w-full max-w-sm bg-gray-800 text-white border-gray-700 p-0 flex flex-col">
+                            <SheetHeader className="p-4 space-y-4 text-left">
+                                <div className="flex items-center space-x-4">
+                                    <Avatar className="h-16 w-16">
+                                        <AvatarImage src="https://placehold.co/100x100.png" alt="Driver" />
+                                        <AvatarFallback>U</AvatarFallback>
+                                    </Avatar>
+                                    <div>
+                                        <SheetTitle className="text-xl">Conductor</SheetTitle>
+                                        <p className="text-gray-400">Nivel: Oro</p>
+                                    </div>
                                 </div>
+                                <div className="grid grid-cols-3 gap-2 text-center text-sm">
+                                    <div>
+                                        <p className="font-bold">100%</p>
+                                        <p className="text-xs text-gray-400">Tasa de aceptación</p>
+                                    </div>
+                                    <div>
+                                        <p className="font-bold">5.0</p>
+                                        <p className="text-xs text-gray-400">Calificación</p>
+                                    </div>
+                                    <div>
+                                        <p className="font-bold">0%</p>
+                                        <p className="text-xs text-gray-400">Tasa de cancelación</p>
+                                    </div>
+                                </div>
+                            </SheetHeader>
+                            <Separator className="bg-gray-700" />
+                            <div className="flex-grow overflow-y-auto p-4 space-y-2">
+                                <MenuItem icon={Zap} label="Ganancias" />
+                                <MenuItem icon={User} label="Premios" />
+                                <MenuItem icon={Menu} label="Notificaciones" badge="3" />
+                                <MenuItem icon={Menu} label="Mi Billetera" />
+                                <MenuItem icon={Settings2} label="Preferencias de viaje" />
+                                <MenuItem icon={HelpCircle} label="Ayuda" />
+                                <MenuItem icon={Settings} label="Configuración" />
+                            </div>
+                            <Separator className="bg-gray-700" />
+                            <div className="p-4">
+                                <Button variant="outline" className="w-full border-gray-600 hover:bg-gray-700">Cerrar Sesión</Button>
                             </div>
                         </SheetContent>
                     </Sheet>
+                    
                     <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="secondary" className="rounded-full shadow-lg h-10 px-4 bg-gray-800/80 hover:bg-gray-700/80 flex items-center gap-2">
-                            <Eye className="h-5 w-5" />
-                            <span className="text-lg font-semibold">$0,00</span>
-                            <ChevronDown className="h-5 w-5 ml-1" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent className="bg-gray-800 text-white border-gray-700">
-                        <DropdownMenuItem>Ver historial de ganancias</DropdownMenuItem>
-                        <DropdownMenuItem>Configurar pagos</DropdownMenuItem>
-                      </DropdownMenuContent>
+                        <DropdownMenuTrigger asChild>
+                            <Button variant="secondary" className="rounded-full shadow-lg h-10 px-4 bg-gray-800/80 hover:bg-gray-700/80 flex items-center gap-2">
+                                <Eye className="h-5 w-5" />
+                                <span className="text-lg font-semibold">$0,00</span>
+                                <ChevronDown className="h-5 w-5 ml-1" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent className="bg-gray-800 text-white border-gray-700">
+                            <DropdownMenuItem>Ver historial de ganancias</DropdownMenuItem>
+                            <DropdownMenuItem>Configurar pagos</DropdownMenuItem>
+                        </DropdownMenuContent>
                     </DropdownMenu>
+
                     <Button variant="secondary" size="icon" className="rounded-full shadow-lg bg-gray-800/80 hover:bg-gray-700/80">
                         <HelpCircle className="h-6 w-6" />
                     </Button>
@@ -212,7 +212,7 @@ export default function DriverHomePage() {
                 
                 {/* Map Controls Area */}
                 <div className="absolute top-1/2 right-4 -translate-y-1/2 flex flex-col gap-3 z-10 pointer-events-auto">
-                    <Button variant="secondary" size="icon" className="rounded-full shadow-lg bg-gray-800/80 hover:bg-gray-700/80" onClick={() => mapRef.current?.setView(currentPosition, 14)}>
+                    <Button variant="secondary" size="icon" className="rounded-full shadow-lg bg-gray-800/80 hover:bg-gray-700/80" onClick={() => currentPosition && mapRef.current?.setView(currentPosition, 14)}>
                         <Crosshair className="h-6 w-6" />
                     </Button>
                     <Button variant="secondary" size="icon" className="rounded-full shadow-lg bg-gray-800/80 hover:bg-gray-700/80">
@@ -221,7 +221,7 @@ export default function DriverHomePage() {
                 </div>
 
                 {/* Custom Zoom Controls */}
-                <div className="absolute bottom-24 right-4 flex flex-col gap-2 z-10 pointer-events-auto">
+                <div className="absolute bottom-40 right-4 flex flex-col gap-2 z-10 pointer-events-auto">
                     <Button variant="secondary" size="icon" className="rounded-full shadow-lg bg-gray-800/80 hover:bg-gray-700/80" onClick={zoomIn}>
                         <Plus className="h-6 w-6" />
                     </Button>
@@ -231,17 +231,17 @@ export default function DriverHomePage() {
                 </div>
                 
                 {/* Google Shield */}
-                <div className="absolute bottom-4 left-4 flex items-center gap-2 z-10 bg-gray-800/80 rounded-full px-3 py-1 shadow-lg pointer-events-auto">
+                <div className="absolute bottom-28 left-4 flex items-center gap-2 z-10 bg-gray-800/80 rounded-full px-3 py-1 shadow-lg pointer-events-auto">
                     <Shield className="h-5 w-5 text-blue-400" />
                     <span className="font-semibold text-sm">Google</span>
                 </div>
 
                 {/* Bottom Sheet Area */}
                 <div className="absolute bottom-0 left-0 right-0 p-4 z-10 pointer-events-auto">
-                     <div className="bg-background rounded-t-2xl shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.3)] p-4">
+                    <div className="bg-gray-900 rounded-t-2xl shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.3)] p-4">
                         {isReferralCardVisible && (
                             <Card className="bg-gradient-to-r from-orange-500 to-pink-500 border-0 mb-4 relative">
-                                 <Button variant="ghost" size="icon" className="absolute top-1 right-1 h-6 w-6 text-white/70 hover:text-white" onClick={() => setIsReferralCardVisible(false)}>
+                                <Button variant="ghost" size="icon" className="absolute top-1 right-1 h-6 w-6 text-white/70 hover:text-white" onClick={() => setIsReferralCardVisible(false)}>
                                     <X className="h-4 w-4" />
                                 </Button>
                                 <CardContent className="p-4 flex items-center justify-between">
@@ -257,13 +257,13 @@ export default function DriverHomePage() {
                             </Card>
                         )}
                         <div className="flex items-center justify-between">
-                            <Button variant="ghost" className="relative">
+                            <Button variant="ghost" className="relative pointer-events-auto">
                                 <Settings2 className="h-7 w-7" />
                                 <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500" />
                             </Button>
                             <Button 
                                 size="lg" 
-                                className={`w-full max-w-xs text-xl h-14 rounded-full font-bold transition-colors ${isConnected ? 'bg-gray-600 hover:bg-gray-700' : 'bg-orange-600 hover:bg-orange-700'}`}
+                                className={`w-full max-w-xs text-xl h-14 rounded-full font-bold transition-colors pointer-events-auto ${isConnected ? 'bg-gray-600 hover:bg-gray-700' : 'bg-orange-600 hover:bg-orange-700'}`}
                                 onClick={() => setIsConnected(!isConnected)}
                             >
                                 {isConnected ? 'Desconectarse' : 'Conectarse'}
