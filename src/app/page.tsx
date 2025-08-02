@@ -7,7 +7,7 @@ import type { LatLngTuple } from 'leaflet';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Menu, ChevronDown, HelpCircle, Layers, Crosshair, Shield, Settings2, Zap, User, Edit, Plus, Minus, X, Eye } from 'lucide-react';
+import { Menu, ChevronDown, HelpCircle, Layers, Crosshair, Shield, Settings, Settings2, Zap, User, Edit, Plus, Minus, X, Eye } from 'lucide-react';
 import Image from 'next/image';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
