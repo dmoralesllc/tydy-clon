@@ -3,20 +3,18 @@
 
 import React, { useState, useEffect, useRef } from 'react';
 import dynamic from 'next/dynamic';
-import type { LatLngExpression, LatLngTuple } from 'leaflet';
+import type { LatLngExpression, LatLngTuple, Map } from 'leaflet';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
-import { Menu, ChevronDown, HelpCircle, Layers, Crosshair, Shield, Settings, Settings2, Zap, User, Edit, Plus, Minus, X, Eye, Wallet, Star, Bell, LifeBuoy, LogOut, ChevronRight, FileText, Smartphone, Lock, Languages, CircleHelp, Info } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Menu, ChevronDown, HelpCircle, Layers, Crosshair, Shield, Settings2, Zap, Edit, Plus, Minus, X, Eye, Wallet, Star, Bell, LogOut, ChevronRight, FileText, Smartphone, Lock, Languages, CircleHelp, Info, MapPin } from 'lucide-react';
 import Image from 'next/image';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
-import type { Map } from 'leaflet';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Progress } from '@/components/ui/progress';
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
 
@@ -25,6 +23,7 @@ const TileLayer = dynamic(() => import('react-leaflet').then(mod => mod.TileLaye
 const Marker = dynamic(() => import('react-leaflet').then(mod => mod.Marker), { ssr: false });
 const Popup = dynamic(() => import('react-leaflet').then(mod => mod.Popup), { ssr: false });
 const Polygon = dynamic(() => import('react-leaflet').then(mod => mod.Polygon), { ssr: false });
+const Polyline = dynamic(() => import('react-leaflet').then(mod => mod.Polyline), { ssr: false });
 
 
 const UserLocationMarker = ({ position }: { position: LatLngTuple }) => {
@@ -46,6 +45,28 @@ const UserLocationMarker = ({ position }: { position: LatLngTuple }) => {
   });
 
   return <Marker position={position} icon={icon} />;
+};
+
+const LocationMarker = ({ position, type }: { position: LatLngTuple, type: 'start' | 'end' }) => {
+    const [L, setL] = useState<any>(null);
+
+    useEffect(() => {
+        import('leaflet').then(leaflet => {
+            setL(leaflet);
+        });
+    }, []);
+
+    if (!L) return null;
+
+    const color = type === 'start' ? '#2563eb' : '#f97316';
+    const icon = L.divIcon({
+        html: `<div style="background-color: ${color};" class="w-8 h-8 rounded-full flex items-center justify-center border-4 border-white shadow-lg"><svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="white" stroke="white" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-map-pin"><path d="M12 20s-7-9-7-12a7 7 0 0 1 14 0c0 3-7 12-7 12z"/><circle cx="12" cy="8" r="3"/></svg></div>`,
+        className: '',
+        iconSize: [32, 32],
+        iconAnchor: [16, 32],
+    });
+
+    return <Marker position={position} icon={icon} />;
 };
 
 const SurgePricingMarker = ({ position, rate }: { position: LatLngTuple, rate: string }) => {
@@ -99,7 +120,7 @@ const SurgePolygon = ({ center, rate }: { center: LatLngTuple, rate: number }) =
     );
 };
 
-const MenuItem = ({ icon, label, badge, children }: { icon: React.ElementType, label: string, badge?: string, children: React.ReactNode }) => (
+const MenuItem = ({ icon, label, children }: { icon: React.ElementType, label: string, children: React.ReactNode }) => (
     <Dialog>
         <DialogTrigger asChild>
             <button className="flex items-center p-3 text-white hover:bg-gray-700 rounded-md w-full text-left">
@@ -107,9 +128,6 @@ const MenuItem = ({ icon, label, badge, children }: { icon: React.ElementType, l
                     {React.createElement(icon, { className: "h-5 w-5" })}
                 </div>
                 <span className="flex-grow font-medium">{label}</span>
-                {badge && (
-                    <span className="bg-red-500 text-white text-xs font-bold px-2 py-1 rounded-full">{badge}</span>
-                )}
                 <ChevronRight className="h-5 w-5 text-gray-500 ml-2" />
             </button>
         </DialogTrigger>
@@ -130,6 +148,33 @@ const SettingsItem = ({ icon, label, children }: { icon: React.ElementType, labe
   </Dialog>
 );
 
+const MapClickHandler = ({ onMapClick }: { onMapClick: (latlng: LatLngTuple) => void }) => {
+    const [map, setMap] = useState<Map | null>(null);
+
+    useEffect(() => {
+      const L = require('leaflet');
+      const mapInstance = L.map('map-container-for-events-only', {
+        center: [0,0],
+        zoom: 1,
+        attributionControl: false,
+        zoomControl: false,
+        dragging: false,
+        scrollWheelZoom: false,
+        doubleClickZoom: false,
+      });
+
+      mapInstance.on('click', (e: { latlng: { lat: number, lng: number }}) => {
+        onMapClick([e.latlng.lat, e.latlng.lng]);
+      });
+      setMap(mapInstance)
+
+      return () => {
+          mapInstance.remove();
+      }
+    }, [onMapClick]);
+
+    return null;
+}
 
 export default function DriverHomePage() {
     const [currentPosition, setCurrentPosition] = useState<LatLngTuple | null>(null);
@@ -139,10 +184,48 @@ export default function DriverHomePage() {
     const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const mapRef = useRef<Map>(null);
 
+    const [startPoint, setStartPoint] = useState<LatLngTuple | null>(null);
+    const [endPoint, setEndPoint] = useState<LatLngTuple | null>(null);
+    const [selecting, setSelecting] = useState<'start' | 'end' | null>(null);
+    const [tripDetails, setTripDetails] = useState<{distance: number, cost: number} | null>(null);
+
     useEffect(() => {
         setCurrentPosition([-27.45, -58.983333]);
     }, []);
+    
+    // Calculate trip details when both points are set
+    useEffect(() => {
+      if (startPoint && endPoint) {
+        const R = 6371; // Radius of the Earth in km
+        const dLat = (endPoint[0] - startPoint[0]) * Math.PI / 180;
+        const dLon = (endPoint[1] - startPoint[1]) * Math.PI / 180;
+        const a = 
+          Math.sin(dLat/2) * Math.sin(dLat/2) +
+          Math.cos(startPoint[0] * Math.PI / 180) * Math.cos(endPoint[0] * Math.PI / 180) * 
+          Math.sin(dLon/2) * Math.sin(dLon/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        const distance = R * c; // Distance in km
 
+        const costPerKm = 500;
+        const baseFare = 200;
+        const cost = baseFare + distance * costPerKm;
+
+        setTripDetails({ distance: parseFloat(distance.toFixed(1)), cost: parseFloat(cost.toFixed(0))});
+      } else {
+        setTripDetails(null);
+      }
+    }, [startPoint, endPoint]);
+
+    const handleMapClick = (latlng: LatLngTuple) => {
+        if (selecting === 'start') {
+            setStartPoint(latlng);
+            setSelecting(null);
+        } else if (selecting === 'end') {
+            setEndPoint(latlng);
+            setSelecting(null);
+        }
+    };
+    
     const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         if (event.target.files && event.target.files[0]) {
             setSelectedFile(event.target.files[0]);
@@ -179,6 +262,12 @@ export default function DriverHomePage() {
 
     const zoomIn = () => mapRef.current?.zoomIn();
     const zoomOut = () => mapRef.current?.zoomOut();
+
+    const resetTrip = () => {
+        setStartPoint(null);
+        setEndPoint(null);
+        setSelecting(null);
+    }
     
     if (!currentPosition) {
         return <div className="flex h-screen w-full items-center justify-center bg-gray-900 text-white">Cargando...</div>;
@@ -186,7 +275,19 @@ export default function DriverHomePage() {
 
     return (
         <div className="h-screen w-screen bg-gray-900 text-white relative">
-            <MapContainer ref={mapRef} center={currentPosition} zoom={14} scrollWheelZoom={true} zoomControl={false} className="h-full w-full absolute inset-0 z-0">
+             <MapContainer 
+                ref={mapRef} 
+                center={currentPosition} 
+                zoom={14} 
+                scrollWheelZoom={true} 
+                zoomControl={false} 
+                className="h-full w-full absolute inset-0 z-0"
+                whenReady={() => {
+                   if (mapRef.current) {
+                      mapRef.current.on('click', (e) => handleMapClick([e.latlng.lat, e.latlng.lng]));
+                   }
+                }}
+            >
                 <TileLayer
                     url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
@@ -197,6 +298,11 @@ export default function DriverHomePage() {
                 ))}
 
                 <UserLocationMarker position={currentPosition} />
+                
+                {startPoint && <LocationMarker position={startPoint} type="start" />}
+                {endPoint && <LocationMarker position={endPoint} type="end" />}
+                {startPoint && endPoint && <Polyline positions={[startPoint, endPoint]} color="white" dashArray="5, 10" />}
+
                 
                 {surgeZones.map((zone, i) => (
                     <SurgePricingMarker key={`marker-${i}`} position={zone.pos} rate={zone.rate} />
@@ -303,7 +409,7 @@ export default function DriverHomePage() {
                                         </DialogHeader>
                                     </DialogContent>
                                 </MenuItem>
-                                <MenuItem icon={Bell} label="Notificaciones" badge="3">
+                                <MenuItem icon={Bell} label="Notificaciones">
                                      <DialogContent className="bg-gray-800 text-white border-gray-700">
                                         <DialogHeader>
                                             <DialogTitle>Notificaciones</DialogTitle>
@@ -485,7 +591,47 @@ export default function DriverHomePage() {
                 </div>
 
                 <div className="absolute bottom-0 left-0 right-0 p-4 pointer-events-auto">
+                    {tripDetails ? (
+                         <Card className="bg-gray-900 rounded-t-2xl shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.3)] p-4 border-none">
+                            <CardHeader className="p-2">
+                               <div className="flex justify-between items-center">
+                                 <CardTitle>Detalles del Viaje</CardTitle>
+                                 <Button variant="ghost" size="icon" onClick={resetTrip}>
+                                     <X className="h-5 w-5" />
+                                 </Button>
+                               </div>
+                            </CardHeader>
+                            <CardContent className="p-2 space-y-4">
+                               <div className="flex justify-around text-center">
+                                   <div>
+                                       <p className="text-xl font-bold">{tripDetails.distance} km</p>
+                                       <p className="text-sm text-gray-400">Distancia</p>
+                                   </div>
+                                   <div>
+                                       <p className="text-xl font-bold">~{Math.round(tripDetails.distance * 1.5)} min</p>
+                                       <p className="text-sm text-gray-400">Tiempo Est.</p>
+                                   </div>
+                                   <div>
+                                       <p className="text-xl font-bold">${tripDetails.cost}</p>
+                                       <p className="text-sm text-gray-400">Costo Est.</p>
+                                   </div>
+                               </div>
+                               <Button size="lg" className="w-full text-lg h-12 rounded-full font-bold bg-orange-600 hover:bg-orange-700">
+                                   Confirmar Viaje
+                               </Button>
+                            </CardContent>
+                         </Card>
+                    ) : (
                     <div className="bg-gray-900 rounded-t-2xl shadow-[0_-10px_20px_-5px_rgba(0,0,0,0.3)] p-4">
+                       { isConnected ? (
+                           <Card className="bg-gray-800 border-gray-700">
+                             <CardContent className="p-4 text-center">
+                               <p className="text-lg font-semibold">Buscando viajes...</p>
+                               <p className="text-sm text-gray-400">Estás conectado y listo para recibir solicitudes.</p>
+                             </CardContent>
+                           </Card>
+                       ) : (
+                        <>
                         {isReferralCardVisible && (
                             <Card className="bg-gradient-to-r from-orange-500 to-pink-500 border-0 mb-4 relative">
                                 <Button variant="ghost" size="icon" className="absolute top-1 right-1 h-6 w-6 text-white/70 hover:text-white" onClick={() => setIsReferralCardVisible(false)}>
@@ -503,6 +649,16 @@ export default function DriverHomePage() {
                                 </CardContent>
                             </Card>
                         )}
+                        <div className="space-y-2 mb-4">
+                            <Button variant="outline" className="w-full justify-start h-12 text-left" onClick={() => setSelecting('start')}>
+                                <MapPin className="mr-2 h-5 w-5 text-blue-400" />
+                                {startPoint ? `Desde: ${startPoint[0].toFixed(4)}, ${startPoint[1].toFixed(4)}` : '¿Desde dónde?'}
+                            </Button>
+                            <Button variant="outline" className="w-full justify-start h-12 text-left" onClick={() => setSelecting('end')}>
+                                <MapPin className="mr-2 h-5 w-5 text-orange-400" />
+                                {endPoint ? `Hasta: ${endPoint[0].toFixed(4)}, ${endPoint[1].toFixed(4)}` : '¿Hacia dónde?'}
+                            </Button>
+                        </div>
                         <div className="flex items-center justify-between">
                              <Dialog>
                                 <DialogTrigger asChild>
@@ -536,11 +692,12 @@ export default function DriverHomePage() {
                             </Button>
                             <div className="w-12"></div>
                         </div>
+                        </>
+                       )}
                     </div>
+                    )}
                 </div>
             </div>
         </div>
     );
 }
-
-    
