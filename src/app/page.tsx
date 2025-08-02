@@ -1,7 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import { APIProvider, Map, useMapsLibrary, useMap, AdvancedMarker } from '@vis.gl/react-google-maps';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import L, { LatLngExpression } from 'leaflet';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -10,56 +11,39 @@ import { useToast } from '@/hooks/use-toast';
 import { suggestDestination, SuggestDestinationOutput } from '@/ai/flows/suggest-destination';
 import { Car, CircleDot, Dot, LoaderCircle, MapPin, Search, ArrowLeft, X } from 'lucide-react';
 
-const API_KEY = process.env.NEXT_PUBLIC_GOOGLE_MAPS_API_KEY as string;
-const MAP_ID = 'RIDEHAIL_LITE_MAP_ID';
-const FARE_PER_KM = 1.5; // Simple fare rate
+// Fix for default icon issue with webpack
+delete (L.Icon.Default.prototype as any)._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+});
 
-type LatLngLiteral = google.maps.LatLngLiteral;
+
+const FARE_PER_KM = 1.5;
+
+type LatLngTuple = [number, number];
 
 export default function RideHailPage() {
-  if (!API_KEY || API_KEY === "YOUR_API_KEY_HERE") {
-    return (
-      <div className="flex h-screen w-full items-center justify-center bg-background text-foreground p-4">
-        <Card>
-          <CardHeader>
-            <CardTitle>Configuración Requerida</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p>Falta la clave de API de Google Maps.</p>
-            <p className="mt-2">
-              Por favor, añade tu clave al fichero <code className="bg-muted p-1 rounded-sm">.env.local</code> y reinicia la aplicación.
-            </p>
-          </CardContent>
-        </Card>
-      </div>
-    );
-  }
-
-  return (
-    <APIProvider apiKey={API_KEY}>
-      <RideHailApp />
-    </APIProvider>
-  );
+  return <RideHailApp />;
 }
 
 function RideHailApp() {
-  const [currentPosition, setCurrentPosition] = useState<LatLngLiteral | null>(null);
-  const [destination, setDestination] = useState<LatLngLiteral | null>(null);
+  const [currentPosition, setCurrentPosition] = useState<LatLngTuple | null>(null);
+  const [destination, setDestination] = useState<LatLngTuple | null>(null);
   const [destinationName, setDestinationName] = useState('');
-  const [directions, setDirections] = useState<google.maps.DirectionsResult | null>(null);
   const [fare, setFare] = useState<string | null>(null);
   const [appState, setAppState] = useState<'initial' | 'searching' | 'preview' | 'confirmed'>('initial');
 
   useEffect(() => {
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        setCurrentPosition({
-          lat: position.coords.latitude,
-          lng: position.coords.longitude,
-        });
+        setCurrentPosition([position.coords.latitude, position.coords.longitude]);
       },
       (error) => {
         console.error("Geolocation error:", error);
+        // Fallback position
+        setCurrentPosition([37.7749, -122.4194]);
       },
       { enableHighAccuracy: true }
     );
@@ -68,19 +52,15 @@ function RideHailApp() {
   const resetState = () => {
     setDestination(null);
     setDestinationName('');
-    setDirections(null);
     setFare(null);
     setAppState('initial');
   };
   
-  const handleDestinationSelect = (place: google.maps.places.PlaceResult | null, name?: string) => {
-    if (place && place.geometry && place.geometry.location) {
-      const dest = {
-        lat: place.geometry.location.lat(),
-        lng: place.geometry.location.lng(),
-      };
+  const handleDestinationSelect = (place: { lat: number, lon: number, display_name: string } | null, name?: string) => {
+    if (place) {
+      const dest: LatLngTuple = [place.lat, place.lon];
       setDestination(dest);
-      setDestinationName(place.name || name || 'Selected location');
+      setDestinationName(name || place.display_name);
       setAppState('preview');
     }
   };
@@ -99,22 +79,28 @@ function RideHailApp() {
     }
     setAppState('confirmed');
   };
+  
+  if (!currentPosition) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-background text-foreground">
+        <LoaderCircle className="animate-spin" size={48} />
+      </div>
+    )
+  }
 
   return (
     <div className="relative h-screen w-screen overflow-hidden">
-      <Map
-        defaultCenter={currentPosition || { lat: 37.7749, lng: -122.4194 }}
-        defaultZoom={15}
-        mapId={MAP_ID}
-        disableDefaultUI={true}
-        className="h-full w-full"
-      >
-        {currentPosition && <AdvancedMarker position={currentPosition} title="You are here"><UserPin /></AdvancedMarker>}
-        {destination && <AdvancedMarker position={destination} title="Destination"><MapPin className="text-primary" size={36} /></AdvancedMarker>}
-        {directions && <DirectionsRenderer directions={directions} />}
-      </Map>
+      <MapContainer center={currentPosition} zoom={13} scrollWheelZoom={true} className="h-full w-full">
+        <TileLayer
+          attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+        />
+        {currentPosition && <Marker position={currentPosition}><Popup>You are here</Popup></Marker>}
+        {destination && <Marker position={destination}><Popup>{destinationName}</Popup></Marker>}
+        {currentPosition && destination && <Routing origin={currentPosition} destination={destination} setFare={setFare} />}
+      </MapContainer>
 
-      <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-background via-background/90 to-transparent">
+      <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-background via-background/90 to-transparent z-[1000]">
         <Card className="max-w-md mx-auto shadow-2xl bg-background/80 backdrop-blur-sm border-2 border-border">
           {appState === 'initial' && (
             <CardHeader>
@@ -131,18 +117,13 @@ function RideHailApp() {
               currentPosition={currentPosition}
             />
           )}
-
-          {appState === 'preview' && directions && (
+          
+          {appState === 'preview' && (
             <RidePreview
-              directions={directions}
               fare={fare}
               destinationName={destinationName}
               onConfirm={handleConfirmRide}
               onBack={resetState}
-              setDirections={setDirections}
-              setFare={setFare}
-              origin={currentPosition}
-              destination={destination}
             />
           )}
 
@@ -155,6 +136,45 @@ function RideHailApp() {
   );
 }
 
+function Routing({ origin, destination, setFare }) {
+  const map = useMap();
+  const { toast } = useToast();
+
+  useEffect(() => {
+    if (!origin || !destination) return;
+
+    // This is a placeholder for routing. OpenStreetMap routing is more complex than a simple API call.
+    // For a real app, you would use a service like OSRM, GraphHopper, or Mapbox Directions API.
+    // For this example, we'll just draw a straight line.
+    
+    const polyline = L.polyline([origin, destination], { color: 'red' }).addTo(map);
+    map.fitBounds(polyline.getBounds());
+
+    const calculateFare = () => {
+        const R = 6371; // Radius of the earth in km
+        const dLat = (destination[0] - origin[0]) * Math.PI / 180;
+        const dLon = (destination[1] - origin[1]) * Math.PI / 180;
+        const a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(origin[0] * Math.PI / 180) * Math.cos(destination[0] * Math.PI / 180) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        const distanceInKm = R * c; // Distance in km
+        const calculatedFare = distanceInKm * FARE_PER_KM;
+        setFare(calculatedFare.toFixed(2));
+    }
+    
+    calculateFare();
+
+    return () => {
+      map.removeLayer(polyline);
+    };
+  }, [map, origin, destination, setFare, toast]);
+
+  return null;
+}
+
+
 function UserPin() {
     return (
         <div className="relative">
@@ -164,58 +184,46 @@ function UserPin() {
     );
 }
 
-function DestinationSearch({ onSelect, onBack, currentPosition }: { onSelect: (place: google.maps.places.PlaceResult | null, name?: string) => void, onBack: () => void, currentPosition: LatLngLiteral | null }) {
+function DestinationSearch({ onSelect, onBack, currentPosition }: { onSelect: (place: any) => void, onBack: () => void, currentPosition: LatLngTuple | null }) {
   const [input, setInput] = useState('');
-  const [suggestions, setSuggestions] = useState<google.maps.places.AutocompletePrediction[]>([]);
+  const [suggestions, setSuggestions] = useState<any[]>([]);
   const [aiSuggestions, setAiSuggestions] = useState<SuggestDestinationOutput[]>([]);
   const [loading, setLoading] = useState(false);
-  const places = useMapsLibrary('places');
-  const service = useRef<google.maps.places.AutocompleteService | null>(null);
-  const geoCoderService = useRef<google.maps.Geocoder | null>(null);
-
-  useEffect(() => {
-    if (places) {
-      service.current = new places.AutocompleteService();
-      geoCoderService.current = new places.Geocoder();
-    }
-  }, [places]);
+  const [loadingAi, setLoadingAi] = useState(false);
 
   useEffect(() => {
     const fetchAiSuggestions = async () => {
-      setLoading(true);
+      setLoadingAi(true);
       try {
         const history = localStorage.getItem('locationHistory') || '[]';
-        const locationStr = currentPosition ? `${currentPosition.lat}, ${currentPosition.lng}` : 'unknown';
+        const locationStr = currentPosition ? `${currentPosition[0]}, ${currentPosition[1]}` : 'unknown';
         const result = await suggestDestination({ userLocation: locationStr, locationHistory: history });
         setAiSuggestions([result]);
       } catch (error) {
         console.error("AI suggestion error:", error);
       }
-      setLoading(false);
+      setLoadingAi(false);
     };
     fetchAiSuggestions();
   }, [currentPosition]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setInput(value);
-    if (value.length > 2 && service.current) {
-      service.current.getPlacePredictions({ input: value }, (preds) => {
-        setSuggestions(preds || []);
-      });
+    if (value.length > 2) {
+      setLoading(true);
+      try {
+        const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${value}`);
+        const data = await response.json();
+        setSuggestions(data);
+      } catch (error) {
+        console.error("Geocoding error:", error);
+      }
+      setLoading(false);
     } else {
       setSuggestions([]);
     }
   };
-
-  const selectPlace = (placeId: string, name: string) => {
-    if (!geoCoderService.current) return;
-    geoCoderService.current.geocode({ placeId }, (results, status) => {
-        if (status === 'OK' && results) {
-            onSelect(results[0], name);
-        }
-    });
-  }
 
   return (
     <div className="p-4">
@@ -234,10 +242,10 @@ function DestinationSearch({ onSelect, onBack, currentPosition }: { onSelect: (p
       </div>
       <Separator />
       <div className="mt-4 max-h-60 overflow-y-auto">
-        {loading && <div className="flex items-center justify-center p-4"><LoaderCircle className="animate-spin" /></div>}
+        {(loading || loadingAi) && <div className="flex items-center justify-center p-4"><LoaderCircle className="animate-spin" /></div>}
         
-        {input.length === 0 && aiSuggestions.map((s, i) => (
-          <button key={i} className="w-full text-left p-3 flex items-center gap-4 hover:bg-secondary rounded-lg" onClick={() => {setInput(s.suggestedDestination); service.current?.getPlacePredictions({ input: s.suggestedDestination }, (preds) => { if(preds && preds[0]) { selectPlace(preds[0].place_id, preds[0].description) } });}}>
+        {input.length === 0 && !loadingAi && aiSuggestions.map((s, i) => (
+          <button key={i} className="w-full text-left p-3 flex items-center gap-4 hover:bg-secondary rounded-lg" onClick={() => onSelect({display_name: s.suggestedDestination, lat: 0, lon: 0}, s.suggestedDestination)}>
             <Car size={20} className="text-primary" />
             <div>
               <p className="font-medium">{s.suggestedDestination}</p>
@@ -247,9 +255,9 @@ function DestinationSearch({ onSelect, onBack, currentPosition }: { onSelect: (p
         ))}
 
         {suggestions.map(p => (
-            <button key={p.place_id} className="w-full text-left p-3 flex items-center gap-4 hover:bg-secondary rounded-lg" onClick={() => selectPlace(p.place_id, p.description)}>
+            <button key={p.place_id} className="w-full text-left p-3 flex items-center gap-4 hover:bg-secondary rounded-lg" onClick={() => onSelect(p, p.display_name)}>
                 <MapPin size={20} className="text-muted-foreground" />
-                <p>{p.description}</p>
+                <p>{p.display_name}</p>
             </button>
         ))}
       </div>
@@ -257,35 +265,7 @@ function DestinationSearch({ onSelect, onBack, currentPosition }: { onSelect: (p
   );
 }
 
-function RidePreview({ directions, fare, destinationName, onConfirm, onBack, setDirections, setFare, origin, destination }) {
-  const routes = useMapsLibrary('routes');
-  const { toast } = useToast();
-
-  useEffect(() => {
-    if (!routes || !origin || !destination) return;
-    const directionsService = new routes.DirectionsService();
-
-    directionsService.route({
-      origin,
-      destination,
-      travelMode: google.maps.TravelMode.DRIVING,
-    }).then(response => {
-      setDirections(response);
-      const distanceInKm = (response.routes[0].legs[0].distance?.value || 0) / 1000;
-      const calculatedFare = distanceInKm * FARE_PER_KM;
-      setFare(calculatedFare.toFixed(2));
-    }).catch(e => {
-        toast({
-            variant: "destructive",
-            title: "Error",
-            description: `Could not find a route. ${e.message}`,
-        });
-        onBack();
-    });
-  }, [routes, origin, destination, setDirections, setFare, toast, onBack]);
-
-  const duration = directions?.routes[0]?.legs[0]?.duration?.text;
-  const distance = directions?.routes[0]?.legs[0]?.distance?.text;
+function RidePreview({ fare, destinationName, onConfirm, onBack }) {
 
   return (
     <div className="p-4">
@@ -301,18 +281,8 @@ function RidePreview({ directions, fare, destinationName, onConfirm, onBack, set
       </div>
       <div className="flex justify-around my-4 text-center">
         <div>
-          <p className="text-2xl font-bold">{duration || '...'}</p>
-          <p className="text-muted-foreground">Duration</p>
-        </div>
-        <Separator orientation="vertical" className="h-12" />
-        <div>
           <p className="text-2xl font-bold">{`$${fare || '...'}`}</p>
           <p className="text-muted-foreground">Est. Fare</p>
-        </div>
-        <Separator orientation="vertical" className="h-12" />
-        <div>
-          <p className="text-2xl font-bold">{distance || '...'}</p>
-          <p className="text-muted-foreground">Distance</p>
         </div>
       </div>
       <Button size="lg" className="w-full text-lg" onClick={onConfirm}>
@@ -333,33 +303,4 @@ function RideConfirmed({ onNewRide }) {
       </Button>
     </div>
   );
-}
-
-function DirectionsRenderer({ directions }: { directions: google.maps.DirectionsResult | null }) {
-  const map = useMap();
-  const routes = useMapsLibrary('routes');
-  const directionsRendererRef = useRef<google.maps.DirectionsRenderer | null>(null);
-
-  useEffect(() => {
-    if (!routes || !map) return;
-    if (!directionsRendererRef.current) {
-      directionsRendererRef.current = new routes.DirectionsRenderer({
-        suppressMarkers: true,
-        polylineOptions: {
-            strokeColor: '#FF0000', // Red
-            strokeOpacity: 0.8,
-            strokeWeight: 6,
-        },
-      });
-      directionsRendererRef.current.setMap(map);
-    }
-  }, [routes, map]);
-  
-  useEffect(() => {
-    if (directionsRendererRef.current && directions) {
-      directionsRendererRef.current.setDirections(directions);
-    }
-  }, [directions]);
-
-  return null;
 }
