@@ -1,8 +1,8 @@
 'use client';
 
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
-import L, { LatLngExpression } from 'leaflet';
+import dynamic from 'next/dynamic';
+import type { LatLngTuple } from 'leaflet';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -11,43 +11,71 @@ import { useToast } from '@/hooks/use-toast';
 import { suggestDestination, SuggestDestinationOutput } from '@/ai/flows/suggest-destination';
 import { Car, CircleDot, Dot, LoaderCircle, MapPin, Search, ArrowLeft, X } from 'lucide-react';
 
-// Fix for default icon issue with webpack
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
-  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
-  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
-});
+// Dynamically import Leaflet and Map components with SSR disabled
+const L = dynamic(() => import('leaflet'), { ssr: false });
+
+const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
+const TileLayer = dynamic(() => import('react-leaflet').then(mod => mod.TileLayer), { ssr: false });
+const Marker = dynamic(() => import('react-leaflet').then(mod => mod.Marker), { ssr: false });
+const Popup = dynamic(() => import('react-leaflet').then(mod => mod.Popup), { ssr: false });
+const useMap = dynamic(() => import('react-leaflet').then(mod => mod.useMap), { ssr: false });
 
 
 const FARE_PER_KM = 1.5;
 
-type LatLngTuple = [number, number];
-
 export default function RideHailPage() {
-  return <RideHailApp />;
+  const [currentPosition, setCurrentPosition] = useState<LatLngTuple | null>(null);
+  const [leaflet, setLeaflet] = useState<typeof import('leaflet') | null>(null);
+
+  useEffect(() => {
+    // Import Leaflet dynamically on the client side
+    import('leaflet').then(leafletModule => {
+       // Fix for default icon issue with webpack
+      delete (leafletModule.Icon.Default.prototype as any)._getIconUrl;
+      leafletModule.Icon.Default.mergeOptions({
+        iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+        iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+        shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+      });
+      setLeaflet(leafletModule);
+    });
+  }, []);
+
+  useEffect(() => {
+    // Check if window is defined to ensure this runs only on the client
+    if (typeof window !== 'undefined') {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setCurrentPosition([position.coords.latitude, position.coords.longitude]);
+        },
+        (error) => {
+          console.error("Geolocation error:", error);
+          // Fallback position
+          setCurrentPosition([37.7749, -122.4194]);
+        },
+        { enableHighAccuracy: true }
+      );
+    }
+  }, []);
+
+  if (!currentPosition || !leaflet) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center bg-background text-foreground">
+        <LoaderCircle className="animate-spin" size={48} />
+      </div>
+    );
+  }
+
+  return <RideHailApp initialPosition={currentPosition} L={leaflet} />;
 }
 
-function RideHailApp() {
-  const [currentPosition, setCurrentPosition] = useState<LatLngTuple | null>(null);
+function RideHailApp({ initialPosition, L }: { initialPosition: LatLngTuple, L: typeof import('leaflet') }) {
+  const [currentPosition, setCurrentPosition] = useState<LatLngTuple>(initialPosition);
   const [destination, setDestination] = useState<LatLngTuple | null>(null);
   const [destinationName, setDestinationName] = useState('');
   const [fare, setFare] = useState<string | null>(null);
   const [appState, setAppState] = useState<'initial' | 'searching' | 'preview' | 'confirmed'>('initial');
 
-  useEffect(() => {
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setCurrentPosition([position.coords.latitude, position.coords.longitude]);
-      },
-      (error) => {
-        console.error("Geolocation error:", error);
-        // Fallback position
-        setCurrentPosition([37.7749, -122.4194]);
-      },
-      { enableHighAccuracy: true }
-    );
-  }, []);
 
   const resetState = () => {
     setDestination(null);
@@ -58,7 +86,7 @@ function RideHailApp() {
   
   const handleDestinationSelect = (place: { lat: number, lon: number, display_name: string } | null, name?: string) => {
     if (place) {
-      const dest: LatLngTuple = [place.lat, place.lon];
+      const dest: LatLngTuple = [parseFloat(String(place.lat)), parseFloat(String(place.lon))];
       setDestination(dest);
       setDestinationName(name || place.display_name);
       setAppState('preview');
@@ -80,14 +108,6 @@ function RideHailApp() {
     setAppState('confirmed');
   };
   
-  if (!currentPosition) {
-    return (
-      <div className="flex h-screen w-full items-center justify-center bg-background text-foreground">
-        <LoaderCircle className="animate-spin" size={48} />
-      </div>
-    )
-  }
-
   return (
     <div className="relative h-screen w-screen overflow-hidden">
       <MapContainer center={currentPosition} zoom={13} scrollWheelZoom={true} className="h-full w-full">
@@ -97,7 +117,7 @@ function RideHailApp() {
         />
         {currentPosition && <Marker position={currentPosition}><Popup>You are here</Popup></Marker>}
         {destination && <Marker position={destination}><Popup>{destinationName}</Popup></Marker>}
-        {currentPosition && destination && <Routing origin={currentPosition} destination={destination} setFare={setFare} />}
+        {currentPosition && destination && <Routing L={L} origin={currentPosition} destination={destination} setFare={setFare} />}
       </MapContainer>
 
       <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-background via-background/90 to-transparent z-[1000]">
@@ -136,12 +156,12 @@ function RideHailApp() {
   );
 }
 
-function Routing({ origin, destination, setFare }) {
+function Routing({ L, origin, destination, setFare }: { L: typeof import('leaflet'), origin: LatLngTuple, destination: LatLngTuple, setFare: (fare: string) => void }) {
   const map = useMap();
   const { toast } = useToast();
 
   useEffect(() => {
-    if (!origin || !destination) return;
+    if (!origin || !destination || !L) return;
 
     // This is a placeholder for routing. OpenStreetMap routing is more complex than a simple API call.
     // For a real app, you would use a service like OSRM, GraphHopper, or Mapbox Directions API.
@@ -169,7 +189,7 @@ function Routing({ origin, destination, setFare }) {
     return () => {
       map.removeLayer(polyline);
     };
-  }, [map, origin, destination, setFare, toast]);
+  }, [map, origin, destination, setFare, toast, L]);
 
   return null;
 }
@@ -184,12 +204,13 @@ function UserPin() {
     );
 }
 
-function DestinationSearch({ onSelect, onBack, currentPosition }: { onSelect: (place: any) => void, onBack: () => void, currentPosition: LatLngTuple | null }) {
+function DestinationSearch({ onSelect, onBack, currentPosition }: { onSelect: (place: any, name?: string) => void, onBack: () => void, currentPosition: LatLngTuple | null }) {
   const [input, setInput] = useState('');
   const [suggestions, setSuggestions] = useState<any[]>([]);
   const [aiSuggestions, setAiSuggestions] = useState<SuggestDestinationOutput[]>([]);
   const [loading, setLoading] = useState(false);
   const [loadingAi, setLoadingAi] = useState(false);
+  const { toast } = useToast();
 
   useEffect(() => {
     const fetchAiSuggestions = async () => {
@@ -198,7 +219,9 @@ function DestinationSearch({ onSelect, onBack, currentPosition }: { onSelect: (p
         const history = localStorage.getItem('locationHistory') || '[]';
         const locationStr = currentPosition ? `${currentPosition[0]}, ${currentPosition[1]}` : 'unknown';
         const result = await suggestDestination({ userLocation: locationStr, locationHistory: history });
-        setAiSuggestions([result]);
+        if (result.suggestedDestination) {
+          setAiSuggestions([result]);
+        }
       } catch (error) {
         console.error("AI suggestion error:", error);
       }
@@ -218,11 +241,41 @@ function DestinationSearch({ onSelect, onBack, currentPosition }: { onSelect: (p
         setSuggestions(data);
       } catch (error) {
         console.error("Geocoding error:", error);
+        toast({
+          title: "Search Error",
+          description: "Could not fetch location suggestions. Please try again later.",
+          variant: "destructive",
+        })
       }
       setLoading(false);
     } else {
       setSuggestions([]);
     }
+  };
+
+  const handleAiSuggestionSelect = async (suggestion: SuggestDestinationOutput) => {
+    setLoading(true);
+    try {
+      const response = await fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${suggestion.suggestedDestination}`);
+      const data = await response.json();
+      if (data && data.length > 0) {
+        onSelect(data[0], suggestion.suggestedDestination);
+      } else {
+         toast({
+          title: "Location not found",
+          description: `Could not find coordinates for ${suggestion.suggestedDestination}.`,
+          variant: "destructive",
+        })
+      }
+    } catch (error) {
+       toast({
+          title: "Search Error",
+          description: "Could not fetch location details. Please try again later.",
+          variant: "destructive",
+        })
+      console.error("Geocoding error:", error);
+    }
+    setLoading(false);
   };
 
   return (
@@ -245,7 +298,7 @@ function DestinationSearch({ onSelect, onBack, currentPosition }: { onSelect: (p
         {(loading || loadingAi) && <div className="flex items-center justify-center p-4"><LoaderCircle className="animate-spin" /></div>}
         
         {input.length === 0 && !loadingAi && aiSuggestions.map((s, i) => (
-          <button key={i} className="w-full text-left p-3 flex items-center gap-4 hover:bg-secondary rounded-lg" onClick={() => onSelect({display_name: s.suggestedDestination, lat: 0, lon: 0}, s.suggestedDestination)}>
+          <button key={i} className="w-full text-left p-3 flex items-center gap-4 hover:bg-secondary rounded-lg" onClick={() => handleAiSuggestionSelect(s)}>
             <Car size={20} className="text-primary" />
             <div>
               <p className="font-medium">{s.suggestedDestination}</p>
