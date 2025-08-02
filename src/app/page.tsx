@@ -21,6 +21,20 @@ const useMap = dynamic(() => import('react-leaflet').then(mod => mod.useMap), { 
 
 const FARE_PER_KM = 1.5;
 
+function MapUpdater({ currentPosition, destination, L }: { currentPosition: LatLngTuple, destination: LatLngTuple | null, L: any }) {
+  const map = useMap();
+  useEffect(() => {
+    if (destination) {
+        const bounds = L.latLngBounds([currentPosition, destination]);
+        map.fitBounds(bounds, { padding: [50, 50] });
+    } else {
+        map.setView(currentPosition, 13);
+    }
+  }, [map, L, currentPosition, destination]);
+
+  return null;
+}
+
 function MapView({
   L,
   currentPosition,
@@ -32,17 +46,6 @@ function MapView({
   destination: LatLngTuple | null;
   destinationName: string;
 }) {
-  const map = useMap();
-  
-  useEffect(() => {
-    if (destination) {
-        const bounds = L.latLngBounds([currentPosition, destination]);
-        map.fitBounds(bounds, { padding: [50, 50] });
-    } else {
-        map.setView(currentPosition, 13);
-    }
-  }, [map, L, currentPosition, destination]);
-
   return (
     <>
       <TileLayer
@@ -52,6 +55,7 @@ function MapView({
       <Marker position={currentPosition}><Popup>You are here</Popup></Marker>
       {destination && <Marker position={destination}><Popup>{destinationName}</Popup></Marker>}
       {destination && <Polyline positions={[currentPosition, destination]} color="red" />}
+      <MapUpdater L={L} currentPosition={currentPosition} destination={destination} />
     </>
   );
 }
@@ -325,3 +329,5 @@ function RideConfirmed({ onNewRide }: { onNewRide: () => void }) {
     </CardContent>
   );
 }
+
+    
