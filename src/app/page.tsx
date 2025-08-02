@@ -171,6 +171,8 @@ export default function DriverHomePage() {
     const [selecting, setSelecting] = useState<'start' | 'end' | null>(null);
     const [tripDetails, setTripDetails] = useState<{distance: number, cost: number} | null>(null);
     const [isTripDetailsVisible, setIsTripDetailsVisible] = useState(true);
+    const [isSearchMinimized, setIsSearchMinimized] = useState(false);
+
 
     useEffect(() => {
         setCurrentPosition([-27.45, -58.983333]);
@@ -619,51 +621,60 @@ export default function DriverHomePage() {
                                <p className="text-sm text-gray-400">Estás conectado y listo para recibir solicitudes.</p>
                            </div>
                        ) : (
-                        <>
-                        <div className="space-y-2 mb-4">
-                            <Button variant="outline" className="w-full justify-start h-12 text-left bg-gray-800/50 border-gray-700 hover:bg-gray-800/80" onClick={() => setSelecting('start')}>
-                                <MapPin className="mr-3 h-5 w-5 text-blue-400" />
-                                {startPoint ? <span className="text-white">{`Desde: ${startPoint[0].toFixed(4)}, ${startPoint[1].toFixed(4)}`}</span> : <span className="text-gray-400">¿Desde dónde?</span>}
-                            </Button>
-                            <Button variant="outline" className="w-full justify-start h-12 text-left bg-gray-800/50 border-gray-700 hover:bg-gray-800/80" onClick={() => setSelecting('end')}>
-                                <MapPin className="mr-3 h-5 w-5 text-orange-400" />
-                                {endPoint ? <span className="text-white">{`Hasta: ${endPoint[0].toFixed(4)}, ${endPoint[1].toFixed(4)}`}</span> : <span className="text-gray-400">¿Hacia dónde?</span>}
-                            </Button>
-                        </div>
-                        <div className="flex items-center justify-between">
-                             <Dialog>
-                                <DialogTrigger asChild>
-                                     <Button variant="ghost" className="relative">
-                                        <Settings2 className="h-7 w-7" />
-                                        <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500" />
+                        <div className="transition-all duration-300">
+                             <div className="flex justify-end mb-2">
+                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setIsSearchMinimized(!isSearchMinimized)}>
+                                    {isSearchMinimized ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+                                </Button>
+                            </div>
+                           
+                            {!isSearchMinimized && (
+                                <div className="space-y-2 mb-4">
+                                    <Button variant="outline" className="w-full justify-start h-12 text-left bg-gray-800/50 border-gray-700 hover:bg-gray-800/80" onClick={() => setSelecting('start')}>
+                                        <MapPin className="mr-3 h-5 w-5 text-blue-400" />
+                                        {startPoint ? <span className="text-white">{`Desde: ${startPoint[0].toFixed(4)}, ${startPoint[1].toFixed(4)}`}</span> : <span className="text-gray-400">¿Desde dónde?</span>}
                                     </Button>
-                                </DialogTrigger>
-                                <DialogContent className="bg-gray-900 text-white border-gray-700">
-                                    <DialogHeader>
-                                        <DialogTitle>Preferencias de viaje</DialogTitle>
-                                    </DialogHeader>
-                                    <div className="py-4 space-y-4">
-                                        <div className="flex items-center justify-between p-3 bg-gray-800 rounded-md">
-                                            <Label htmlFor="accept-cash-dialog">Aceptar efectivo</Label>
-                                            <Switch id="accept-cash-dialog" defaultChecked />
+                                    <Button variant="outline" className="w-full justify-start h-12 text-left bg-gray-800/50 border-gray-700 hover:bg-gray-800/80" onClick={() => setSelecting('end')}>
+                                        <MapPin className="mr-3 h-5 w-5 text-orange-400" />
+                                        {endPoint ? <span className="text-white">{`Hasta: ${endPoint[0].toFixed(4)}, ${endPoint[1].toFixed(4)}`}</span> : <span className="text-gray-400">¿Hacia dónde?</span>}
+                                    </Button>
+                                </div>
+                            )}
+
+                            <div className="flex items-center justify-between">
+                                <Dialog>
+                                    <DialogTrigger asChild>
+                                        <Button variant="ghost" className="relative">
+                                            <Settings2 className="h-7 w-7" />
+                                            <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500" />
+                                        </Button>
+                                    </DialogTrigger>
+                                    <DialogContent className="bg-gray-900 text-white border-gray-700">
+                                        <DialogHeader>
+                                            <DialogTitle>Preferencias de viaje</DialogTitle>
+                                        </DialogHeader>
+                                        <div className="py-4 space-y-4">
+                                            <div className="flex items-center justify-between p-3 bg-gray-800 rounded-md">
+                                                <Label htmlFor="accept-cash-dialog">Aceptar efectivo</Label>
+                                                <Switch id="accept-cash-dialog" defaultChecked />
+                                            </div>
+                                            <div className="flex items-center justify-between p-3 bg-gray-800 rounded-md">
+                                                <Label htmlFor="auto-accept-dialog">Aceptación automática</Label>
+                                                <Switch id="auto-accept-dialog" />
+                                            </div>
                                         </div>
-                                        <div className="flex items-center justify-between p-3 bg-gray-800 rounded-md">
-                                            <Label htmlFor="auto-accept-dialog">Aceptación automática</Label>
-                                            <Switch id="auto-accept-dialog" />
-                                        </div>
-                                    </div>
-                                </DialogContent>
-                            </Dialog>
-                            <Button 
-                                size="lg" 
-                                className={`w-full max-w-xs text-xl h-14 rounded-full font-bold transition-colors ${isConnected ? 'bg-gray-600 hover:bg-gray-700' : 'bg-orange-600 hover:bg-orange-700'}`}
-                                onClick={() => setIsConnected(!isConnected)}
-                            >
-                                {isConnected ? 'Desconectarse' : 'Conectarse'}
-                            </Button>
-                            <div className="w-12"></div>
+                                    </DialogContent>
+                                </Dialog>
+                                <Button 
+                                    size="lg" 
+                                    className={`w-full max-w-xs text-xl h-14 rounded-full font-bold transition-colors ${isConnected ? 'bg-gray-600 hover:bg-gray-700' : 'bg-orange-600 hover:bg-orange-700'}`}
+                                    onClick={() => setIsConnected(!isConnected)}
+                                >
+                                    {isConnected ? 'Desconectarse' : 'Conectarse'}
+                                </Button>
+                                <div className="w-12"></div>
+                            </div>
                         </div>
-                        </>
                        )}
                     </div>
                     )}
