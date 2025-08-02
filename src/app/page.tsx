@@ -7,8 +7,12 @@ import type { LatLngTuple } from 'leaflet';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Menu, ChevronDown, HelpCircle, Layers, Crosshair, Shield, Settings2, Zap } from 'lucide-react';
+import { Menu, ChevronDown, HelpCircle, Layers, Crosshair, Shield, Settings2, Zap, Star, Trophy, Users, AlertCircle, Car, User, Settings } from 'lucide-react';
 import Image from 'next/image';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Separator } from '@/components/ui/separator';
+import { Badge } from '@/components/ui/badge';
 
 const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
 const TileLayer = dynamic(() => import('react-leaflet').then(mod => mod.TileLayer), { ssr: false });
@@ -59,7 +63,7 @@ const SurgePricingMarker = ({ position, rate }: { position: LatLngTuple, rate: s
 }
 
 export default function DriverHomePage() {
-    const [currentPosition, setCurrentPosition] = useState<LatLngTuple | null>([27.45, -58.983333]);
+    const [currentPosition, setCurrentPosition] = useState<LatLngTuple | null>([-27.45, -58.983333]);
     const [isConnected, setIsConnected] = useState(false);
 
     useEffect(() => {
@@ -103,10 +107,60 @@ export default function DriverHomePage() {
 
             {/* Top Bar */}
             <div className="absolute top-0 left-0 right-0 p-4 flex justify-between items-center z-[1000]">
-                <Button variant="secondary" size="icon" className="rounded-full shadow-lg relative bg-gray-800/80 hover:bg-gray-700/80">
-                    <Menu className="h-6 w-6" />
-                    <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-gray-800" />
-                </Button>
+                <Sheet>
+                    <SheetTrigger asChild>
+                        <Button variant="secondary" size="icon" className="rounded-full shadow-lg relative bg-gray-800/80 hover:bg-gray-700/80">
+                            <Menu className="h-6 w-6" />
+                            <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-gray-800" />
+                        </Button>
+                    </SheetTrigger>
+                    <SheetContent side="left" className="w-[300px] sm:w-[350px] bg-gray-900 text-white border-gray-800 p-0">
+                        <div className="flex flex-col h-full">
+                            <div className="p-6">
+                                <div className="flex flex-col items-center text-center">
+                                    <Avatar className="w-24 h-24 mb-4">
+                                        <AvatarImage src="https://placehold.co/100x100.png" data-ai-hint="profile picture" alt="Daniel" />
+                                        <AvatarFallback>D</AvatarFallback>
+                                    </Avatar>
+                                    <h2 className="text-xl font-bold">Daniel *******</h2>
+                                </div>
+                                <div className="flex justify-around my-6 text-center">
+                                    <div>
+                                        <p className="text-2xl font-bold">73%</p>
+                                        <p className="text-xs text-gray-400">Tasa de aceptación</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-2xl font-bold">100%</p>
+                                        <p className="text-xs text-gray-400">Tasa de viajes finalizados</p>
+                                    </div>
+                                    <div>
+                                        <p className="text-2xl font-bold">5</p>
+                                        <p className="text-xs text-gray-400">Calificación en estrellas</p>
+                                    </div>
+                                </div>
+                                <Separator className="bg-gray-700" />
+                            </div>
+                            <nav className="flex-grow px-4">
+                                <ul className="space-y-2">
+                                    <li><Button variant="ghost" className="w-full justify-start text-lg h-12"><Zap className="mr-4 h-6 w-6" />Ganancias</Button></li>
+                                    <li><Button variant="ghost" className="w-full justify-start text-lg h-12"><Trophy className="mr-4 h-6 w-6" />Premios</Button></li>
+                                    <li><Button variant="ghost" className="w-full justify-start text-lg h-12"><Users className="mr-4 h-6 w-6" />Invita a tus amigos</Button></li>
+                                    <li><Button variant="ghost" className="w-full justify-start text-lg h-12"><HelpCircle className="mr-4 h-6 w-6" />Ayuda</Button></li>
+                                    <li>
+                                        <Button variant="ghost" className="w-full justify-start text-lg h-12">
+                                            <AlertCircle className="mr-4 h-6 w-6" />
+                                            Notificaciones
+                                            <Badge variant="destructive" className="ml-auto">103 no leída(s)</Badge>
+                                        </Button>
+                                    </li>
+                                    <li><Button variant="ghost" className="w-full justify-start text-lg h-12"><Car className="mr-4 h-6 w-6" />Autos</Button></li>
+                                    <li><Button variant="ghost" className="w-full justify-start text-lg h-12"><User className="mr-4 h-6 w-6" />Detalles de mi cuenta</Button></li>
+                                    <li><Button variant="ghost" className="w-full justify-start text-lg h-12"><Settings className="mr-4 h-6 w-6" />Configuración</Button></li>
+                                </ul>
+                            </nav>
+                        </div>
+                    </SheetContent>
+                </Sheet>
                 <Button variant="secondary" className="rounded-full shadow-lg h-10 px-4 bg-gray-800/80 hover:bg-gray-700/80">
                     <span className="text-lg font-semibold">$0,00</span>
                     <ChevronDown className="h-5 w-5 ml-1" />
@@ -164,3 +218,5 @@ export default function DriverHomePage() {
         </div>
     );
 }
+
+    
