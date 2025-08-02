@@ -1,15 +1,15 @@
 'use client';
 
-import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import type { LatLngTuple } from 'leaflet';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardHeader } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { useToast } from '@/hooks/use-toast';
 import { suggestDestination, SuggestDestinationOutput } from '@/ai/flows/suggest-destination';
-import { Car, CircleDot, Dot, LoaderCircle, MapPin, Search, ArrowLeft, X } from 'lucide-react';
+import { Car, CircleDot, LoaderCircle, MapPin, Search, ArrowLeft } from 'lucide-react';
 
 // Dynamically import Leaflet and Map components with SSR disabled
 const L = dynamic(() => import('leaflet'), { ssr: false });
@@ -158,16 +158,19 @@ function RideHailApp({ initialPosition, L }: { initialPosition: LatLngTuple, L: 
 
 function Routing({ L, origin, destination, setFare }: { L: typeof import('leaflet'), origin: LatLngTuple, destination: LatLngTuple, setFare: (fare: string) => void }) {
   const map = useMap();
-  const { toast } = useToast();
+  const routingLayerRef = useRef<any>(null);
 
   useEffect(() => {
-    if (!origin || !destination || !L) return;
+    if (!map || !origin || !destination || !L) return;
 
-    // This is a placeholder for routing. OpenStreetMap routing is more complex than a simple API call.
-    // For a real app, you would use a service like OSRM, GraphHopper, or Mapbox Directions API.
-    // For this example, we'll just draw a straight line.
-    
-    const polyline = L.polyline([origin, destination], { color: 'red' }).addTo(map);
+    if (routingLayerRef.current) {
+        map.removeLayer(routingLayerRef.current);
+    }
+
+    const polyline = L.polyline([origin, destination], { color: 'red' });
+    routingLayerRef.current = polyline;
+    polyline.addTo(map);
+
     map.fitBounds(polyline.getBounds());
 
     const calculateFare = () => {
@@ -187,22 +190,15 @@ function Routing({ L, origin, destination, setFare }: { L: typeof import('leafle
     calculateFare();
 
     return () => {
-      map.removeLayer(polyline);
+      if (routingLayerRef.current && map.hasLayer(routingLayerRef.current)) {
+        map.removeLayer(routingLayerRef.current);
+      }
     };
-  }, [map, origin, destination, setFare, toast, L]);
+  }, [map, origin, destination, setFare, L]);
 
   return null;
 }
 
-
-function UserPin() {
-    return (
-        <div className="relative">
-            <div className="absolute inset-0 bg-primary/50 rounded-full animate-ping"></div>
-            <div className="relative w-4 h-4 bg-primary rounded-full border-2 border-background shadow-md"></div>
-        </div>
-    );
-}
 
 function DestinationSearch({ onSelect, onBack, currentPosition }: { onSelect: (place: any, name?: string) => void, onBack: () => void, currentPosition: LatLngTuple | null }) {
   const [input, setInput] = useState('');
@@ -318,7 +314,7 @@ function DestinationSearch({ onSelect, onBack, currentPosition }: { onSelect: (p
   );
 }
 
-function RidePreview({ fare, destinationName, onConfirm, onBack }) {
+function RidePreview({ fare, destinationName, onConfirm, onBack }: { fare: string | null, destinationName: string, onConfirm: () => void, onBack: () => void }) {
 
   return (
     <div className="p-4">
@@ -345,7 +341,7 @@ function RidePreview({ fare, destinationName, onConfirm, onBack }) {
   );
 }
 
-function RideConfirmed({ onNewRide }) {
+function RideConfirmed({ onNewRide }: { onNewRide: () => void }) {
   return (
     <div className="p-6 text-center">
       <Car size={48} className="mx-auto text-primary animate-pulse" />
@@ -357,3 +353,5 @@ function RideConfirmed({ onNewRide }) {
     </div>
   );
 }
+
+    
