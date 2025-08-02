@@ -69,12 +69,27 @@ export default function DriverHomePage() {
     const [currentPosition, setCurrentPosition] = useState<LatLngTuple | null>(null);
     const [isConnected, setIsConnected] = useState(false);
     const [isReferralCardVisible, setIsReferralCardVisible] = useState(true);
+    const [avatarUrl, setAvatarUrl] = useState("https://placehold.co/100x100.png");
+    const [selectedFile, setSelectedFile] = useState<File | null>(null);
     const mapRef = useRef<Map>(null);
 
     useEffect(() => {
         // Fallback to a default location in Resistencia, Chaco
         setCurrentPosition([-27.45, -58.983333]);
     }, []);
+
+    const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+        if (event.target.files && event.target.files[0]) {
+            setSelectedFile(event.target.files[0]);
+        }
+    };
+
+    const handleAvatarUpdate = () => {
+        if (selectedFile) {
+            setAvatarUrl(URL.createObjectURL(selectedFile));
+        }
+    };
+
 
     const surgeZones: { pos: LatLngTuple, rate: string }[] = [
         { pos: [-27.445, -58.99], rate: "2.9~3.0x" },
@@ -156,7 +171,7 @@ export default function DriverHomePage() {
                                         <DialogTrigger asChild>
                                             <div className="relative cursor-pointer">
                                                 <Avatar className="h-16 w-16">
-                                                    <AvatarImage src="https://placehold.co/100x100.png" alt="Driver" />
+                                                    <AvatarImage src={avatarUrl} alt="Driver" />
                                                     <AvatarFallback>U</AvatarFallback>
                                                 </Avatar>
                                                 <div className="absolute bottom-0 right-0 bg-gray-600 p-1 rounded-full border-2 border-gray-800">
@@ -173,10 +188,10 @@ export default function DriverHomePage() {
                                             </DialogHeader>
                                             <div className="grid w-full max-w-sm items-center gap-1.5">
                                                 <Label htmlFor="picture">Foto</Label>
-                                                <Input id="picture" type="file" className="text-white" />
+                                                <Input id="picture" type="file" className="text-white" onChange={handleFileChange}/>
                                             </div>
                                             <DialogFooter>
-                                                <Button type="submit">Guardar Cambios</Button>
+                                                <Button type="submit" onClick={handleAvatarUpdate}>Guardar Cambios</Button>
                                             </DialogFooter>
                                         </DialogContent>
                                     </Dialog>
