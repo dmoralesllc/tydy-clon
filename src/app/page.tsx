@@ -7,18 +7,15 @@ import type { LatLngTuple } from 'leaflet';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
-import { Menu, ChevronDown, HelpCircle, Layers, Crosshair, Shield, Settings2, Zap, Star, Trophy, Users, AlertCircle, Car, User, Settings } from 'lucide-react';
+import { Menu, ChevronDown, HelpCircle, Layers, Crosshair, Shield, Settings2, Zap, Trophy, Users, AlertCircle, Car, User, Settings, X, Eye, Edit } from 'lucide-react';
 import Image from 'next/image';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Separator } from '@/components/ui/separator';
-import { Badge } from '@/components/ui/badge';
 
 const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
 const TileLayer = dynamic(() => import('react-leaflet').then(mod => mod.TileLayer), { ssr: false });
 const Marker = dynamic(() => import('react-leaflet').then(mod => mod.Marker), { ssr: false });
 const Popup = dynamic(() => import('react-leaflet').then(mod => mod.Popup), { ssr: false });
-const DivIcon = dynamic(() => import('leaflet').then(mod => mod.divIcon), { ssr: false });
 
 const UserLocationMarker = ({ position }: { position: LatLngTuple }) => {
   const [L, setL] = useState<any>(null);
@@ -63,8 +60,10 @@ const SurgePricingMarker = ({ position, rate }: { position: LatLngTuple, rate: s
 }
 
 export default function DriverHomePage() {
-    const [currentPosition, setCurrentPosition] = useState<LatLngTuple | null>([-27.45, -58.983333]);
+    const [currentPosition, setCurrentPosition] = useState<LatLngTuple | null>(null);
     const [isConnected, setIsConnected] = useState(false);
+    const [isReferralCardVisible, setIsReferralCardVisible] = useState(true);
+
 
     useEffect(() => {
         // Fallback to a default location in Resistencia, Chaco
@@ -86,6 +85,13 @@ export default function DriverHomePage() {
     if (!currentPosition) {
         return <div className="flex h-screen w-full items-center justify-center bg-gray-900 text-white">Cargando...</div>;
     }
+
+    const StatCard = ({ title, value }: { title: string; value: string }) => (
+        <div className="text-center">
+            <p className="text-xl font-bold">{value}</p>
+            <p className="text-xs text-gray-400">{title}</p>
+        </div>
+    );
 
     return (
         <div className="relative h-screen w-screen overflow-hidden bg-gray-900 text-white">
@@ -111,57 +117,67 @@ export default function DriverHomePage() {
                     <SheetTrigger asChild>
                         <Button variant="secondary" size="icon" className="rounded-full shadow-lg relative bg-gray-800/80 hover:bg-gray-700/80">
                             <Menu className="h-6 w-6" />
-                            <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500 ring-2 ring-gray-800" />
                         </Button>
                     </SheetTrigger>
-                    <SheetContent side="left" className="w-[300px] sm:w-[350px] bg-gray-900 text-white border-gray-800 p-0">
+                    <SheetContent side="left" className="w-full max-w-sm bg-gray-900 text-white border-gray-800 p-0 overflow-y-auto">
                         <div className="flex flex-col h-full">
-                            <div className="p-6">
-                                <div className="flex flex-col items-center text-center">
-                                    <Avatar className="w-24 h-24 mb-4">
-                                        <AvatarImage src="https://placehold.co/100x100.png" data-ai-hint="profile picture" alt="Daniel" />
-                                        <AvatarFallback>D</AvatarFallback>
-                                    </Avatar>
-                                    <h2 className="text-xl font-bold">Daniel *******</h2>
-                                </div>
-                                <div className="flex justify-around my-6 text-center">
-                                    <div>
-                                        <p className="text-2xl font-bold">73%</p>
-                                        <p className="text-xs text-gray-400">Tasa de aceptación</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-2xl font-bold">100%</p>
-                                        <p className="text-xs text-gray-400">Tasa de viajes finalizados</p>
-                                    </div>
-                                    <div>
-                                        <p className="text-2xl font-bold">5</p>
-                                        <p className="text-xs text-gray-400">Calificación en estrellas</p>
-                                    </div>
-                                </div>
-                                <Separator className="bg-gray-700" />
+                            <div className="p-4 space-y-4">
+                                <Card className="bg-gray-800 border-gray-700">
+                                    <CardContent className="p-4 space-y-4">
+                                        <div className="flex justify-between items-center">
+                                            <h3 className="text-lg font-semibold">Tablero</h3>
+                                            <div className="flex items-center gap-4">
+                                                <Button variant="ghost" size="sm" className="p-0 h-auto text-gray-400"><Edit className="mr-1 h-4 w-4" /> Editar</Button>
+                                                <Button variant="ghost" size="sm" className="p-0 h-auto text-gray-400">Más <ChevronDown className="ml-1 h-4 w-4" /></Button>
+                                            </div>
+                                        </div>
+                                        <div className="grid grid-cols-3 gap-4">
+                                            <StatCard title="Ganancias último viaje >" value="$905,00" />
+                                            <StatCard title="Ganancias/hora (hoy) >" value="0" />
+                                            <StatCard title="Ganancias/hora (sem) >" value="$1.157,96" />
+                                            <StatCard title="Ganancias efectivo >" value="$0,00" />
+                                            <StatCard title="Ganancias tarjeta (hoy) >" value="$0,00" />
+                                            <StatCard title="Saldo >" value="-$549,00" />
+                                        </div>
+                                        <Button variant="outline" className="w-full border-gray-700 hover:bg-gray-700">Ver Centro de ganancias</Button>
+                                    </CardContent>
+                                </Card>
+                                <Card className="bg-gray-800 border-gray-700">
+                                    <CardContent className="p-4 space-y-4">
+                                        <div className="flex justify-between items-center">
+                                            <h3 className="text-lg font-semibold">Premios/promos</h3>
+                                            <Button variant="ghost" size="sm" className="p-0 h-auto text-gray-400">Más <ChevronDown className="ml-1 h-4 w-4" /></Button>
+                                        </div>
+                                        <div className="space-y-3">
+                                            <div className="flex items-center">
+                                                <div className="p-2 bg-orange-500 rounded-full mr-3">
+                                                    <Shield className="h-5 w-5 text-white"/>
+                                                </div>
+                                                <div className="flex-grow">
+                                                    <p className="font-semibold">$20.000 <span className="text-green-400 text-xs font-bold ml-1">Nuevo</span></p>
+                                                    <p className="text-xs text-gray-400">garantizados</p>
+                                                </div>
+                                                <p className="text-sm text-gray-400">Completa 15 viaje(s)</p>
+                                            </div>
+                                             <div className="flex items-center">
+                                                <div className="p-2 bg-blue-500 rounded-full mr-3">
+                                                    <Zap className="h-5 w-5 text-white"/>
+                                                </div>
+                                                <div className="flex-grow">
+                                                    <p className="font-semibold">$1.000 <span className="text-green-400 text-xs font-bold ml-1">Nuevo</span></p>
+                                                    <p className="text-xs text-gray-400">Viaja más, gana más</p>
+                                                </div>
+                                                <p className="text-sm text-gray-400">Completa 9 viaje(s)</p>
+                                            </div>
+                                        </div>
+                                    </CardContent>
+                                </Card>
                             </div>
-                            <nav className="flex-grow px-4">
-                                <ul className="space-y-2">
-                                    <li><Button variant="ghost" className="w-full justify-start text-lg h-12"><Zap className="mr-4 h-6 w-6" />Ganancias</Button></li>
-                                    <li><Button variant="ghost" className="w-full justify-start text-lg h-12"><Trophy className="mr-4 h-6 w-6" />Premios</Button></li>
-                                    <li><Button variant="ghost" className="w-full justify-start text-lg h-12"><Users className="mr-4 h-6 w-6" />Invita a tus amigos</Button></li>
-                                    <li><Button variant="ghost" className="w-full justify-start text-lg h-12"><HelpCircle className="mr-4 h-6 w-6" />Ayuda</Button></li>
-                                    <li>
-                                        <Button variant="ghost" className="w-full justify-start text-lg h-12">
-                                            <AlertCircle className="mr-4 h-6 w-6" />
-                                            Notificaciones
-                                            <Badge variant="destructive" className="ml-auto">103 no leída(s)</Badge>
-                                        </Button>
-                                    </li>
-                                    <li><Button variant="ghost" className="w-full justify-start text-lg h-12"><Car className="mr-4 h-6 w-6" />Autos</Button></li>
-                                    <li><Button variant="ghost" className="w-full justify-start text-lg h-12"><User className="mr-4 h-6 w-6" />Detalles de mi cuenta</Button></li>
-                                    <li><Button variant="ghost" className="w-full justify-start text-lg h-12"><Settings className="mr-4 h-6 w-6" />Configuración</Button></li>
-                                </ul>
-                            </nav>
                         </div>
                     </SheetContent>
                 </Sheet>
-                <Button variant="secondary" className="rounded-full shadow-lg h-10 px-4 bg-gray-800/80 hover:bg-gray-700/80">
+                <Button variant="secondary" className="rounded-full shadow-lg h-10 px-4 bg-gray-800/80 hover:bg-gray-700/80 flex items-center gap-2">
+                    <Eye className="h-5 w-5" />
                     <span className="text-lg font-semibold">$0,00</span>
                     <ChevronDown className="h-5 w-5 ml-1" />
                 </Button>
@@ -188,18 +204,23 @@ export default function DriverHomePage() {
 
             {/* Bottom Sheet */}
             <div className="absolute bottom-0 left-0 right-0 p-4 bg-background z-[1000] rounded-t-2xl">
-                <Card className="bg-gradient-to-r from-orange-500 to-pink-500 border-0 mb-4">
-                    <CardContent className="p-4 flex items-center justify-between">
-                        <div>
-                            <h3 className="font-bold text-lg">Referí y generá $50.000</h3>
-                            <p className="text-sm">Invitá amigos a registrarse y conducir con la app de DiDi</p>
-                             <Button variant="secondary" size="sm" className="mt-2 h-8 rounded-full bg-white/30 text-white hover:bg-white/40">
-                                Conocé más
-                            </Button>
-                        </div>
-                        <Image src="https://placehold.co/80x60.png" data-ai-hint="logo illustration" alt="DiDi logos" width={80} height={60} />
-                    </CardContent>
-                </Card>
+                {isReferralCardVisible && (
+                    <Card className="bg-gradient-to-r from-orange-500 to-pink-500 border-0 mb-4 relative">
+                         <Button variant="ghost" size="icon" className="absolute top-1 right-1 h-6 w-6 text-white/70 hover:text-white" onClick={() => setIsReferralCardVisible(false)}>
+                            <X className="h-4 w-4" />
+                        </Button>
+                        <CardContent className="p-4 flex items-center justify-between">
+                            <div>
+                                <h3 className="font-bold text-lg">Referí y generá $50.000</h3>
+                                <p className="text-sm">Invitá amigos a registrarse y conducir con la app de TyDy</p>
+                                <Button variant="secondary" size="sm" className="mt-2 h-8 rounded-full bg-white/30 text-white hover:bg-white/40">
+                                    Conocé más
+                                </Button>
+                            </div>
+                            <Image src="https://placehold.co/80x60.png" data-ai-hint="logo illustration" alt="TyDy logos" width={80} height={60} />
+                        </CardContent>
+                    </Card>
+                )}
                 <div className="flex items-center justify-between">
                     <Button variant="ghost" className="relative">
                         <Settings2 className="h-7 w-7" />
@@ -217,6 +238,5 @@ export default function DriverHomePage() {
             </div>
         </div>
     );
-}
 
     
