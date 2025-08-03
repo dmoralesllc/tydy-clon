@@ -275,6 +275,13 @@ export default function DriverHomePage() {
         });
     };
 
+    const handleSaveVehicle = () => {
+        toast({
+            title: "Vehículo guardado",
+            description: "El nuevo vehículo se ha añadido a tu perfil.",
+        });
+    }
+
     const surgeZones: { pos: LatLngTuple, rate: string, value: number }[] = [
         { pos: [-27.445, -58.99], rate: "2.9~3.0x", value: 2.95 },
         { pos: [-27.452, -59.00], rate: "2.7~2.9x", value: 2.8 },
@@ -616,9 +623,45 @@ export default function DriverHomePage() {
                                                                                     </div>
                                                                                 </Label>
                                                                             </RadioGroup>
-                                                                            <Button variant="outline" className="w-full border-gray-600 text-white hover:bg-gray-700">
-                                                                                <Plus className="mr-2 h-4 w-4" /> Agregar vehículo nuevo
-                                                                            </Button>
+                                                                            <Dialog>
+                                                                                <DialogTrigger asChild>
+                                                                                    <Button variant="outline" className="w-full border-gray-600 text-white hover:bg-gray-700">
+                                                                                        <Plus className="mr-2 h-4 w-4" /> Agregar vehículo nuevo
+                                                                                    </Button>
+                                                                                </DialogTrigger>
+                                                                                <DialogContent className="bg-gray-800 text-white border-gray-700">
+                                                                                    <DialogHeader>
+                                                                                        <DialogTitle>Agregar Nuevo Vehículo</DialogTitle>
+                                                                                        <DialogDescription>
+                                                                                            Ingresa los datos del nuevo vehículo.
+                                                                                        </DialogDescription>
+                                                                                    </DialogHeader>
+                                                                                    <div className="py-4 space-y-4">
+                                                                                        <div className="grid grid-cols-4 items-center gap-4">
+                                                                                            <Label htmlFor="marca" className="text-right">Marca</Label>
+                                                                                            <Input id="marca" placeholder="Ej: Toyota" className="col-span-3 text-white" />
+                                                                                        </div>
+                                                                                        <div className="grid grid-cols-4 items-center gap-4">
+                                                                                            <Label htmlFor="modelo" className="text-right">Modelo</Label>
+                                                                                            <Input id="modelo" placeholder="Ej: Corolla" className="col-span-3 text-white" />
+                                                                                        </div>
+                                                                                        <div className="grid grid-cols-4 items-center gap-4">
+                                                                                            <Label htmlFor="patente" className="text-right">Patente</Label>
+                                                                                            <Input id="patente" placeholder="Ej: AB 123 CD" className="col-span-3 text-white" />
+                                                                                        </div>
+                                                                                        <div className="grid grid-cols-4 items-center gap-4">
+                                                                                            <Label htmlFor="color" className="text-right">Color</Label>
+                                                                                            <Input id="color" placeholder="Ej: Negro" className="col-span-3 text-white" />
+                                                                                        </div>
+                                                                                    </div>
+                                                                                    <DialogFooter>
+                                                                                        <DialogClose asChild>
+                                                                                            <Button variant="ghost">Cancelar</Button>
+                                                                                        </DialogClose>
+                                                                                        <Button type="submit" onClick={handleSaveVehicle}>Guardar Vehículo</Button>
+                                                                                    </DialogFooter>
+                                                                                </DialogContent>
+                                                                            </Dialog>
                                                                         </div>
                                                                         <DialogFooter>
                                                                             <DialogClose asChild>
@@ -904,3 +947,5 @@ export default function DriverHomePage() {
         </div>
     );
 }
+
+    
