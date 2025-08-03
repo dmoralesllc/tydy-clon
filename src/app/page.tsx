@@ -211,6 +211,7 @@ export default function DriverHomePage() {
     const [isTripDetailsVisible, setIsTripDetailsVisible] = useState(true);
     const [isSearchMinimized, setIsSearchMinimized] = useState(false);
     const [uploadedDocs, setUploadedDocs] = useState<{[key: string]: File | null}>({});
+    const [isParticipatingInWeekendChallenge, setIsParticipatingInWeekendChallenge] = useState(false);
 
 
     useEffect(() => {
@@ -293,6 +294,14 @@ export default function DriverHomePage() {
             variant: "destructive",
             title: "Vehículo Eliminado",
             description: "El vehículo ha sido eliminado de tu perfil.",
+        });
+    };
+
+    const handleParticipate = () => {
+        setIsParticipatingInWeekendChallenge(true);
+        toast({
+            title: "¡Inscrito!",
+            description: "Ya estás participando en el Desafío Fin de Semana.",
         });
     };
 
@@ -473,7 +482,13 @@ export default function DriverHomePage() {
                                                         <p className="text-lg font-bold text-green-400">Recompensa: $500 extra</p>
                                                     </CardContent>
                                                     <CardFooter>
-                                                        <Button className="w-full bg-orange-600 hover:bg-orange-700">Participar</Button>
+                                                        <Button 
+                                                            className="w-full bg-orange-600 hover:bg-orange-700 disabled:bg-gray-600"
+                                                            onClick={handleParticipate}
+                                                            disabled={isParticipatingInWeekendChallenge}
+                                                        >
+                                                            {isParticipatingInWeekendChallenge ? 'Participando' : 'Participar'}
+                                                        </Button>
                                                     </CardFooter>
                                                 </Card>
                                                 <Card className="bg-gray-800 border-gray-700">
