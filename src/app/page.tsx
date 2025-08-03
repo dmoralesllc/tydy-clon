@@ -447,7 +447,7 @@ export default function DriverHomePage() {
                         <SheetContent side="left" className="w-full max-w-sm bg-gray-800 text-white border-gray-700 p-0 flex flex-col">
                            <SheetHeader className="p-4 space-y-4 text-left">
                                 <div className="flex justify-between items-center">
-                                    <div className="flex items-center space-x-4">
+                                    <div className="flex items-center space-x-4 flex-grow">
                                         <Dialog>
                                             <DialogTrigger asChild>
                                                 <div className="relative cursor-pointer">
@@ -483,8 +483,8 @@ export default function DriverHomePage() {
                                             <p className="text-gray-400">Nivel: Oro</p>
                                         </div>
                                     </div>
-                                    <div className="bg-red-600 p-2 rounded-lg flex items-center justify-center h-10 w-20">
-                                        <span className="text-white font-bold text-2xl tracking-tighter">TyDy</span>
+                                    <div className="bg-red-600 p-1 rounded-md flex items-center justify-center h-8 w-16">
+                                        <span className="text-white font-bold text-lg tracking-tighter">TyDy</span>
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-3 gap-2 text-center text-sm">
