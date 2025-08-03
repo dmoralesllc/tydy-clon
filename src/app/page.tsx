@@ -717,7 +717,7 @@ export default function DriverHomePage() {
                                                                         </div>
                                                                         <DialogFooter>
                                                                             <DialogClose asChild>
-                                                                                <Button variant="ghost">Cancelar</Button>
+                                                                              <Button variant="ghost">Cancelar</Button>
                                                                             </DialogClose>
                                                                             <Button type="submit">Confirmar Selección</Button>
                                                                         </DialogFooter>
@@ -796,7 +796,7 @@ export default function DriverHomePage() {
                                                     </DialogHeader>
                                                 </DialogContent>
                                             </SettingsItem>
-                                            <SettingsItem icon={HelpCircle} label="Centro de Ayuda">
+                                            <SettingsItem icon={CircleHelp} label="Centro de Ayuda">
                                                 <DialogContent className="bg-gray-800 text-white border-gray-700">
                                                     <DialogHeader>
                                                         <DialogTitle>Centro de Ayuda</DialogTitle>
