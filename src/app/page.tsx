@@ -215,7 +215,7 @@ const chartConfig = {
     },
 };
 
-const earningsHistory = [
+const initialEarningsHistory = [
     { id: 1, type: "Viaje", amount: 250.50, time: "hace 10 min" },
     { id: 2, type: "Bono", amount: 150.00, time: "hace 2 horas" },
     { id: 3, type: "Viaje", amount: 320.00, time: "hace 3 horas" },
@@ -239,7 +239,43 @@ export default function DriverHomePage() {
     const [isSearchMinimized, setIsSearchMinimized] = useState(false);
     const [uploadedDocs, setUploadedDocs] = useState<{[key: string]: File | null}>({});
     const [isParticipatingInWeekendChallenge, setIsParticipatingInWeekendChallenge] = useState(false);
+    const [earningsHistory, setEarningsHistory] = useState(initialEarningsHistory);
+    const [editingEarning, setEditingEarning] = useState<any | null>(null);
 
+    const handleSaveEarning = (e: React.FormEvent) => {
+        e.preventDefault();
+        const form = e.target as HTMLFormElement;
+        const formData = new FormData(form);
+        const updatedEarning = {
+            id: editingEarning.id,
+            type: formData.get('type') as string,
+            amount: parseFloat(formData.get('amount') as string),
+            time: formData.get('time') as string,
+        };
+
+        if (editingEarning.isNew) {
+             setEarningsHistory(prev => [updatedEarning, ...prev.filter(item => item.id !== editingEarning.id)]);
+             toast({ title: "Registro añadido", description: "El nuevo registro de ganancia ha sido añadido." });
+        } else {
+            setEarningsHistory(prev => prev.map(item => item.id === updatedEarning.id ? updatedEarning : item));
+            toast({ title: "Registro actualizado", description: "El registro de ganancia ha sido actualizado." });
+        }
+
+        setEditingEarning(null);
+    };
+
+    const handleAddNewEarning = () => {
+        setEditingEarning({ id: Date.now(), type: 'Viaje', amount: 0, time: 'Ahora', isNew: true });
+    };
+
+    const handleDeleteEarning = (id: number) => {
+        setEarningsHistory(prev => prev.filter(item => item.id !== id));
+        toast({
+            variant: "destructive",
+            title: "Registro Eliminado",
+            description: "El registro de ganancia ha sido eliminado.",
+        });
+    };
 
     useEffect(() => {
         setCurrentPosition([-27.45, -58.983333]);
@@ -534,17 +570,44 @@ export default function DriverHomePage() {
                                                             </Card>
                                                         </div>
                                                     </TabsContent>
-                                                    <TabsContent value="history" className="mt-4">
+                                                     <TabsContent value="history" className="mt-4">
+                                                        <div className="flex justify-end mb-4">
+                                                            <Button size="sm" onClick={handleAddNewEarning}><Plus className="mr-2 h-4 w-4" />Añadir Registro</Button>
+                                                        </div>
                                                         <div className="space-y-3 max-h-[400px] overflow-y-auto">
                                                             {earningsHistory.map(item => (
-                                                                <div key={item.id} className="flex items-center justify-between p-3 bg-gray-800 rounded-md">
+                                                                <div key={item.id} className="group flex items-center justify-between p-3 bg-gray-800 rounded-md hover:bg-gray-700/80">
                                                                     <div>
                                                                         <p className="font-semibold">{item.type}</p>
                                                                         <p className="text-xs text-gray-400">{item.time}</p>
                                                                     </div>
-                                                                    <p className={`font-bold ${item.type === 'Viaje' ? 'text-green-400' : 'text-blue-400'}`}>
-                                                                        +${item.amount.toFixed(2)}
-                                                                    </p>
+                                                                    <div className="flex items-center gap-2">
+                                                                        <p className={`font-bold ${item.type === 'Viaje' ? 'text-green-400' : 'text-blue-400'}`}>
+                                                                            +${item.amount.toFixed(2)}
+                                                                        </p>
+                                                                        <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                                                                            <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setEditingEarning(item)}>
+                                                                                <Edit className="h-4 w-4" />
+                                                                            </Button>
+                                                                            <AlertDialog>
+                                                                                <AlertDialogTrigger asChild>
+                                                                                    <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-red-500/20">
+                                                                                        <Trash2 className="h-4 w-4 text-red-500" />
+                                                                                    </Button>
+                                                                                </AlertDialogTrigger>
+                                                                                 <AlertDialogContent className="bg-gray-800 text-white border-gray-700">
+                                                                                    <AlertDialogHeader>
+                                                                                        <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                                                                                        <AlertDialogDescription>Esta acción es permanente y eliminará el registro de ganancia.</AlertDialogDescription>
+                                                                                    </AlertDialogHeader>
+                                                                                    <AlertDialogFooter>
+                                                                                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                                                                        <AlertDialogAction onClick={() => handleDeleteEarning(item.id)} className="bg-red-600 hover:bg-red-700">Eliminar</AlertDialogAction>
+                                                                                    </AlertDialogFooter>
+                                                                                </AlertDialogContent>
+                                                                            </AlertDialog>
+                                                                        </div>
+                                                                    </div>
                                                                 </div>
                                                             ))}
                                                         </div>
@@ -1284,10 +1347,39 @@ export default function DriverHomePage() {
                     )}
                 </div>
             </div>
+
+            {/* Dialog for editing an earning */}
+            {editingEarning && (
+                <Dialog open={!!editingEarning} onOpenChange={() => setEditingEarning(null)}>
+                    <DialogContent className="bg-gray-800 text-white border-gray-700">
+                        <DialogHeader>
+                            <DialogTitle>{editingEarning.isNew ? 'Añadir Nuevo Registro' : 'Editar Registro de Ganancia'}</DialogTitle>
+                        </DialogHeader>
+                        <form onSubmit={handleSaveEarning}>
+                            <div className="py-4 space-y-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="type">Tipo</Label>
+                                    <Input id="type" name="type" defaultValue={editingEarning.type} className="text-white" />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="amount">Monto</Label>
+                                    <Input id="amount" name="amount" type="number" step="0.01" defaultValue={editingEarning.amount} className="text-white" />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="time">Fecha/Hora</Label>
+                                    <Input id="time" name="time" defaultValue={editingEarning.time} className="text-white" />
+                                </div>
+                            </div>
+                            <DialogFooter>
+                                <Button type="button" variant="ghost" onClick={() => setEditingEarning(null)}>Cancelar</Button>
+                                <Button type="submit">Guardar Cambios</Button>
+                            </DialogFooter>
+                        </form>
+                    </DialogContent>
+                </Dialog>
+            )}
         </div>
     );
 }
-
-    
 
     
