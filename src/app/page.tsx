@@ -446,8 +446,8 @@ export default function DriverHomePage() {
                         </SheetTrigger>
                         <SheetContent side="left" className="w-full max-w-sm bg-gray-800 text-white border-gray-700 p-0 flex flex-col">
                            <SheetHeader className="p-4 space-y-4 text-left">
-                                <div className="flex items-center">
-                                    <div className="flex-grow flex items-center space-x-4">
+                                <div className="flex justify-between items-center">
+                                    <div className="flex items-center space-x-4">
                                         <Dialog>
                                             <DialogTrigger asChild>
                                                 <div className="relative cursor-pointer">
