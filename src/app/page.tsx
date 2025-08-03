@@ -21,6 +21,8 @@ import { toast } from '@/hooks/use-toast';
 import { useMapEvents } from 'react-leaflet';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
+import { buttonVariants } from '@/components/ui/button';
+import { cn } from '@/lib/utils';
 
 
 const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
@@ -534,7 +536,12 @@ export default function DriverHomePage() {
                                             </Accordion>
                                         </div>
                                         <DialogFooter>
-                                            <Button variant="outline" className="w-full border-gray-600 text-white hover:bg-gray-700">Contactar Soporte</Button>
+                                            <a href="https://chat.whatsapp.com/LBVzpExBj9h11rRXQIdU0R"
+                                               target="_blank"
+                                               rel="noopener noreferrer"
+                                               className={cn(buttonVariants({ variant: "outline" }), "w-full border-gray-600 text-white hover:bg-gray-700")}>
+                                               Contactar Soporte
+                                            </a>
                                         </DialogFooter>
                                     </DialogContent>
                                 </MenuItem>
@@ -748,12 +755,6 @@ export default function DriverHomePage() {
                                                                                 </DialogContent>
                                                                             </Dialog>
                                                                         </div>
-                                                                        <DialogFooter>
-                                                                            <DialogClose asChild>
-                                                                              <Button variant="ghost">Cancelar</Button>
-                                                                            </DialogClose>
-                                                                            <Button type="submit">Confirmar Selección</Button>
-                                                                        </DialogFooter>
                                                                     </DialogContent>
                                                                 </Dialog>
                                                             </div>
@@ -866,7 +867,12 @@ export default function DriverHomePage() {
                                                         </Accordion>
                                                     </div>
                                                     <DialogFooter>
-                                                        <Button variant="outline" className="w-full border-gray-600 text-white hover:bg-gray-700">Contactar Soporte</Button>
+                                                        <a href="https://chat.whatsapp.com/LBVzpExBj9h11rRXQIdU0R"
+                                                           target="_blank"
+                                                           rel="noopener noreferrer"
+                                                           className={cn(buttonVariants({ variant: "outline" }), "w-full border-gray-600 text-white hover:bg-gray-700")}>
+                                                           Contactar Soporte
+                                                        </a>
                                                     </DialogFooter>
                                                 </DialogContent>
                                             </SettingsItem>
@@ -965,7 +971,7 @@ export default function DriverHomePage() {
                     </Button>
                 </div>
                 
-                <div className="absolute bottom-40 left-4 flex items-center gap-2 bg-gray-800/80 rounded-full px-3 py-1 shadow-lg pointer-events-auto">
+                <div className="absolute bottom-4 left-4 flex items-center gap-2 bg-gray-800/80 rounded-full px-3 py-1 shadow-lg pointer-events-auto">
                     <Shield className="h-5 w-5 text-blue-400" />
                     <span className="font-semibold text-sm">Google</span>
                 </div>
@@ -1080,5 +1086,3 @@ export default function DriverHomePage() {
         </div>
     );
 }
-
-    
