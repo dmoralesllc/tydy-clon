@@ -5,8 +5,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import dynamic from 'next/dynamic';
 import type { LatLngExpression, LatLngTuple, Map } from 'leaflet';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Menu, ChevronDown, HelpCircle, Layers, Crosshair, Shield, Settings2, Zap, Edit, Plus, Minus, X, Eye, Wallet, Star, Bell, LogOut, ChevronRight, FileText, Smartphone, Lock, Languages, CircleHelp, Info, MapPin, ChevronUp, Upload, CheckCircle2, Car, Map as MapIcon, Trash2, Settings } from 'lucide-react';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
+import { Menu, ChevronDown, HelpCircle, Layers, Crosshair, Shield, Settings2, Zap, Edit, Plus, Minus, X, Eye, Wallet, Star, Bell, LogOut, ChevronRight, FileText, Smartphone, Lock, Languages, CircleHelp, Info, MapPin, ChevronUp, Upload, CheckCircle2, Car, Map as MapIcon, Trash2, Settings, Trophy } from 'lucide-react';
 import Image from 'next/image';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
@@ -23,6 +23,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Progress } from "@/components/ui/progress"
 
 
 const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
@@ -450,11 +452,90 @@ export default function DriverHomePage() {
                                     </DialogContent>
                                 </MenuItem>
                                 <MenuItem icon={Star} label="Premios">
-                                     <DialogContent className="bg-gray-800 text-white border-gray-700">
+                                    <DialogContent className="bg-gray-900 text-white border-gray-700 max-w-lg">
                                         <DialogHeader>
-                                            <DialogTitle>Premios</DialogTitle>
-                                            <DialogDescription>Aquí se mostrarán los premios disponibles.</DialogDescription>
+                                            <DialogTitle>Programa de Premios</DialogTitle>
+                                            <DialogDescription>Participa en desafíos, gana puntos y canjea recompensas.</DialogDescription>
                                         </DialogHeader>
+                                        <Tabs defaultValue="challenges" className="w-full pt-4">
+                                            <TabsList className="grid w-full grid-cols-3 bg-gray-800">
+                                                <TabsTrigger value="challenges">Desafíos Actuales</TabsTrigger>
+                                                <TabsTrigger value="progress">Mi Progreso</TabsTrigger>
+                                                <TabsTrigger value="history">Historial</TabsTrigger>
+                                            </TabsList>
+                                            <TabsContent value="challenges" className="mt-4 space-y-4">
+                                                <Card className="bg-gray-800 border-gray-700">
+                                                    <CardHeader>
+                                                        <CardTitle className="flex items-center gap-2"><Trophy className="text-yellow-400"/>Desafío Fin de Semana</CardTitle>
+                                                        <CardDescription>Completa 20 viajes entre el sábado y el domingo.</CardDescription>
+                                                    </CardHeader>
+                                                    <CardContent>
+                                                        <p className="text-lg font-bold text-green-400">Recompensa: $500 extra</p>
+                                                    </CardContent>
+                                                    <CardFooter>
+                                                        <Button className="w-full bg-orange-600 hover:bg-orange-700">Participar</Button>
+                                                    </CardFooter>
+                                                </Card>
+                                                <Card className="bg-gray-800 border-gray-700">
+                                                    <CardHeader>
+                                                        <CardTitle className="flex items-center gap-2"><Zap className="text-blue-400"/>Racha de 5 viajes</CardTitle>
+                                                        <CardDescription>Completa 5 viajes seguidos sin cancelar.</CardDescription>
+                                                    </CardHeader>
+                                                    <CardContent>
+                                                        <p className="text-lg font-bold text-green-400">Recompensa: +$150</p>
+                                                    </CardContent>
+                                                     <CardFooter>
+                                                        <Button className="w-full" disabled>Activo</Button>
+                                                    </CardFooter>
+                                                </Card>
+                                            </TabsContent>
+                                            <TabsContent value="progress" className="mt-4 space-y-6">
+                                                <div>
+                                                    <div className="flex justify-between items-center mb-2">
+                                                        <Label>Desafío Fin de Semana</Label>
+                                                        <span className="text-sm font-medium">8 / 20 Viajes</span>
+                                                    </div>
+                                                    <Progress value={40} className="h-3" />
+                                                </div>
+                                                <div>
+                                                    <div className="flex justify-between items-center mb-2">
+                                                        <Label>Lealtad Mensual</Label>
+                                                        <span className="text-sm font-medium">65 / 100 Viajes</span>
+                                                    </div>
+                                                    <Progress value={65} className="h-3" />
+                                                </div>
+                                                <div>
+                                                    <div className="flex justify-between items-center mb-2">
+                                                        <Label>Conductor Estrella</Label>
+                                                        <span className="text-sm font-medium">4.95 / 5.00 Calificación</span>
+                                                    </div>
+                                                    <Progress value={99} className="h-3" />
+                                                </div>
+                                            </TabsContent>
+                                            <TabsContent value="history" className="mt-4 space-y-3 max-h-[400px] overflow-y-auto">
+                                                <div className="flex items-center justify-between p-3 bg-gray-800 rounded-md">
+                                                    <div>
+                                                        <p className="font-semibold">Bono Nocturno</p>
+                                                        <p className="text-xs text-gray-400">15 de Marzo, 2024</p>
+                                                    </div>
+                                                    <p className="text-green-400 font-bold">+$250</p>
+                                                </div>
+                                                <div className="flex items-center justify-between p-3 bg-gray-800 rounded-md">
+                                                    <div>
+                                                        <p className="font-semibold">Racha de 5 viajes</p>
+                                                        <p className="text-xs text-gray-400">14 de Marzo, 2024</p>
+                                                    </div>
+                                                    <p className="text-green-400 font-bold">+$150</p>
+                                                </div>
+                                                <div className="flex items-center justify-between p-3 bg-gray-800 rounded-md">
+                                                    <div>
+                                                        <p className="font-semibold">Desafío Semanal</p>
+                                                        <p className="text-xs text-gray-400">12 de Marzo, 2024</p>
+                                                    </div>
+                                                    <p className="text-green-400 font-bold">+$800</p>
+                                                </div>
+                                            </TabsContent>
+                                        </Tabs>
                                     </DialogContent>
                                 </MenuItem>
                                 <MenuItem icon={Bell} label="Notificaciones">
@@ -1086,3 +1167,5 @@ export default function DriverHomePage() {
         </div>
     );
 }
+
+    
