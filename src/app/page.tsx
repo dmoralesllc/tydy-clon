@@ -579,7 +579,35 @@ export default function DriverHomePage() {
                                                             <Switch id="promotional-notifications" />
                                                         </div>
                                                         <Button variant="outline" className="w-full border-gray-600 text-white hover:bg-gray-700">Gestionar mis datos</Button>
-                                                        <Button variant="link" className="w-full text-center text-gray-400">Ver Política de Privacidad</Button>
+                                                        <Dialog>
+                                                            <DialogTrigger asChild>
+                                                                <Button variant="link" className="w-full text-center text-gray-400">Ver Política de Privacidad</Button>
+                                                            </DialogTrigger>
+                                                            <DialogContent className="bg-gray-800 text-white border-gray-700">
+                                                                <DialogHeader>
+                                                                    <DialogTitle>POLÍTICAS DE PRIVACIDAD</DialogTitle>
+                                                                </DialogHeader>
+                                                                <div className="py-4 space-y-4 text-sm text-gray-300 max-h-[60vh] overflow-y-auto">
+                                                                    <p className="text-xs text-gray-400">Última actualización: 02/08/2025</p>
+                                                                    <p>Esta aplicación/sitio web/plataforma (en adelante, “la Plataforma”) ofrece un servicio de contacto entre conductores y pasajeros, regido por un modelo de oferta y demanda, sin intermediación directa, sin garantía ni responsabilidad de ningún tipo por parte de los administradores, desarrolladores o cualquier persona vinculada a la creación, publicación, edición o mantenimiento de la Plataforma.</p>
+                                                                    <h3 className="font-bold text-base text-white">1. ACEPTACIÓN DE LAS POLÍTICAS</h3>
+                                                                    <p>Al acceder o utilizar la Plataforma, usted acepta de forma libre, voluntaria e informada estas Políticas de Privacidad. Si no está de acuerdo, deberá abstenerse de utilizar la Plataforma.</p>
+                                                                    <h3 className="font-bold text-base text-white">2. TIPO DE INFORMACIÓN RECOPILADA</h3>
+                                                                    <p>La Plataforma no recopila información sensible ni realiza tratamiento automatizado de datos con fines comerciales, publicitarios ni estadísticos. Cualquier dato personal que se ingrese es estrictamente voluntario y utilizado únicamente para efectos de funcionamiento técnico (como geolocalización, contacto entre partes o verificación básica de identidad).</p>
+                                                                    <h3 className="font-bold text-base text-white">3. USO DE LA INFORMACIÓN</h3>
+                                                                    <p>Toda información proporcionada por los usuarios será utilizada exclusivamente para la correcta operación del servicio entre conductor y pasajero. No se utilizará con fines comerciales, ni será cedida, vendida o compartida con terceros.</p>
+                                                                    <h3 className="font-bold text-base text-white">4. DESCARGO DE RESPONSABILIDAD</h3>
+                                                                    <p>Los administradores y desarrolladores no serán responsables por ningún tipo de daño, perjuicio, incidente, delito, accidente, fraude, negligencia, estafa, omisión u otra situación derivada del uso de la Plataforma o del vínculo entre las partes usuarias (pasajero y conductor).</p>
+                                                                    <p>Asimismo, no se garantiza la validez ni vigencia de seguros, licencias, antecedentes penales, certificados sanitarios o cualquier otro requisito legal o documental que pudiera ser exigido por autoridades locales, nacionales o internacionales.</p>
+                                                                    <h3 className="font-bold text-base text-white">5. COMPATIBILIDAD INTERNACIONAL</h3>
+                                                                    <p>Estas Políticas se basan en principios generales del derecho, en normas de protección de datos y privacidad reconocidas internacionalmente, y en tratados multilaterales suscritos por la República Argentina, siendo aplicables en todos los países del mundo en los que no contradigan normas de orden público local.</p>
+                                                                    <h3 className="font-bold text-base text-white">6. RECLAMOS</h3>
+                                                                    <p>No se aceptarán reclamos ni demandas de ningún tipo vinculadas al uso de la Plataforma, ya sea por conductores, pasajeros, empresas, gobiernos u otros actores, siendo el uso del sistema completamente voluntario y bajo la exclusiva responsabilidad de quien decide utilizarlo.</p>
+                                                                    <h3 className="font-bold text-base text-white">7. PROPIEDAD INTELECTUAL Y SIMILITUDES</h3>
+                                                                    <p>El software, interfaz y modelo de funcionamiento podrían coincidir de forma parcial o incidental con otras plataformas disponibles en el mercado. Dicha similitud no implica copia ni infracción, sino una coincidencia funcional genérica dentro de un ecosistema digital amplio. No se asume responsabilidad alguna por similitudes con otras plataformas o sistemas.</p>
+                                                                </div>
+                                                            </DialogContent>
+                                                        </Dialog>
                                                     </div>
                                                 </DialogContent>
                                             </SettingsItem>
