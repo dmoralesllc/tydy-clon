@@ -1386,5 +1386,3 @@ export default function DriverHomePage() {
         </div>
     );
 }
-
-    
