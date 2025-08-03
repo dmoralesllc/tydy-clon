@@ -222,6 +222,12 @@ const initialEarningsHistory = [
     { id: 4, type: "Viaje", amount: 180.20, time: "hace 5 horas" },
 ];
 
+const mapTypes = {
+    dark: 'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+    light: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+    satellite: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+};
+
 
 export default function DriverHomePage() {
     const [currentPosition, setCurrentPosition] = useState<LatLngTuple | null>(null);
@@ -241,6 +247,15 @@ export default function DriverHomePage() {
     const [isParticipatingInWeekendChallenge, setIsParticipatingInWeekendChallenge] = useState(false);
     const [earningsHistory, setEarningsHistory] = useState(initialEarningsHistory);
     const [editingEarning, setEditingEarning] = useState<any | null>(null);
+    const [mapType, setMapType] = useState<keyof typeof mapTypes>('dark');
+
+
+    const toggleMapType = () => {
+        const types = Object.keys(mapTypes) as (keyof typeof mapTypes)[];
+        const currentIndex = types.indexOf(mapType);
+        const nextIndex = (currentIndex + 1) % types.length;
+        setMapType(types[nextIndex]);
+    };
 
     const handleSaveEarning = (e: React.FormEvent) => {
         e.preventDefault();
@@ -409,7 +424,7 @@ export default function DriverHomePage() {
                 className="h-full w-full absolute inset-0 z-0"
             >
                 <TileLayer
-                    url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                    url={mapTypes[mapType]}
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
                 />
                 
@@ -446,7 +461,7 @@ export default function DriverHomePage() {
                         </SheetTrigger>
                         <SheetContent side="left" className="w-full max-w-sm bg-gray-800 text-white border-gray-700 p-0 flex flex-col">
                            <SheetHeader className="p-4 space-y-4 text-left">
-                                <div className="flex justify-between items-center">
+                                <div className="flex items-center justify-between">
                                     <div className="flex items-center space-x-4 flex-grow">
                                         <Dialog>
                                             <DialogTrigger asChild>
@@ -1226,7 +1241,7 @@ export default function DriverHomePage() {
                     <Button variant="secondary" size="icon" className="rounded-full shadow-lg bg-gray-800/80 hover:bg-gray-700/80" onClick={() => currentPosition && mapRef.current?.setView(currentPosition, 14)}>
                         <Crosshair className="h-6 w-6" />
                     </Button>
-                    <Button variant="secondary" size="icon" className="rounded-full shadow-lg bg-gray-800/80 hover:bg-gray-700/80">
+                    <Button variant="secondary" size="icon" className="rounded-full shadow-lg bg-gray-800/80 hover:bg-gray-700/80" onClick={toggleMapType}>
                         <Layers className="h-6 w-6" />
                     </Button>
                 </div>
