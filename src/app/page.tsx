@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic';
 import type { LatLngExpression, LatLngTuple, Map } from 'leaflet';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { Menu, ChevronDown, HelpCircle, Layers, Crosshair, Shield, Settings2, Zap, Edit, Plus, Minus, X, Eye, Wallet, Star, Bell, LogOut, ChevronRight, FileText, Smartphone, Lock, Languages, CircleHelp, Info, MapPin, ChevronUp, Upload, CheckCircle2, Car, Map as MapIcon, Trash2, Settings, Trophy } from 'lucide-react';
+import { Menu, ChevronDown, HelpCircle, Layers, Crosshair, Shield, Settings2, Zap, Edit, Plus, Minus, X, Eye, Wallet, Star, Bell, LogOut, ChevronRight, FileText, Smartphone, Lock, Languages, CircleHelp, Info, MapPin, ChevronUp, Upload, CheckCircle2, Car, Map as MapIcon, Trash2, Settings, Trophy, ArrowLeft } from 'lucide-react';
 import Image from 'next/image';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
@@ -25,6 +25,8 @@ import { buttonVariants } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
+import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from '@/components/ui/chart';
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
 
 
 const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
@@ -195,6 +197,31 @@ const MapClickHandler = ({ onMapClick }: { onMapClick: (latlng: LatLngTuple) => 
     });
     return null;
 }
+
+const chartData = [
+    { day: "Lun", earnings: 450 },
+    { day: "Mar", earnings: 580 },
+    { day: "Mié", earnings: 720 },
+    { day: "Jue", earnings: 610 },
+    { day: "Vie", earnings: 890 },
+    { day: "Sáb", earnings: 1100 },
+    { day: "Dom", earnings: 950 },
+];
+
+const chartConfig = {
+    earnings: {
+        label: "Ganancias",
+        color: "hsl(var(--primary))",
+    },
+};
+
+const earningsHistory = [
+    { id: 1, type: "Viaje", amount: 250.50, time: "hace 10 min" },
+    { id: 2, type: "Bono", amount: 150.00, time: "hace 2 horas" },
+    { id: 3, type: "Viaje", amount: 320.00, time: "hace 3 horas" },
+    { id: 4, type: "Viaje", amount: 180.20, time: "hace 5 horas" },
+];
+
 
 export default function DriverHomePage() {
     const [currentPosition, setCurrentPosition] = useState<LatLngTuple | null>(null);
@@ -446,7 +473,85 @@ export default function DriverHomePage() {
                                             <p className="text-sm text-gray-400">Del 10 al 16 de mar</p>
                                             <p className="text-4xl font-bold">$3,880.80</p>
                                         </div>
-                                        <Button className="w-full bg-gray-700 hover:bg-gray-600">Ver ganancias detalladas</Button>
+                                        <Dialog>
+                                            <DialogTrigger asChild>
+                                                <Button className="w-full bg-gray-700 hover:bg-gray-600">Ver ganancias detalladas</Button>
+                                            </DialogTrigger>
+                                            <DialogContent className="bg-gray-900 text-white border-gray-700 max-w-2xl">
+                                                <DialogHeader>
+                                                    <DialogTitle>Ganancias Detalladas</DialogTitle>
+                                                    <DialogDescription>Un resumen de tus ganancias y viajes de la semana.</DialogDescription>
+                                                </DialogHeader>
+                                                <Tabs defaultValue="overview" className="w-full pt-4">
+                                                    <TabsList className="grid w-full grid-cols-2 bg-gray-800">
+                                                        <TabsTrigger value="overview">Resumen</TabsTrigger>
+                                                        <TabsTrigger value="history">Historial de Viajes</TabsTrigger>
+                                                    </TabsList>
+                                                    <TabsContent value="overview" className="mt-4 space-y-6">
+                                                        <Card className="bg-gray-800 border-gray-700">
+                                                            <CardHeader>
+                                                                <CardTitle>Ganancias Diarias</CardTitle>
+                                                            </CardHeader>
+                                                            <CardContent className="h-[250px] w-full">
+                                                                <ChartContainer config={chartConfig} className="h-full w-full">
+                                                                    <BarChart accessibilityLayer data={chartData} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+                                                                        <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                                                                        <XAxis dataKey="day" tickLine={false} axisLine={false} tickMargin={8} />
+                                                                        <YAxis strokeDasharray="3 3" tickLine={false} axisLine={false} tickMargin={8} />
+                                                                        <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+                                                                        <Bar dataKey="earnings" fill="var(--color-earnings)" radius={8} />
+                                                                    </BarChart>
+                                                                </ChartContainer>
+                                                            </CardContent>
+                                                        </Card>
+                                                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                                            <Card className="bg-gray-800 border-gray-700">
+                                                                <CardHeader>
+                                                                    <CardTitle>Viajes Totales</CardTitle>
+                                                                    <CardDescription>Esta semana</CardDescription>
+                                                                </CardHeader>
+                                                                <CardContent>
+                                                                    <p className="text-3xl font-bold">18</p>
+                                                                </CardContent>
+                                                            </Card>
+                                                            <Card className="bg-gray-800 border-gray-700">
+                                                                <CardHeader>
+                                                                    <CardTitle>Horas Online</CardTitle>
+                                                                    <CardDescription>Esta semana</CardDescription>
+                                                                </CardHeader>
+                                                                <CardContent>
+                                                                    <p className="text-3xl font-bold">12h 2m</p>
+                                                                </CardContent>
+                                                            </Card>
+                                                             <Card className="bg-gray-800 border-gray-700">
+                                                                <CardHeader>
+                                                                    <CardTitle>Ganancia Prom./Viaje</CardTitle>
+                                                                    <CardDescription>Esta semana</CardDescription>
+                                                                </CardHeader>
+                                                                <CardContent>
+                                                                    <p className="text-3xl font-bold">$215.60</p>
+                                                                </CardContent>
+                                                            </Card>
+                                                        </div>
+                                                    </TabsContent>
+                                                    <TabsContent value="history" className="mt-4">
+                                                        <div className="space-y-3 max-h-[400px] overflow-y-auto">
+                                                            {earningsHistory.map(item => (
+                                                                <div key={item.id} className="flex items-center justify-between p-3 bg-gray-800 rounded-md">
+                                                                    <div>
+                                                                        <p className="font-semibold">{item.type}</p>
+                                                                        <p className="text-xs text-gray-400">{item.time}</p>
+                                                                    </div>
+                                                                    <p className={`font-bold ${item.type === 'Viaje' ? 'text-green-400' : 'text-blue-400'}`}>
+                                                                        +${item.amount.toFixed(2)}
+                                                                    </p>
+                                                                </div>
+                                                            ))}
+                                                        </div>
+                                                    </TabsContent>
+                                                </Tabs>
+                                            </DialogContent>
+                                        </Dialog>
                                         <div className="grid grid-cols-2 gap-4 text-center">
                                             <div>
                                                 <p className="text-lg font-bold">18</p>
@@ -1182,5 +1287,7 @@ export default function DriverHomePage() {
         </div>
     );
 }
+
+    
 
     
