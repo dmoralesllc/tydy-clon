@@ -588,7 +588,46 @@ export default function DriverHomePage() {
                                                                         <p className="text-sm text-gray-400">Patente AB 123 CD</p>
                                                                     </div>
                                                                 </div>
-                                                                <Button variant="ghost">Cambiar</Button>
+                                                                <Dialog>
+                                                                    <DialogTrigger asChild>
+                                                                        <Button variant="ghost">Cambiar</Button>
+                                                                    </DialogTrigger>
+                                                                    <DialogContent className="bg-gray-800 text-white border-gray-700">
+                                                                        <DialogHeader>
+                                                                            <DialogTitle>Seleccionar Vehículo</DialogTitle>
+                                                                            <DialogDescription>
+                                                                                Elige el vehículo que quieres usar o añade uno nuevo.
+                                                                            </DialogDescription>
+                                                                        </DialogHeader>
+                                                                        <div className="py-4 space-y-4">
+                                                                            <RadioGroup defaultValue="corolla" className="space-y-2">
+                                                                                <Label className="flex items-center p-3 bg-gray-900 rounded-md cursor-pointer hover:bg-gray-700">
+                                                                                    <RadioGroupItem value="corolla" id="v1" className="mr-3" />
+                                                                                    <div>
+                                                                                        <p className="font-medium">Toyota Corolla</p>
+                                                                                        <p className="text-sm text-gray-400">Patente AB 123 CD</p>
+                                                                                    </div>
+                                                                                </Label>
+                                                                                <Label className="flex items-center p-3 bg-gray-900 rounded-md cursor-pointer hover:bg-gray-700">
+                                                                                    <RadioGroupItem value="onix" id="v2" className="mr-3" />
+                                                                                    <div>
+                                                                                        <p className="font-medium">Chevrolet Onix</p>
+                                                                                        <p className="text-sm text-gray-400">Patente XY 456 ZZ</p>
+                                                                                    </div>
+                                                                                </Label>
+                                                                            </RadioGroup>
+                                                                            <Button variant="outline" className="w-full border-gray-600 text-white hover:bg-gray-700">
+                                                                                <Plus className="mr-2 h-4 w-4" /> Agregar vehículo nuevo
+                                                                            </Button>
+                                                                        </div>
+                                                                        <DialogFooter>
+                                                                            <DialogClose asChild>
+                                                                                <Button variant="ghost">Cancelar</Button>
+                                                                            </DialogClose>
+                                                                            <Button type="submit">Confirmar Selección</Button>
+                                                                        </DialogFooter>
+                                                                    </DialogContent>
+                                                                </Dialog>
                                                             </div>
                                                         </div>
                                                         <div className="flex items-center justify-between p-3 bg-gray-900 rounded-md">
