@@ -1,4 +1,5 @@
 
+
 'use client';
 
 import React, { useState, useEffect, useRef } from 'react';
@@ -1364,9 +1365,9 @@ export default function DriverHomePage() {
                     <span className="font-semibold text-sm">Google</span>
                 </div>
 
-                <div className="absolute bottom-0 left-0 right-0 p-4 pointer-events-auto">
+                 <div className="absolute bottom-0 w-full flex justify-center p-4 pointer-events-auto">
                     {tripDetails ? (
-                         <div className="bg-gray-900/90 backdrop-blur-sm rounded-t-2xl shadow-2xl border-t border-gray-700/50 transition-all duration-300">
+                         <div className="bg-gray-900/90 backdrop-blur-sm rounded-2xl w-full max-w-md shadow-2xl border-t border-gray-700/50 transition-all duration-300">
                             <div className="p-4">
                                 <div className="flex justify-between items-center">
                                   <h3 className="text-lg font-semibold">Detalles del Viaje</h3>
@@ -1405,7 +1406,7 @@ export default function DriverHomePage() {
                             </div>
                          </div>
                     ) : (
-                    <div className="bg-gray-900/90 backdrop-blur-sm rounded-t-2xl shadow-2xl border-t border-gray-700/50 p-4">
+                    <div className="bg-gray-900/80 backdrop-blur-md rounded-2xl shadow-2xl border-t border-gray-700/50 p-4 w-[95%] max-w-xl">
                        { isConnected ? (
                            <div className="text-center py-4">
                                <p className="text-lg font-semibold">Buscando viajes...</p>
@@ -1458,7 +1459,7 @@ export default function DriverHomePage() {
                                 </Dialog>
                                 <Button 
                                     size="lg" 
-                                    className={`w-full max-w-xs text-xl h-14 rounded-full font-bold transition-colors ${isConnected ? 'bg-gray-600 hover:bg-gray-700' : 'bg-orange-600 hover:bg-orange-700'}`}
+                                    className={`w-full max-w-xs text-xl h-14 rounded-full font-bold transition-colors ${isConnected ? 'bg-gray-600 hover:bg-gray-700' : 'bg-red-600 hover:bg-red-700'}`}
                                     onClick={() => setIsConnected(!isConnected)}
                                 >
                                     {isConnected ? 'Desconectarse' : 'Conectarse'}
