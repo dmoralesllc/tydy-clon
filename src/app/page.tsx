@@ -462,7 +462,7 @@ export default function DriverHomePage() {
                         </SheetTrigger>
                         <SheetContent side="left" className="w-full max-w-sm bg-gray-800 text-white border-gray-700 p-0 flex flex-col">
                            <SheetHeader className="p-4 space-y-4 text-left">
-                                <div className="flex justify-between items-start">
+                                <div className="flex justify-between items-center">
                                     <div className="flex items-center space-x-4 flex-grow">
                                         <Dialog>
                                             <DialogTrigger asChild>
@@ -1327,19 +1327,6 @@ export default function DriverHomePage() {
                         </DropdownMenuContent>
                     </DropdownMenu>
 
-                    <Dialog>
-                        <DialogTrigger asChild>
-                            <Button variant="secondary" size="icon" className="rounded-full shadow-lg bg-gray-800/80 hover:bg-gray-700/80">
-                                <HelpCircle className="h-6 w-6" />
-                            </Button>
-                        </DialogTrigger>
-                        <DialogContent className="bg-gray-800 text-white border-gray-700">
-                            <DialogHeader>
-                                <DialogTitle>Centro de Ayuda</DialogTitle>
-                                <DialogDescription>Aquí encontrarás respuestas a tus preguntas.</DialogDescription>
-                            </DialogHeader>
-                        </DialogContent>
-                    </Dialog>
                 </div>
                 
                 <div className="absolute top-1/2 right-4 -translate-y-1/2 flex flex-col gap-3 pointer-events-auto">
