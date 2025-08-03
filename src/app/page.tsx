@@ -445,10 +445,6 @@ export default function DriverHomePage() {
                 {surgeZones.map((zone, i) => (
                     <SurgePricingMarker key={`marker-${i}`} position={zone.pos} rate={zone.rate} />
                 ))}
-
-                <Marker position={[-27.435, -58.985]}>
-                    <Popup>Hipermercado Libertad Resistencia</Popup>
-                </Marker>
             </MapContainer>
 
             {/* UI Overlay */}
@@ -462,8 +458,8 @@ export default function DriverHomePage() {
                         </SheetTrigger>
                         <SheetContent side="left" className="w-full max-w-sm bg-gray-800 text-white border-gray-700 p-0 flex flex-col">
                            <SheetHeader className="p-4 space-y-4 text-left">
-                                <div className="flex items-start">
-                                    <div className="flex items-center space-x-4 flex-grow">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center space-x-4">
                                         <Dialog>
                                             <DialogTrigger asChild>
                                                 <div className="relative cursor-pointer">
@@ -1113,52 +1109,6 @@ export default function DriverHomePage() {
                                                         <DialogTitle>Idioma</DialogTitle>
                                                         <DialogDescription>Aquí podrás cambiar el idioma de la app.</DialogDescription>
                                                     </DialogHeader>
-                                                </DialogContent>
-                                            </SettingsItem>
-                                            <SettingsItem icon={CircleHelp} label="Centro de Ayuda">
-                                                <DialogContent className="bg-gray-800 text-white border-gray-700">
-                                                    <DialogHeader>
-                                                        <DialogTitle>Centro de Ayuda</DialogTitle>
-                                                        <DialogDescription>
-                                                            Encuentra respuestas a las preguntas más frecuentes.
-                                                        </DialogDescription>
-                                                    </DialogHeader>
-                                                    <div className="py-4">
-                                                        <Accordion type="single" collapsible className="w-full">
-                                                            <AccordionItem value="item-1">
-                                                                <AccordionTrigger>¿Cómo actualizo la información de mi vehículo?</AccordionTrigger>
-                                                                <AccordionContent>
-                                                                    Puedes actualizar la información de tu vehículo yendo a `Configuración` {'>'} `App del conductor` {'>'} `Vehículo` y seleccionando 'Cambiar'. Desde allí puedes añadir o eliminar vehículos.
-                                                                </AccordionContent>
-                                                            </AccordionItem>
-                                                            <AccordionItem value="item-2">
-                                                                <AccordionTrigger>¿Cómo funciona el sistema de tarifas dinámicas?</AccordionTrigger>
-                                                                <AccordionContent>
-                                                                    Las tarifas dinámicas se activan automáticamente en zonas de alta demanda para asegurar que siempre haya conductores disponibles. Verás las zonas con tarifa dinámica resaltadas en el mapa con un multiplicador (ej: 1.5x).
-                                                                </AccordionContent>
-                                                            </AccordionItem>
-                                                            <AccordionItem value="item-3">
-                                                                <AccordionTrigger>¿Dónde puedo ver mis ganancias?</AccordionTrigger>
-                                                                <AccordionContent>
-                                                                    Puedes ver un resumen de tus ganancias semanales en el menú principal, en la sección `Ganancias`. Para un desglose detallado, haz clic en 'Ver ganancias detalladas'.
-                                                                </AccordionContent>
-                                                            </AccordionItem>
-                                                            <AccordionItem value="item-4">
-                                                                <AccordionTrigger>No recibo solicitudes de viaje, ¿qué debo hacer?</AccordionTrigger>
-                                                                <AccordionContent>
-                                                                    Asegúrate de estar conectado (el botón principal debe decir 'Desconectarse'), de tener una buena conexión a internet y de estar en una zona con demanda. También verifica que tu app esté actualizada a la última versión.
-                                                                </AccordionContent>
-                                                            </AccordionItem>
-                                                        </Accordion>
-                                                    </div>
-                                                    <DialogFooter>
-                                                        <a href="https://chat.whatsapp.com/LBVzpExBj9h11rRXQIdU0R"
-                                                           target="_blank"
-                                                           rel="noopener noreferrer"
-                                                           className={cn(buttonVariants({ variant: "outline" }), "w-full border-gray-600 text-white hover:bg-gray-700")}>
-                                                           Contactar Soporte
-                                                        </a>
-                                                    </DialogFooter>
                                                 </DialogContent>
                                             </SettingsItem>
                                             <SettingsItem icon={Info} label="Acerca de">
