@@ -1406,7 +1406,7 @@ export default function DriverHomePage() {
                             </div>
                          </div>
                     ) : (
-                    <div className="bg-gray-900/60 backdrop-blur-lg rounded-2xl shadow-2xl border-t border-gray-700/50 p-4 w-[95%] max-w-xl">
+                    <div className="w-[95%] max-w-xl">
                        { isConnected ? (
                            <div className="text-center py-4">
                                <p className="text-lg font-semibold">Buscando viajes...</p>
@@ -1422,11 +1422,11 @@ export default function DriverHomePage() {
                            
                             {!isSearchMinimized && (
                                 <div className="space-y-2 mb-4">
-                                    <Button variant="outline" className="w-full justify-start h-12 text-left bg-gray-800/50 border-gray-700 hover:bg-gray-800/80" onClick={() => setSelecting('start')}>
+                                    <Button variant="outline" className="w-full justify-start h-12 text-left bg-gray-800/80 border-gray-700 hover:bg-gray-800/80" onClick={() => setSelecting('start')}>
                                         <MapPin className="mr-3 h-5 w-5 text-blue-400" />
                                         {startPoint ? <span className="text-white">{`Desde: ${startPoint[0].toFixed(4)}, ${startPoint[1].toFixed(4)}`}</span> : <span className="text-gray-400">¿Desde dónde?</span>}
                                     </Button>
-                                    <Button variant="outline" className="w-full justify-start h-12 text-left bg-gray-800/50 border-gray-700 hover:bg-gray-800/80" onClick={() => setSelecting('end')}>
+                                    <Button variant="outline" className="w-full justify-start h-12 text-left bg-gray-800/80 border-gray-700 hover:bg-gray-800/80" onClick={() => setSelecting('end')}>
                                         <MapPin className="mr-3 h-5 w-5 text-orange-400" />
                                         {endPoint ? <span className="text-white">{`Hasta: ${endPoint[0].toFixed(4)}, ${endPoint[1].toFixed(4)}`}</span> : <span className="text-gray-400">¿Hacia dónde?</span>}
                                     </Button>
