@@ -7,7 +7,7 @@ import dynamic from 'next/dynamic';
 import type { LatLngExpression, LatLngTuple, Map } from 'leaflet';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { Menu, ChevronDown, Layers, Crosshair, Shield, Settings2, Zap, Edit, Plus, Minus, X, Eye, Wallet, Star, Bell, LogOut, ChevronRight, FileText, Smartphone, Lock, Languages, CircleHelp, Info, MapPin, ChevronUp, Upload, CheckCircle2, Car, Map as MapIcon, Trash2, Settings, Trophy, ArrowLeft } from 'lucide-react';
+import { Menu, ChevronDown, Layers, Crosshair, Shield, Settings2, Zap, Edit, Plus, Minus, X, Eye, Wallet, Star, Bell, LogOut, ChevronRight, FileText, Smartphone, Lock, Languages, Info, MapPin, ChevronUp, Upload, CheckCircle2, Car, Map as MapIcon, Trash2, Settings, Trophy, ArrowLeft } from 'lucide-react';
 import Image from 'next/image';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
@@ -40,19 +40,12 @@ const Polyline = dynamic(() => import('react-leaflet').then(mod => mod.Polyline)
 
 const UserLocationMarker = ({ position }: { position: LatLngTuple }) => {
   const [L, setL] = useState<any>(null);
-  const map = useMapEvents({});
-
+  
   useEffect(() => {
     import('leaflet').then(leaflet => {
       setL(leaflet);
     });
   }, []);
-
-  useEffect(() => {
-    if (position) {
-        map.flyTo(position, map.getZoom());
-    }
-  }, [position, map]);
 
   if (!L) return null;
 
@@ -855,52 +848,6 @@ export default function DriverHomePage() {
                                         </div>
                                     </DialogContent>
                                 </MenuItem>
-                                <MenuItem icon={CircleHelp} label="Ayuda">
-                                    <DialogContent className="bg-gray-800 text-white border-gray-700">
-                                        <DialogHeader>
-                                            <DialogTitle>Centro de Ayuda</DialogTitle>
-                                            <DialogDescription>
-                                                Encuentra respuestas a las preguntas más frecuentes.
-                                            </DialogDescription>
-                                        </DialogHeader>
-                                        <div className="py-4">
-                                            <Accordion type="single" collapsible className="w-full">
-                                                <AccordionItem value="item-1">
-                                                    <AccordionTrigger>¿Cómo actualizo la información de mi vehículo?</AccordionTrigger>
-                                                    <AccordionContent>
-                                                        Puedes actualizar la información de tu vehículo yendo a `Configuración` {'>'} `App del conductor` {'>'} `Vehículo` y seleccionando 'Cambiar'. Desde allí puedes añadir o eliminar vehículos.
-                                                    </AccordionContent>
-                                                </AccordionItem>
-                                                <AccordionItem value="item-2">
-                                                    <AccordionTrigger>¿Cómo funciona el sistema de tarifas dinámicas?</AccordionTrigger>
-                                                    <AccordionContent>
-                                                        Las tarifas dinámicas se activan automáticamente en zonas de alta demanda para asegurar que siempre haya conductores disponibles. Verás las zonas con tarifa dinámica resaltadas en el mapa con un multiplicador (ej: 1.5x).
-                                                    </AccordionContent>
-                                                </AccordionItem>
-                                                <AccordionItem value="item-3">
-                                                    <AccordionTrigger>¿Dónde puedo ver mis ganancias?</AccordionTrigger>
-                                                    <AccordionContent>
-                                                        Puedes ver un resumen de tus ganancias semanales en el menú principal, en la sección `Ganancias`. Para un desglose detallado, haz clic en 'Ver ganancias detalladas'.
-                                                    </AccordionContent>
-                                                </AccordionItem>
-                                                <AccordionItem value="item-4">
-                                                    <AccordionTrigger>No recibo solicitudes de viaje, ¿qué debo hacer?</AccordionTrigger>
-                                                    <AccordionContent>
-                                                        Asegúrate de estar conectado (el botón principal debe decir 'Desconectarse'), de tener una buena conexión a internet y de estar en una zona con demanda. También verifica que tu app esté actualizada a la última versión.
-                                                    </AccordionContent>
-                                                </AccordionItem>
-                                            </Accordion>
-                                        </div>
-                                        <DialogFooter>
-                                            <a href="https://chat.whatsapp.com/LBVzpExBj9h11rRXQIdU0R"
-                                               target="_blank"
-                                               rel="noopener noreferrer"
-                                               className={cn(buttonVariants({ variant: "outline" }), "w-full border-gray-600 text-white hover:bg-gray-700")}>
-                                               Contactar Soporte
-                                            </a>
-                                        </DialogFooter>
-                                    </DialogContent>
-                                </MenuItem>
                                 <MenuItem icon={Settings} label="Configuración">
                                     <DialogContent className="bg-gray-900 text-white border-gray-700 max-w-2xl">
                                         <DialogHeader>
@@ -1528,6 +1475,7 @@ export default function DriverHomePage() {
         </div>
     );
 }
+
 
 
 
