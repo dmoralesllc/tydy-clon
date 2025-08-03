@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic';
 import type { LatLngExpression, LatLngTuple, Map } from 'leaflet';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Menu, ChevronDown, HelpCircle, Layers, Crosshair, Shield, Settings2, Zap, Edit, Plus, Minus, X, Eye, Wallet, Star, Bell, LogOut, ChevronRight, FileText, Smartphone, Lock, Languages, CircleHelp, Info, MapPin, ChevronUp, Upload, CheckCircle2, Car, Map as MapIcon, Trash2 } from 'lucide-react';
+import { Menu, ChevronDown, HelpCircle, Layers, Crosshair, Shield, Settings2, Zap, Edit, Plus, Minus, X, Eye, Wallet, Star, Bell, LogOut, ChevronRight, FileText, Smartphone, Lock, Languages, CircleHelp, Info, MapPin, ChevronUp, Upload, CheckCircle2, Car, Map as MapIcon, Trash2, Settings } from 'lucide-react';
 import Image from 'next/image';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
@@ -504,7 +504,7 @@ export default function DriverHomePage() {
                                         </DialogHeader>
                                     </DialogContent>
                                 </MenuItem>
-                                <MenuItem icon={Settings2} label="Configuración">
+                                <MenuItem icon={Settings} label="Configuración">
                                     <DialogContent className="bg-gray-900 text-white border-gray-700 max-w-2xl">
                                         <DialogHeader>
                                             <DialogTitle>Configuración</DialogTitle>
@@ -798,9 +798,16 @@ export default function DriverHomePage() {
                                             <SettingsItem icon={CircleHelp} label="Acerca de">
                                                 <DialogContent className="bg-gray-800 text-white border-gray-700">
                                                     <DialogHeader>
-                                                        <DialogTitle>Acerca de</DialogTitle>
-                                                        <DialogDescription>Aquí se mostrará la información sobre la app.</DialogDescription>
+                                                        <DialogTitle>Acerca de dmoralesllc</DialogTitle>
                                                     </DialogHeader>
+                                                    <div className="py-4 space-y-4 text-sm text-gray-300 max-h-[60vh] overflow-y-auto">
+                                                        <p>dmoralesllc es un nombre de fantasía utilizado para el desarrollo y publicación de soluciones tecnológicas orientadas a facilitar el vínculo entre oferta y demanda de servicios, sin que ello implique responsabilidad directa, intermediación formal ni vinculación legal alguna entre las partes intervinientes. Todas las plataformas, herramientas y productos desarrollados bajo esta identidad tienen como único propósito brindar un canal funcional, tecnológico y automatizado para el contacto directo entre usuarios, prestadores de servicios, y potenciales clientes, sin que exista ningún tipo de relación laboral, societaria ni contractual con dmoralesllc.</p>
+                                                        <p>Las funcionalidades implementadas, el diseño del sistema y el modelo operativo están basados en principios de neutralidad tecnológica, y no suponen respaldo, verificación, ni control de los antecedentes, habilitaciones, seguros o condiciones legales de los usuarios que se registren o utilicen los servicios, ya sean conductores, pasajeros, prestadores o consumidores. La veracidad de los datos, documentos y declaraciones cargados en la plataforma es exclusiva responsabilidad de quienes los proveen.</p>
+                                                        <p>dmoralesllc no asume ningún tipo de responsabilidad por daños, perjuicios, reclamos o conflictos que pudieran derivarse de relaciones, contratos, actividades u omisiones entre usuarios, conductores, proveedores o terceros que hayan accedido o interactuado a través de las plataformas desarrolladas. Cualquier controversia deberá ser resuelta exclusivamente entre las partes intervinientes, conforme la legislación aplicable en su jurisdicción.</p>
+                                                        <p>Asimismo, si bien dmoralesllc aplica las medidas de seguridad informática consideradas razonables según los estándares de la industria (como cifrado, control de accesos y protocolos de protección de datos), no garantiza ni se responsabiliza por eventuales accesos no autorizados, filtraciones, robo de datos, ataques cibernéticos, pérdidas de información ni otras formas de vulneración de la seguridad que pudieran afectar al sistema o a sus usuarios, más allá del control razonable del desarrollador.</p>
+                                                        <p>Toda interacción dentro de las herramientas desarrolladas supone la aceptación plena de estos términos, reconociendo que el uso de tecnologías en entornos abiertos o conectados a internet conlleva riesgos inherentes que deben ser asumidos por el usuario.</p>
+                                                        <p>Este proyecto ha sido concebido conforme los principios del libre comercio, la autonomía de la voluntad de las partes, y el uso responsable de tecnologías digitales, conforme las leyes de la República Argentina y tratados internacionales vigentes.</p>
+                                                    </div>
                                                 </DialogContent>
                                             </SettingsItem>
                                         </div>
@@ -998,7 +1005,3 @@ export default function DriverHomePage() {
         </div>
     );
 }
-
-    
-
-    
