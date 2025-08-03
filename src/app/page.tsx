@@ -232,6 +232,7 @@ const mapTypes = {
 
 export default function DriverHomePage() {
     const [currentPosition, setCurrentPosition] = useState<LatLngTuple | null>(null);
+    const [viewPosition, setViewPosition] = useState<LatLngTuple | null>(null);
     const [isConnected, setIsConnected] = useState(false);
     const [isReferralCardVisible, setIsReferralCardVisible] = useState(true);
     const [avatarUrl, setAvatarUrl] = useState("https://placehold.co/100x100.png");
@@ -329,11 +330,19 @@ export default function DriverHomePage() {
             const watchId = navigator.geolocation.watchPosition(
                 (position) => {
                     const { latitude, longitude } = position.coords;
-                    setCurrentPosition([latitude, longitude]);
+                    const newPos: LatLngTuple = [latitude, longitude];
+                    setCurrentPosition(newPos);
+                    if (!viewPosition) {
+                        setViewPosition(newPos);
+                    }
                 },
                 (error) => {
                     console.error("Error getting geolocation:", error);
-                    setCurrentPosition([-27.45, -58.983333]);
+                    const defaultPos: LatLngTuple = [-27.45, -58.983333];
+                    setCurrentPosition(defaultPos);
+                    if (!viewPosition) {
+                        setViewPosition(defaultPos);
+                    }
                     toast({
                         variant: "destructive",
                         title: "Error de Geolocalización",
@@ -351,14 +360,16 @@ export default function DriverHomePage() {
                 navigator.geolocation.clearWatch(watchId);
             };
         } else {
-            setCurrentPosition([-27.45, -58.983333]);
+            const defaultPos: LatLngTuple = [-27.45, -58.983333];
+            setCurrentPosition(defaultPos);
+            setViewPosition(defaultPos);
             toast({
                 variant: "destructive",
                 title: "Geolocalización no soportada",
                 description: "Tu navegador no soporta geolocalización. Mostrando una ubicación por defecto.",
             });
         }
-    }, []);
+    }, [viewPosition]);
     
     useEffect(() => {
       if (startPoint && endPoint) {
@@ -474,7 +485,7 @@ export default function DriverHomePage() {
         setIsTripInProgress(false);
     }
     
-    if (!currentPosition) {
+    if (!viewPosition) {
         return <div className="flex h-screen w-full items-center justify-center bg-gray-900 text-white">Obteniendo ubicación GPS...</div>;
     }
 
@@ -482,7 +493,7 @@ export default function DriverHomePage() {
         <div className="h-screen w-screen bg-gray-900 text-white relative">
              <MapContainer 
                 ref={mapRef} 
-                center={currentPosition} 
+                center={viewPosition} 
                 zoom={15} 
                 scrollWheelZoom={true} 
                 zoomControl={false} 
@@ -499,7 +510,7 @@ export default function DriverHomePage() {
                     <SurgePolygon key={`poly-${i}`} center={zone.pos} rate={zone.value} />
                 ))}
 
-                <UserLocationMarker position={currentPosition} />
+                {currentPosition && <UserLocationMarker position={currentPosition} />}
                 
                 {startPoint && <LocationMarker position={startPoint} type="start" />}
                 {endPoint && <LocationMarker position={endPoint} type="end" />}
@@ -1469,3 +1480,4 @@ export default function DriverHomePage() {
         </div>
     );
 }
+
