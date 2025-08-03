@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic';
 import type { LatLngExpression, LatLngTuple, Map } from 'leaflet';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Menu, ChevronDown, HelpCircle, Layers, Crosshair, Shield, Settings2, Zap, Edit, Plus, Minus, X, Eye, Wallet, Star, Bell, LogOut, ChevronRight, FileText, Smartphone, Lock, Languages, CircleHelp, Info, MapPin, ChevronUp, Upload, CheckCircle2 } from 'lucide-react';
+import { Menu, ChevronDown, HelpCircle, Layers, Crosshair, Shield, Settings2, Zap, Edit, Plus, Minus, X, Eye, Wallet, Star, Bell, LogOut, ChevronRight, FileText, Smartphone, Lock, Languages, CircleHelp, Info, MapPin, ChevronUp, Upload, CheckCircle2, Car, Map as MapIcon } from 'lucide-react';
 import Image from 'next/image';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
@@ -18,6 +18,8 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
 import { useMapEvents } from 'react-leaflet';
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+
 
 const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
 const TileLayer = dynamic(() => import('react-leaflet').then(mod => mod.TileLayer), { ssr: false });
@@ -553,9 +555,50 @@ export default function DriverHomePage() {
                                             <SettingsItem icon={Smartphone} label="App del conductor">
                                                 <DialogContent className="bg-gray-800 text-white border-gray-700">
                                                     <DialogHeader>
-                                                        <DialogTitle>App del conductor</DialogTitle>
-                                                        <DialogDescription>Aquí se mostrarán las opciones de la app.</DialogDescription>
+                                                        <DialogTitle>App del Conductor</DialogTitle>
+                                                        <DialogDescription>
+                                                            Configura tus preferencias para la aplicación.
+                                                        </DialogDescription>
                                                     </DialogHeader>
+                                                    <div className="py-4 space-y-6">
+                                                        <div className="space-y-2">
+                                                            <Label>Navegación</Label>
+                                                            <RadioGroup defaultValue="app" className="p-3 bg-gray-900 rounded-md">
+                                                                <div className="flex items-center space-x-2">
+                                                                    <RadioGroupItem value="app" id="r1" />
+                                                                    <Label htmlFor="r1">Navegación de la App</Label>
+                                                                </div>
+                                                                <div className="flex items-center space-x-2">
+                                                                    <RadioGroupItem value="google" id="r2" />
+                                                                    <Label htmlFor="r2">Google Maps</Label>
+                                                                </div>
+                                                                <div className="flex items-center space-x-2">
+                                                                    <RadioGroupItem value="waze" id="r3" />
+                                                                    <Label htmlFor="r3">Waze</Label>
+                                                                </div>
+                                                            </RadioGroup>
+                                                        </div>
+                                                        <div className="space-y-2">
+                                                            <Label>Vehículo</Label>
+                                                            <div className="flex items-center justify-between p-3 bg-gray-900 rounded-md">
+                                                                <div className="flex items-center gap-3">
+                                                                    <Car className="h-6 w-6 text-gray-400" />
+                                                                    <div>
+                                                                        <p className="font-medium">Toyota Corolla</p>
+                                                                        <p className="text-sm text-gray-400">Patente AB 123 CD</p>
+                                                                    </div>
+                                                                </div>
+                                                                <Button variant="ghost">Cambiar</Button>
+                                                            </div>
+                                                        </div>
+                                                        <div className="flex items-center justify-between p-3 bg-gray-900 rounded-md">
+                                                          <div className="space-y-1">
+                                                              <Label htmlFor="night-mode">Modo nocturno automático</Label>
+                                                              <p className="text-xs text-gray-400">El mapa cambiará a modo oscuro por la noche.</p>
+                                                          </div>
+                                                          <Switch id="night-mode" defaultChecked />
+                                                      </div>
+                                                    </div>
                                                 </DialogContent>
                                             </SettingsItem>
                                             <SettingsItem icon={Lock} label="Privacidad">
