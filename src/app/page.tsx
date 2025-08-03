@@ -559,11 +559,28 @@ export default function DriverHomePage() {
                                                 </DialogContent>
                                             </SettingsItem>
                                             <SettingsItem icon={Lock} label="Privacidad">
-                                                <DialogContent className="bg-gray-800 text-white border-gray-700">
+                                                <DialogContent className="bg-gray-900 text-white border-gray-700">
                                                     <DialogHeader>
                                                         <DialogTitle>Privacidad</DialogTitle>
-                                                        <DialogDescription>Aquí se mostrarán las opciones de privacidad.</DialogDescription>
                                                     </DialogHeader>
+                                                    <div className="py-4 space-y-4">
+                                                        <div className="flex items-center justify-between p-3 bg-gray-800 rounded-md">
+                                                            <div className="space-y-1">
+                                                                <Label htmlFor="location-sharing">Compartir datos de ubicación</Label>
+                                                                <p className="text-xs text-gray-400">Permitir el acceso a la ubicación cuando la app no está en uso.</p>
+                                                            </div>
+                                                            <Switch id="location-sharing" defaultChecked />
+                                                        </div>
+                                                        <div className="flex items-center justify-between p-3 bg-gray-800 rounded-md">
+                                                            <div className="space-y-1">
+                                                                <Label htmlFor="promotional-notifications">Notificaciones promocionales</Label>
+                                                                <p className="text-xs text-gray-400">Recibir ofertas, encuestas y novedades.</p>
+                                                            </div>
+                                                            <Switch id="promotional-notifications" />
+                                                        </div>
+                                                        <Button variant="outline" className="w-full border-gray-600 text-white hover:bg-gray-700">Gestionar mis datos</Button>
+                                                        <Button variant="link" className="w-full text-center text-gray-400">Ver Política de Privacidad</Button>
+                                                    </div>
                                                 </DialogContent>
                                             </SettingsItem>
                                             <SettingsItem icon={Languages} label="Idioma">
@@ -777,5 +794,3 @@ export default function DriverHomePage() {
         </div>
     );
 }
-
-    
