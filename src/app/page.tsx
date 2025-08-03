@@ -1231,7 +1231,7 @@ export default function DriverHomePage() {
                     </Button>
                 </div>
 
-                <div className="absolute bottom-[220px] right-4 flex flex-col gap-2 pointer-events-auto">
+                <div className="absolute bottom-[220px] left-4 flex flex-col gap-2 pointer-events-auto">
                     <Button variant="secondary" size="icon" className="rounded-full shadow-lg bg-gray-800/80 hover:bg-gray-700/80" onClick={zoomIn}>
                         <Plus className="h-6 w-6" />
                     </Button>
