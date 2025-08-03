@@ -7,7 +7,7 @@ import dynamic from 'next/dynamic';
 import type { LatLngExpression, LatLngTuple, Map } from 'leaflet';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from '@/components/ui/card';
-import { Menu, ChevronDown, HelpCircle, Layers, Crosshair, Shield, Settings2, Zap, Edit, Plus, Minus, X, Eye, Wallet, Star, Bell, LogOut, ChevronRight, FileText, Smartphone, Lock, Languages, CircleHelp, Info, MapPin, ChevronUp, Upload, CheckCircle2, Car, Map as MapIcon, Trash2, Settings, Trophy, ArrowLeft } from 'lucide-react';
+import { Menu, ChevronDown, Layers, Crosshair, Shield, Settings2, Zap, Edit, Plus, Minus, X, Eye, Wallet, Star, Bell, LogOut, ChevronRight, FileText, Smartphone, Lock, Languages, CircleHelp, Info, MapPin, ChevronUp, Upload, CheckCircle2, Car, Map as MapIcon, Trash2, Settings, Trophy, ArrowLeft } from 'lucide-react';
 import Image from 'next/image';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
@@ -453,7 +453,7 @@ export default function DriverHomePage() {
 
             {/* UI Overlay */}
             <div className="absolute inset-0 z-10 pointer-events-none">
-                <div className="p-4 flex justify-between items-center pointer-events-auto">
+                <div className="p-4 pointer-events-auto">
                     <Sheet>
                         <SheetTrigger asChild>
                             <Button variant="secondary" size="icon" className="rounded-full shadow-lg relative bg-gray-800/80 hover:bg-gray-700/80">
@@ -462,7 +462,7 @@ export default function DriverHomePage() {
                         </SheetTrigger>
                         <SheetContent side="left" className="w-full max-w-sm bg-gray-800 text-white border-gray-700 p-0 flex flex-col">
                            <SheetHeader className="p-4 space-y-4 text-left">
-                                <div className="flex justify-between items-center">
+                                <div className="flex items-start">
                                     <div className="flex items-center space-x-4 flex-grow">
                                         <Dialog>
                                             <DialogTrigger asChild>
@@ -784,7 +784,7 @@ export default function DriverHomePage() {
                                         </div>
                                     </DialogContent>
                                 </MenuItem>
-                                <MenuItem icon={HelpCircle} label="Ayuda">
+                                <MenuItem icon={CircleHelp} label="Ayuda">
                                     <DialogContent className="bg-gray-800 text-white border-gray-700">
                                         <DialogHeader>
                                             <DialogTitle>Centro de Ayuda</DialogTitle>
@@ -1189,143 +1189,145 @@ export default function DriverHomePage() {
                         </SheetContent>
                     </Sheet>
                     
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button variant="secondary" className="rounded-full shadow-lg h-10 px-4 bg-gray-800/80 hover:bg-gray-700/80 flex items-center gap-2">
-                                <Eye className="h-5 w-5" />
-                                <span className="text-lg font-semibold">$0,00</span>
-                                <ChevronDown className="h-5 w-5 ml-1" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent className="bg-gray-800 text-white border-gray-700">
-                             <Dialog>
-                                <DialogTrigger asChild>
-                                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Ver historial de ganancias</DropdownMenuItem>
-                                </DialogTrigger>
-                                <DialogContent className="bg-gray-900 text-white border-gray-700 max-w-2xl">
-                                    <DialogHeader>
-                                        <DialogTitle>Ganancias Detalladas</DialogTitle>
-                                        <DialogDescription>Un resumen de tus ganancias y viajes de la semana.</DialogDescription>
-                                    </DialogHeader>
-                                    <Tabs defaultValue="overview" className="w-full pt-4">
-                                        <TabsList className="grid w-full grid-cols-2 bg-gray-800">
-                                            <TabsTrigger value="overview">Resumen</TabsTrigger>
-                                            <TabsTrigger value="history">Historial de Viajes</TabsTrigger>
-                                        </TabsList>
-                                        <TabsContent value="overview" className="mt-4 space-y-6">
-                                            <Card className="bg-gray-800 border-gray-700">
-                                                <CardHeader>
-                                                    <CardTitle>Ganancias Diarias</CardTitle>
-                                                </CardHeader>
-                                                <CardContent className="h-[250px] w-full">
-                                                    <ChartContainer config={chartConfig} className="h-full w-full">
-                                                        <BarChart accessibilityLayer data={chartData} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
-                                                            <CartesianGrid vertical={false} strokeDasharray="3 3" />
-                                                            <XAxis dataKey="day" tickLine={false} axisLine={false} tickMargin={8} />
-                                                            <YAxis strokeDasharray="3 3" tickLine={false} axisLine={false} tickMargin={8} />
-                                                            <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
-                                                            <Bar dataKey="earnings" fill="var(--color-earnings)" radius={8} />
-                                                        </BarChart>
-                                                    </ChartContainer>
-                                                </CardContent>
-                                            </Card>
-                                            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="absolute top-4 left-1/2 -translate-x-1/2 pointer-events-auto">
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button variant="secondary" className="rounded-full shadow-lg h-10 px-4 bg-gray-800/80 hover:bg-gray-700/80 flex items-center gap-2">
+                                    <Eye className="h-5 w-5" />
+                                    <span className="text-lg font-semibold">$0,00</span>
+                                    <ChevronDown className="h-5 w-5 ml-1" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent className="bg-gray-800 text-white border-gray-700">
+                                <Dialog>
+                                    <DialogTrigger asChild>
+                                        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Ver historial de ganancias</DropdownMenuItem>
+                                    </DialogTrigger>
+                                    <DialogContent className="bg-gray-900 text-white border-gray-700 max-w-2xl">
+                                        <DialogHeader>
+                                            <DialogTitle>Ganancias Detalladas</DialogTitle>
+                                            <DialogDescription>Un resumen de tus ganancias y viajes de la semana.</DialogDescription>
+                                        </DialogHeader>
+                                        <Tabs defaultValue="overview" className="w-full pt-4">
+                                            <TabsList className="grid w-full grid-cols-2 bg-gray-800">
+                                                <TabsTrigger value="overview">Resumen</TabsTrigger>
+                                                <TabsTrigger value="history">Historial de Viajes</TabsTrigger>
+                                            </TabsList>
+                                            <TabsContent value="overview" className="mt-4 space-y-6">
                                                 <Card className="bg-gray-800 border-gray-700">
                                                     <CardHeader>
-                                                        <CardTitle>Viajes Totales</CardTitle>
-                                                        <CardDescription>Esta semana</CardDescription>
+                                                        <CardTitle>Ganancias Diarias</CardTitle>
                                                     </CardHeader>
-                                                    <CardContent>
-                                                        <p className="text-3xl font-bold">18</p>
+                                                    <CardContent className="h-[250px] w-full">
+                                                        <ChartContainer config={chartConfig} className="h-full w-full">
+                                                            <BarChart accessibilityLayer data={chartData} margin={{ top: 20, right: 20, bottom: 20, left: 20 }}>
+                                                                <CartesianGrid vertical={false} strokeDasharray="3 3" />
+                                                                <XAxis dataKey="day" tickLine={false} axisLine={false} tickMargin={8} />
+                                                                <YAxis strokeDasharray="3 3" tickLine={false} axisLine={false} tickMargin={8} />
+                                                                <ChartTooltip cursor={false} content={<ChartTooltipContent />} />
+                                                                <Bar dataKey="earnings" fill="var(--color-earnings)" radius={8} />
+                                                            </BarChart>
+                                                        </ChartContainer>
                                                     </CardContent>
                                                 </Card>
-                                                <Card className="bg-gray-800 border-gray-700">
-                                                    <CardHeader>
-                                                        <CardTitle>Horas Online</CardTitle>
-                                                        <CardDescription>Esta semana</CardDescription>
-                                                    </CardHeader>
-                                                    <CardContent>
-                                                        <p className="text-3xl font-bold">12h 2m</p>
-                                                    </CardContent>
-                                                </Card>
+                                                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                                                     <Card className="bg-gray-800 border-gray-700">
-                                                    <CardHeader>
-                                                        <CardTitle>Ganancia Prom./Viaje</CardTitle>
-                                                        <CardDescription>Esta semana</CardDescription>
-                                                    </CardHeader>
-                                                    <CardContent>
-                                                        <p className="text-3xl font-bold">$215.60</p>
-                                                    </CardContent>
-                                                </Card>
-                                            </div>
-                                        </TabsContent>
-                                            <TabsContent value="history" className="mt-4">
-                                            <div className="flex justify-end mb-4">
-                                                <Button size="sm" onClick={handleAddNewEarning}><Plus className="mr-2 h-4 w-4" />Añadir Registro</Button>
-                                            </div>
-                                            <div className="space-y-3 max-h-[400px] overflow-y-auto">
-                                                {earningsHistory.map(item => (
-                                                    <div key={item.id} className="group flex items-center justify-between p-3 bg-gray-800 rounded-md hover:bg-gray-700/80">
-                                                        <div>
-                                                            <p className="font-semibold">{item.type}</p>
-                                                            <p className="text-xs text-gray-400">{item.time}</p>
-                                                        </div>
-                                                        <div className="flex items-center gap-2">
-                                                            <p className={`font-bold ${item.type === 'Viaje' ? 'text-green-400' : 'text-blue-400'}`}>
-                                                                +${item.amount.toFixed(2)}
-                                                            </p>
-                                                            <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
-                                                                <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setEditingEarning(item)}>
-                                                                    <Edit className="h-4 w-4" />
-                                                                </Button>
-                                                                <AlertDialog>
-                                                                    <AlertDialogTrigger asChild>
-                                                                        <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-red-500/20">
-                                                                            <Trash2 className="h-4 w-4 text-red-500" />
-                                                                        </Button>
-                                                                    </AlertDialogTrigger>
-                                                                        <AlertDialogContent className="bg-gray-800 text-white border-gray-700">
-                                                                        <AlertDialogHeader>
-                                                                            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                                                                            <AlertDialogDescription>Esta acción es permanente y eliminará el registro de ganancia.</AlertDialogDescription>
-                                                                        </AlertDialogHeader>
-                                                                        <AlertDialogFooter>
-                                                                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                                                            <AlertDialogAction onClick={() => handleDeleteEarning(item.id)} className="bg-red-600 hover:bg-red-700">Eliminar</AlertDialogAction>
-                                                                        </AlertDialogFooter>
-                                                                    </AlertDialogContent>
-                                                                </AlertDialog>
+                                                        <CardHeader>
+                                                            <CardTitle>Viajes Totales</CardTitle>
+                                                            <CardDescription>Esta semana</CardDescription>
+                                                        </CardHeader>
+                                                        <CardContent>
+                                                            <p className="text-3xl font-bold">18</p>
+                                                        </CardContent>
+                                                    </Card>
+                                                    <Card className="bg-gray-800 border-gray-700">
+                                                        <CardHeader>
+                                                            <CardTitle>Horas Online</CardTitle>
+                                                            <CardDescription>Esta semana</CardDescription>
+                                                        </CardHeader>
+                                                        <CardContent>
+                                                            <p className="text-3xl font-bold">12h 2m</p>
+                                                        </CardContent>
+                                                    </Card>
+                                                        <Card className="bg-gray-800 border-gray-700">
+                                                        <CardHeader>
+                                                            <CardTitle>Ganancia Prom./Viaje</CardTitle>
+                                                            <CardDescription>Esta semana</CardDescription>
+                                                        </CardHeader>
+                                                        <CardContent>
+                                                            <p className="text-3xl font-bold">$215.60</p>
+                                                        </CardContent>
+                                                    </Card>
+                                                </div>
+                                            </TabsContent>
+                                                <TabsContent value="history" className="mt-4">
+                                                <div className="flex justify-end mb-4">
+                                                    <Button size="sm" onClick={handleAddNewEarning}><Plus className="mr-2 h-4 w-4" />Añadir Registro</Button>
+                                                </div>
+                                                <div className="space-y-3 max-h-[400px] overflow-y-auto">
+                                                    {earningsHistory.map(item => (
+                                                        <div key={item.id} className="group flex items-center justify-between p-3 bg-gray-800 rounded-md hover:bg-gray-700/80">
+                                                            <div>
+                                                                <p className="font-semibold">{item.type}</p>
+                                                                <p className="text-xs text-gray-400">{item.time}</p>
+                                                            </div>
+                                                            <div className="flex items-center gap-2">
+                                                                <p className={`font-bold ${item.type === 'Viaje' ? 'text-green-400' : 'text-blue-400'}`}>
+                                                                    +${item.amount.toFixed(2)}
+                                                                </p>
+                                                                <div className="opacity-0 group-hover:opacity-100 transition-opacity flex gap-1">
+                                                                    <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => setEditingEarning(item)}>
+                                                                        <Edit className="h-4 w-4" />
+                                                                    </Button>
+                                                                    <AlertDialog>
+                                                                        <AlertDialogTrigger asChild>
+                                                                            <Button variant="ghost" size="icon" className="h-7 w-7 hover:bg-red-500/20">
+                                                                                <Trash2 className="h-4 w-4 text-red-500" />
+                                                                            </Button>
+                                                                        </AlertDialogTrigger>
+                                                                            <AlertDialogContent className="bg-gray-800 text-white border-gray-700">
+                                                                            <AlertDialogHeader>
+                                                                                <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                                                                                <AlertDialogDescription>Esta acción es permanente y eliminará el registro de ganancia.</AlertDialogDescription>
+                                                                            </AlertDialogHeader>
+                                                                            <AlertDialogFooter>
+                                                                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                                                                <AlertDialogAction onClick={() => handleDeleteEarning(item.id)} className="bg-red-600 hover:bg-red-700">Eliminar</AlertDialogAction>
+                                                                            </AlertDialogFooter>
+                                                                        </AlertDialogContent>
+                                                                    </AlertDialog>
+                                                                </div>
                                                             </div>
                                                         </div>
-                                                    </div>
-                                                ))}
-                                            </div>
-                                        </TabsContent>
-                                    </Tabs>
-                                </DialogContent>
-                            </Dialog>
-                             <Dialog>
-                                <DialogTrigger asChild>
-                                    <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Configurar pagos</DropdownMenuItem>
-                                </DialogTrigger>
-                                <DialogContent className="bg-gray-900 text-white border-gray-700">
-                                        <DialogHeader>
-                                            <DialogTitle>Mi Billetera</DialogTitle>
-                                        </DialogHeader>
-                                        <div className="py-4 space-y-4">
-                                            <Card className="bg-gray-800 border-gray-700">
-                                                <CardContent className="p-4">
-                                                    <p className="text-sm text-gray-400">Balance</p>
-                                                    <p className="text-2xl font-bold">$1,500.00</p>
-                                                </CardContent>
-                                            </Card>
-                                            <Button className="w-full bg-gray-700 hover:bg-gray-600">Transferir a mi cuenta</Button>
-                                            <Button variant="outline" className="w-full border-gray-600 text-white hover:bg-gray-700">Agregar método de pago</Button>
-                                        </div>
+                                                    ))}
+                                                </div>
+                                            </TabsContent>
+                                        </Tabs>
                                     </DialogContent>
-                            </Dialog>
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                                </Dialog>
+                                <Dialog>
+                                    <DialogTrigger asChild>
+                                        <DropdownMenuItem onSelect={(e) => e.preventDefault()}>Configurar pagos</DropdownMenuItem>
+                                    </DialogTrigger>
+                                    <DialogContent className="bg-gray-900 text-white border-gray-700">
+                                            <DialogHeader>
+                                                <DialogTitle>Mi Billetera</DialogTitle>
+                                            </DialogHeader>
+                                            <div className="py-4 space-y-4">
+                                                <Card className="bg-gray-800 border-gray-700">
+                                                    <CardContent className="p-4">
+                                                        <p className="text-sm text-gray-400">Balance</p>
+                                                        <p className="text-2xl font-bold">$1,500.00</p>
+                                                    </CardContent>
+                                                </Card>
+                                                <Button className="w-full bg-gray-700 hover:bg-gray-600">Transferir a mi cuenta</Button>
+                                                <Button variant="outline" className="w-full border-gray-600 text-white hover:bg-gray-700">Agregar método de pago</Button>
+                                            </div>
+                                        </DialogContent>
+                                </Dialog>
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
 
                 </div>
                 
@@ -1393,7 +1395,7 @@ export default function DriverHomePage() {
                             </div>
                          </div>
                     ) : (
-                    <div className="w-[95%] max-w-xl">
+                    <div className="w-full max-w-xl">
                        { isConnected ? (
                            <div className="text-center py-4">
                                <p className="text-lg font-semibold">Buscando viajes...</p>
@@ -1493,3 +1495,4 @@ export default function DriverHomePage() {
         </div>
     );
 }
+
