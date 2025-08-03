@@ -33,7 +33,7 @@ export interface Database {
           pickup_lng: number
           dest_lat: number
           dest_lng: number
-          status: "requested" | "accepted" | "in_progress" | "completed" | "cancelled"
+          status?: "requested" | "accepted" | "in_progress" | "completed" | "cancelled"
           fare?: number | null
           distance?: number | null
         }

@@ -27,11 +27,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { Progress } from "@/components/ui/progress"
 import { ChartContainer, ChartTooltip, ChartTooltipContent, ChartLegend, ChartLegendContent } from '@/components/ui/chart';
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from 'recharts';
-import { supabase } from '@/lib/supabaseClient';
-import { Database } from '@/lib/database.types';
-
-type Trip = Database['public']['Tables']['trips']['Row'];
-
 
 const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
 const TileLayer = dynamic(() => import('react-leaflet').then(mod => mod.TileLayer), { ssr: false });
@@ -255,54 +250,6 @@ export default function DriverHomePage() {
     const [mapType, setMapType] = useState<keyof typeof mapTypes>('dark');
     const [route, setRoute] = useState<LatLngTuple[]>([]);
     const [isTripInProgress, setIsTripInProgress] = useState(false);
-    
-    const [newTripRequest, setNewTripRequest] = useState<Trip | null>(null);
-    const notificationAudioRef = useRef<HTMLAudioElement>(null);
-    const driverId = 'driver_123'; // Static driver ID for demo purposes
-
-    // Listen for new trip requests
-    useEffect(() => {
-        if (!isConnected) return;
-
-        const channel = supabase
-            .channel('trip-requests')
-            .on<Trip>(
-                'postgres_changes',
-                { event: 'INSERT', schema: 'public', table: 'trips', filter: 'status=eq.requested' },
-                (payload) => {
-                    console.log('New trip request received:', payload.new);
-                    setNewTripRequest(payload.new as Trip);
-                    notificationAudioRef.current?.play().catch(e => console.error("Error playing audio:", e));
-                }
-            )
-            .subscribe();
-
-        return () => {
-            supabase.removeChannel(channel);
-        };
-    }, [isConnected]);
-
-    const handleAcceptTrip = async () => {
-        if (!newTripRequest) return;
-        const { error } = await supabase
-            .from('trips')
-            .update({ status: 'accepted', driver_id: driverId })
-            .eq('id', newTripRequest.id);
-        
-        if (error) {
-            toast({ variant: 'destructive', title: 'Error', description: 'No se pudo aceptar el viaje.' });
-            console.error(error);
-        } else {
-            toast({ title: 'Viaje Aceptado', description: 'Dirígete al punto de recogida.' });
-            // Here you would typically set the route to the pickup point
-            setNewTripRequest(null);
-        }
-    };
-    
-    const handleDeclineTrip = () => {
-        setNewTripRequest(null);
-    };
-
 
     const getRoute = async (start: LatLngTuple, end: LatLngTuple) => {
         try {
@@ -1538,4 +1485,3 @@ export default function DriverHomePage() {
     );
 }
 
-esto es lo que funcionaba antes de tus cambios en el archivo page.tsx borra todo lo que hay en ese archivo y pega esto que te pase
