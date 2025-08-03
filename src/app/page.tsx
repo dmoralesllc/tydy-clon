@@ -513,6 +513,43 @@ export default function DriverHomePage() {
                                                     </DialogFooter>
                                                 </DialogContent>
                                             </SettingsItem>
+                                            <SettingsItem icon={FileText} label="Términos y Condiciones">
+                                                <DialogContent className="bg-gray-800 text-white border-gray-700">
+                                                    <DialogHeader>
+                                                        <DialogTitle>TÉRMINOS Y CONDICIONES DE USO DEL SERVICIO</DialogTitle>
+                                                    </DialogHeader>
+                                                    <div className="py-4 space-y-4 text-sm text-gray-300 max-h-[60vh] overflow-y-auto">
+                                                        <h3 className="font-bold text-base text-white">1. ACEPTACIÓN DEL USUARIO</h3>
+                                                        <p>Al acceder, registrarse o utilizar esta plataforma (en adelante, "la Plataforma"), el usuario, ya sea conductor o pasajero (en adelante, "el Usuario"), declara haber leído, comprendido y aceptado todos los términos y condiciones aquí expuestos.</p>
+
+                                                        <h3 className="font-bold text-base text-white">2. NATURALEZA DEL SERVICIO</h3>
+                                                        <p>La Plataforma funciona exclusivamente como medio de contacto entre particulares: un conductor ofrece un traslado y un pasajero decide si acepta o no dicha oferta. No existe relación laboral, societaria, comercial, de representación, ni asociación alguna entre la Plataforma y los Usuarios.</p>
+
+                                                        <h3 className="font-bold text-base text-white">3. LIMITACIÓN DE RESPONSABILIDAD</h3>
+                                                        <p>El creador, desarrollador y/u operador de la Plataforma no será en ningún caso responsable, directa ni indirectamente, por:</p>
+                                                        <ul className="list-disc list-inside space-y-1 pl-4">
+                                                            <li>Cualquier incidente, accidente, daño, lesión, pérdida, conflicto o perjuicio derivado del uso del servicio por parte de los Usuarios.</li>
+                                                            <li>El estado, vigencia, legalidad o idoneidad del vehículo o licencia de conducir de los conductores.</li>
+                                                            <li>La validez, vigencia o veracidad de los certificados de antecedentes penales u otros documentos requeridos.</li>
+                                                            <li>La falta de seguro obligatorio, vencimiento del mismo, o ausencia de cobertura ante terceros.</li>
+                                                            <li>Cualquier situación derivada del comportamiento, acciones u omisiones del conductor o pasajero.</li>
+                                                            <li>Similitud de software, diseño o funcionalidades con otras plataformas existentes, por tratarse de un desarrollo independiente basado en principios de oferta y demanda.</li>
+                                                        </ul>
+
+                                                        <h3 className="font-bold text-base text-white">4. CONDICIÓN DE INDEPENDENCIA ENTRE USUARIOS</h3>
+                                                        <p>Los usuarios aceptan que toda interacción, viaje, pago o acuerdo realizado entre ellos se da en un marco de completa autonomía e independencia, sin intervención, intermediación ni garantía alguna por parte de la Plataforma.</p>
+
+                                                        <h3 className="font-bold text-base text-white">5. ÁMBITO DE APLICACIÓN LEGAL</h3>
+                                                        <p>Este documento se rige por las leyes de la República Argentina, pero sus principios son aplicables en cualquier jurisdicción del mundo, en la medida permitida por los tratados internacionales de reciprocidad y reconocimiento de normas contractuales entre partes.</p>
+
+                                                        <h3 className="font-bold text-base text-white">6. EXENCIÓN DE RECLAMOS LEGALES</h3>
+                                                        <p>El Usuario renuncia expresamente a realizar cualquier tipo de reclamo, demanda, denuncia, o acción judicial o extrajudicial contra el creador, operador o responsable de la Plataforma, por cualquier causa o motivo, conocido o desconocido, presente o futuro, derivado directa o indirectamente del uso del servicio.</p>
+
+                                                        <h3 className="font-bold text-base text-white">7. MODIFICACIONES</h3>
+                                                        <p>La Plataforma se reserva el derecho de modificar los presentes Términos y Condiciones sin previo aviso. El uso continuado del servicio implica la aceptación de los cambios realizados.</p>
+                                                    </div>
+                                                </DialogContent>
+                                            </SettingsItem>
                                             <SettingsItem icon={Smartphone} label="App del conductor">
                                                 <DialogContent className="bg-gray-800 text-white border-gray-700">
                                                     <DialogHeader>
