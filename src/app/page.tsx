@@ -40,6 +40,7 @@ const Polyline = dynamic(() => import('react-leaflet').then(mod => mod.Polyline)
 
 const UserLocationMarker = ({ position }: { position: LatLngTuple }) => {
   const [L, setL] = useState<any>(null);
+  const map = useMapEvents({});
 
   useEffect(() => {
     import('leaflet').then(leaflet => {
@@ -47,10 +48,16 @@ const UserLocationMarker = ({ position }: { position: LatLngTuple }) => {
     });
   }, []);
 
+  useEffect(() => {
+    if (position) {
+        map.flyTo(position, map.getZoom());
+    }
+  }, [position, map]);
+
   if (!L) return null;
 
   const icon = L.divIcon({
-    html: `<div class="w-6 h-6 bg-blue-500 border-2 border-white rounded-full flex items-center justify-center"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-navigation"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg></div>`,
+    html: `<div class="w-6 h-6 bg-blue-500 border-2 border-white rounded-full flex items-center justify-center shadow-lg"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-navigation"><polygon points="3 11 22 2 13 21 11 13 3 11"></polygon></svg></div>`,
     className: '',
     iconSize: [24, 24],
     iconAnchor: [12, 12],
@@ -325,8 +332,43 @@ export default function DriverHomePage() {
         });
     };
 
-    useEffect(() => {
-        setCurrentPosition([-27.45, -58.983333]);
+     useEffect(() => {
+        if (navigator.geolocation) {
+            const watchId = navigator.geolocation.watchPosition(
+                (position) => {
+                    const { latitude, longitude } = position.coords;
+                    setCurrentPosition([latitude, longitude]);
+                },
+                (error) => {
+                    console.error("Error getting geolocation:", error);
+                    // Fallback to a default position if there's an error
+                    setCurrentPosition([-27.45, -58.983333]);
+                    toast({
+                        variant: "destructive",
+                        title: "Error de Geolocalización",
+                        description: "No se pudo obtener tu ubicación. Mostrando una ubicación por defecto.",
+                    });
+                },
+                {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0,
+                }
+            );
+
+            // Cleanup function to clear the watch
+            return () => {
+                navigator.geolocation.clearWatch(watchId);
+            };
+        } else {
+            // Fallback for browsers that don't support Geolocation
+            setCurrentPosition([-27.45, -58.983333]);
+            toast({
+                variant: "destructive",
+                title: "Geolocalización no soportada",
+                description: "Tu navegador no soporta geolocalización. Mostrando una ubicación por defecto.",
+            });
+        }
     }, []);
     
     // Calculate trip details when both points are set
@@ -403,27 +445,19 @@ export default function DriverHomePage() {
     };
 
     const handleConfirmTrip = () => {
-        if (!route.length) return;
-        
-        setIsTripInProgress(true);
-        
-        let currentIndex = 0;
-        simulationIntervalRef.current = setInterval(() => {
-            if (currentIndex < route.length -1) {
-                currentIndex++;
-                const newPosition = route[currentIndex];
-                setCurrentPosition(newPosition);
-                mapRef.current?.panTo(newPosition);
-            } else {
-                if (simulationIntervalRef.current) {
-                    clearInterval(simulationIntervalRef.current);
-                }
-                setIsTripInProgress(false);
-                toast({ title: "Viaje Finalizado", description: "Has llegado a tu destino." });
-                resetTrip();
-            }
-        }, 200); // Update every 200ms
-    };
+      if (!route.length) return;
+      setIsTripInProgress(true);
+      toast({
+          title: "Viaje en Progreso",
+          description: "Sigue la ruta marcada en el mapa."
+      });
+  };
+
+  const handleFinishTrip = () => {
+      setIsTripInProgress(false);
+      toast({ title: "Viaje Finalizado", description: "Has llegado a tu destino." });
+      resetTrip();
+  }
 
     const surgeZones: { pos: LatLngTuple, rate: string, value: number }[] = [
         { pos: [-27.445, -58.99], rate: "2.9~3.0x", value: 2.95 },
@@ -450,14 +484,11 @@ export default function DriverHomePage() {
         setEndPoint(null);
         setSelecting(null);
         setRoute([]);
-        if (simulationIntervalRef.current) {
-            clearInterval(simulationIntervalRef.current);
-            setIsTripInProgress(false);
-        }
+        setIsTripInProgress(false);
     }
     
     if (!currentPosition) {
-        return <div className="flex h-screen w-full items-center justify-center bg-gray-900 text-white">Cargando...</div>;
+        return <div className="flex h-screen w-full items-center justify-center bg-gray-900 text-white">Obteniendo ubicación GPS...</div>;
     }
 
     return (
@@ -465,7 +496,7 @@ export default function DriverHomePage() {
              <MapContainer 
                 ref={mapRef} 
                 center={currentPosition} 
-                zoom={14} 
+                zoom={15} 
                 scrollWheelZoom={true} 
                 zoomControl={false} 
                 className="h-full w-full absolute inset-0 z-0"
@@ -1326,7 +1357,7 @@ export default function DriverHomePage() {
                 </div>
                 
                 <div className="absolute top-1/2 right-4 -translate-y-1/2 flex flex-col gap-3 pointer-events-auto">
-                    <Button variant="secondary" size="icon" className="rounded-full shadow-lg bg-gray-800/80 hover:bg-gray-700/80" onClick={() => currentPosition && mapRef.current?.setView(currentPosition, 14)}>
+                    <Button variant="secondary" size="icon" className="rounded-full shadow-lg bg-gray-800/80 hover:bg-gray-700/80" onClick={() => currentPosition && mapRef.current?.setView(currentPosition, 15)}>
                         <Crosshair className="h-6 w-6" />
                     </Button>
                     <Button variant="secondary" size="icon" className="rounded-full shadow-lg bg-gray-800/80 hover:bg-gray-700/80" onClick={toggleMapType}>
@@ -1343,7 +1374,7 @@ export default function DriverHomePage() {
                     </Button>
                 </div>
                 
-                <div className="absolute bottom-4 left-4 flex items-center gap-2 bg-gray-800/80 rounded-full px-3 py-1 shadow-lg pointer-events-auto">
+                <div className="absolute bottom-4 flex items-center gap-2 rounded-full px-3 py-1 shadow-lg pointer-events-auto left-1/2 -translate-x-1/2">
                     <Shield className="h-5 w-5 text-blue-400" />
                     <span className="font-semibold text-sm">Google</span>
                 </div>
@@ -1388,14 +1419,22 @@ export default function DriverHomePage() {
                                )}
                             </div>
                          </div>
+                    ) : isTripInProgress ? (
+                         <div className="bg-gray-900/60 backdrop-blur-lg rounded-2xl w-full max-w-md shadow-2xl border-t border-gray-700/50 transition-all duration-300 p-4 space-y-3">
+                             <h3 className="text-lg font-semibold text-center">Viaje en progreso...</h3>
+                             <p className="text-center text-gray-400">Sigue la ruta hacia el destino.</p>
+                             <Button size="lg" className="w-full text-lg h-14 mt-2 rounded-lg font-bold bg-red-600 hover:bg-red-700" onClick={handleFinishTrip}>
+                                Finalizar Viaje
+                             </Button>
+                         </div>
                     ) : (
                     <div className="w-full max-w-xl">
-                       { isConnected && !isTripInProgress ? (
+                       { isConnected ? (
                            <div className="text-center py-4">
                                <p className="text-lg font-semibold">Buscando viajes...</p>
                                <p className="text-sm text-gray-400">Estás conectado y listo para recibir solicitudes.</p>
                            </div>
-                       ) : !isTripInProgress && (
+                       ) : (
                         <div className="transition-all duration-300">
                              <div className="flex justify-end mb-2">
                                 <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setIsSearchMinimized(!isSearchMinimized)}>
@@ -1489,5 +1528,6 @@ export default function DriverHomePage() {
         </div>
     );
 }
+
 
 
