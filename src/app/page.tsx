@@ -20,6 +20,7 @@ import { Switch } from '@/components/ui/switch';
 import { toast } from '@/hooks/use-toast';
 import { useMapEvents } from 'react-leaflet';
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion"
 
 
 const MapContainer = dynamic(() => import('react-leaflet').then(mod => mod.MapContainer), { ssr: false });
@@ -795,7 +796,48 @@ export default function DriverHomePage() {
                                                     </DialogHeader>
                                                 </DialogContent>
                                             </SettingsItem>
-                                            <SettingsItem icon={CircleHelp} label="Acerca de">
+                                            <SettingsItem icon={HelpCircle} label="Centro de Ayuda">
+                                                <DialogContent className="bg-gray-800 text-white border-gray-700">
+                                                    <DialogHeader>
+                                                        <DialogTitle>Centro de Ayuda</DialogTitle>
+                                                        <DialogDescription>
+                                                            Encuentra respuestas a las preguntas más frecuentes.
+                                                        </DialogDescription>
+                                                    </DialogHeader>
+                                                    <div className="py-4">
+                                                        <Accordion type="single" collapsible className="w-full">
+                                                            <AccordionItem value="item-1">
+                                                                <AccordionTrigger>¿Cómo actualizo la información de mi vehículo?</AccordionTrigger>
+                                                                <AccordionContent>
+                                                                    Puedes actualizar la información de tu vehículo yendo a `Configuración` {'>'} `App del conductor` {'>'} `Vehículo` y seleccionando 'Cambiar'. Desde allí puedes añadir o eliminar vehículos.
+                                                                </AccordionContent>
+                                                            </AccordionItem>
+                                                            <AccordionItem value="item-2">
+                                                                <AccordionTrigger>¿Cómo funciona el sistema de tarifas dinámicas?</AccordionTrigger>
+                                                                <AccordionContent>
+                                                                    Las tarifas dinámicas se activan automáticamente en zonas de alta demanda para asegurar que siempre haya conductores disponibles. Verás las zonas con tarifa dinámica resaltadas en el mapa con un multiplicador (ej: 1.5x).
+                                                                </AccordionContent>
+                                                            </AccordionItem>
+                                                            <AccordionItem value="item-3">
+                                                                <AccordionTrigger>¿Dónde puedo ver mis ganancias?</AccordionTrigger>
+                                                                <AccordionContent>
+                                                                    Puedes ver un resumen de tus ganancias semanales en el menú principal, en la sección `Ganancias`. Para un desglose detallado, haz clic en 'Ver ganancias detalladas'.
+                                                                </AccordionContent>
+                                                            </AccordionItem>
+                                                            <AccordionItem value="item-4">
+                                                                <AccordionTrigger>No recibo solicitudes de viaje, ¿qué debo hacer?</AccordionTrigger>
+                                                                <AccordionContent>
+                                                                    Asegúrate de estar conectado (el botón principal debe decir 'Desconectarse'), de tener una buena conexión a internet y de estar en una zona con demanda. También verifica que tu app esté actualizada a la última versión.
+                                                                </AccordionContent>
+                                                            </AccordionItem>
+                                                        </Accordion>
+                                                    </div>
+                                                    <DialogFooter>
+                                                        <Button variant="outline" className="w-full border-gray-600 text-white hover:bg-gray-700">Contactar Soporte</Button>
+                                                    </DialogFooter>
+                                                </DialogContent>
+                                            </SettingsItem>
+                                            <SettingsItem icon={Info} label="Acerca de">
                                                 <DialogContent className="bg-gray-800 text-white border-gray-700">
                                                     <DialogHeader>
                                                         <DialogTitle>Acerca de dmoralesllc</DialogTitle>
