@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic';
 import type { LatLngExpression, LatLngTuple, Map } from 'leaflet';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Menu, ChevronDown, HelpCircle, Layers, Crosshair, Shield, Settings2, Zap, Edit, Plus, Minus, X, Eye, Wallet, Star, Bell, LogOut, ChevronRight, FileText, Smartphone, Lock, Languages, CircleHelp, Info, MapPin, ChevronUp } from 'lucide-react';
+import { Menu, ChevronDown, HelpCircle, Layers, Crosshair, Shield, Settings2, Zap, Edit, Plus, Minus, X, Eye, Wallet, Star, Bell, LogOut, ChevronRight, FileText, Smartphone, Lock, Languages, CircleHelp, Info, MapPin, ChevronUp, Upload, CheckCircle2 } from 'lucide-react';
 import Image from 'next/image';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
@@ -136,6 +136,36 @@ const MenuItem = ({ icon, label, children }: { icon: React.ElementType, label: s
     </Dialog>
 );
 
+const DocumentUploader = ({ label, docKey, uploadedDocs, onFileSelect }: { label: string, docKey: string, uploadedDocs: any, onFileSelect: (docKey: string, file: File | null) => void }) => {
+    const inputRef = useRef<HTMLInputElement>(null);
+    const file = uploadedDocs[docKey];
+
+    return (
+        <div className="flex items-center justify-between p-3 bg-gray-700 rounded-md">
+            <span className="text-white">{label}</span>
+            <div className="flex items-center gap-2">
+                {file ? (
+                    <>
+                        <span className="text-sm text-green-400 truncate max-w-xs">{file.name}</span>
+                        <CheckCircle2 className="h-5 w-5 text-green-400" />
+                    </>
+                ) : (
+                    <span className="text-sm text-gray-400">No subido</span>
+                )}
+                <Button variant="ghost" size="icon" onClick={() => inputRef.current?.click()}>
+                    <Upload className="h-5 w-5" />
+                </Button>
+                <Input
+                    type="file"
+                    ref={inputRef}
+                    className="hidden"
+                    onChange={(e) => onFileSelect(docKey, e.target.files ? e.target.files[0] : null)}
+                />
+            </div>
+        </div>
+    );
+};
+
 const SettingsItem = ({ icon, label, children }: { icon: React.ElementType, label: string, children: React.ReactNode }) => (
   <Dialog>
     <DialogTrigger asChild>
@@ -172,6 +202,7 @@ export default function DriverHomePage() {
     const [tripDetails, setTripDetails] = useState<{distance: number, cost: number} | null>(null);
     const [isTripDetailsVisible, setIsTripDetailsVisible] = useState(true);
     const [isSearchMinimized, setIsSearchMinimized] = useState(false);
+    const [uploadedDocs, setUploadedDocs] = useState<{[key: string]: File}>({});
 
 
     useEffect(() => {
@@ -227,6 +258,19 @@ export default function DriverHomePage() {
                 description: "Tu nueva foto se ha guardado correctamente.",
             });
         }
+    };
+    
+    const handleFileSelect = (docKey: string, file: File | null) => {
+        if (file) {
+            setUploadedDocs(prev => ({ ...prev, [docKey]: file }));
+        }
+    };
+    
+    const handleSubmitDocs = () => {
+        toast({
+            title: "Documentos enviados",
+            description: "Tus documentos han sido enviados para revisión.",
+        });
     };
 
     const surgeZones: { pos: LatLngTuple, rate: string, value: number }[] = [
@@ -443,7 +487,7 @@ export default function DriverHomePage() {
                                     </DialogContent>
                                 </MenuItem>
                                 <MenuItem icon={Settings2} label="Configuración">
-                                    <DialogContent className="bg-gray-900 text-white border-gray-700">
+                                    <DialogContent className="bg-gray-900 text-white border-gray-700 max-w-2xl">
                                         <DialogHeader>
                                             <DialogTitle>Configuración</DialogTitle>
                                         </DialogHeader>
@@ -451,9 +495,22 @@ export default function DriverHomePage() {
                                             <SettingsItem icon={FileText} label="Documentos">
                                                 <DialogContent className="bg-gray-800 text-white border-gray-700">
                                                     <DialogHeader>
-                                                        <DialogTitle>Documentos</DialogTitle>
-                                                        <DialogDescription>Aquí se mostrará la información de tus documentos.</DialogDescription>
+                                                        <DialogTitle>Subir Documentación</DialogTitle>
+                                                        <DialogDescription>Sube los documentos requeridos para verificar tu cuenta de conductor.</DialogDescription>
                                                     </DialogHeader>
+                                                    <div className="py-4 space-y-3">
+                                                        <DocumentUploader label="DNI (Frente)" docKey="dniFront" uploadedDocs={uploadedDocs} onFileSelect={handleFileSelect} />
+                                                        <DocumentUploader label="DNI (Dorso)" docKey="dniBack" uploadedDocs={uploadedDocs} onFileSelect={handleFileSelect} />
+                                                        <DocumentUploader label="Licencia de Conducir (Frente)" docKey="licenseFront" uploadedDocs={uploadedDocs} onFileSelect={handleFileSelect} />
+                                                        <DocumentUploader label="Licencia de Conducir (Dorso)" docKey="licenseBack" uploadedDocs={uploadedDocs} onFileSelect={handleFileSelect} />
+                                                        <DocumentUploader label="Seguro del Vehículo" docKey="insurance" uploadedDocs={uploadedDocs} onFileSelect={handleFileSelect} />
+                                                        <DocumentUploader label="Antecedentes Penales" docKey="criminalRecord" uploadedDocs={uploadedDocs} onFileSelect={handleFileSelect} />
+                                                    </div>
+                                                    <DialogFooter>
+                                                        <DialogTrigger asChild>
+                                                            <Button onClick={handleSubmitDocs}>Enviar para revisión</Button>
+                                                        </DialogTrigger>
+                                                    </DialogFooter>
                                                 </DialogContent>
                                             </SettingsItem>
                                             <SettingsItem icon={Smartphone} label="App del conductor">
@@ -683,3 +740,5 @@ export default function DriverHomePage() {
         </div>
     );
 }
+
+    
