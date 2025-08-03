@@ -499,8 +499,8 @@ export default function DriverHomePage() {
                                             <p className="text-gray-400">Nivel: Oro</p>
                                         </div>
                                     </div>
-                                    <div className="bg-red-600 p-1 rounded-md flex items-center justify-center h-8 w-16">
-                                        <span className="text-white font-bold text-lg tracking-tighter">TyDy</span>
+                                    <div className="bg-red-600 p-1 rounded-md flex items-center justify-center h-8 w-16 text-white font-bold text-lg tracking-tighter">
+                                        <span>TyDy</span>
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-3 gap-2 text-center text-sm">
@@ -1406,7 +1406,7 @@ export default function DriverHomePage() {
                             </div>
                          </div>
                     ) : (
-                    <div className="bg-gray-900/80 backdrop-blur-md rounded-2xl shadow-2xl border-t border-gray-700/50 p-4 w-[95%] max-w-xl">
+                    <div className="bg-gray-900/70 backdrop-blur-md rounded-2xl shadow-2xl border-t border-gray-700/50 p-4 w-[95%] max-w-xl">
                        { isConnected ? (
                            <div className="text-center py-4">
                                <p className="text-lg font-semibold">Buscando viajes...</p>
