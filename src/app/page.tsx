@@ -327,21 +327,25 @@ export default function DriverHomePage() {
 
      useEffect(() => {
         if (navigator.geolocation) {
+            let initialPositionSet = false;
             const watchId = navigator.geolocation.watchPosition(
                 (position) => {
                     const { latitude, longitude } = position.coords;
                     const newPos: LatLngTuple = [latitude, longitude];
                     setCurrentPosition(newPos);
-                    if (!viewPosition) {
+                    
+                    if (!initialPositionSet) {
                         setViewPosition(newPos);
+                        initialPositionSet = true;
                     }
                 },
                 (error) => {
                     console.error("Error getting geolocation:", error);
                     const defaultPos: LatLngTuple = [-27.45, -58.983333];
                     setCurrentPosition(defaultPos);
-                    if (!viewPosition) {
+                     if (!initialPositionSet) {
                         setViewPosition(defaultPos);
+                        initialPositionSet = true;
                     }
                     toast({
                         variant: "destructive",
@@ -369,7 +373,7 @@ export default function DriverHomePage() {
                 description: "Tu navegador no soporta geolocalización. Mostrando una ubicación por defecto.",
             });
         }
-    }, [viewPosition]);
+    }, []);
     
     useEffect(() => {
       if (startPoint && endPoint) {
@@ -1480,4 +1484,5 @@ export default function DriverHomePage() {
         </div>
     );
 }
+
 
