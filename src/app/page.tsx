@@ -6,13 +6,14 @@ import dynamic from 'next/dynamic';
 import type { LatLngExpression, LatLngTuple, Map } from 'leaflet';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Menu, ChevronDown, HelpCircle, Layers, Crosshair, Shield, Settings2, Zap, Edit, Plus, Minus, X, Eye, Wallet, Star, Bell, LogOut, ChevronRight, FileText, Smartphone, Lock, Languages, CircleHelp, Info, MapPin, ChevronUp, Upload, CheckCircle2, Car, Map as MapIcon } from 'lucide-react';
+import { Menu, ChevronDown, HelpCircle, Layers, Crosshair, Shield, Settings2, Zap, Edit, Plus, Minus, X, Eye, Wallet, Star, Bell, LogOut, ChevronRight, FileText, Smartphone, Lock, Languages, CircleHelp, Info, MapPin, ChevronUp, Upload, CheckCircle2, Car, Map as MapIcon, Trash2 } from 'lucide-react';
 import Image from 'next/image';
 import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Separator } from '@/components/ui/separator';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription, DialogFooter, DialogClose } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
@@ -204,7 +205,7 @@ export default function DriverHomePage() {
     const [tripDetails, setTripDetails] = useState<{distance: number, cost: number} | null>(null);
     const [isTripDetailsVisible, setIsTripDetailsVisible] = useState(true);
     const [isSearchMinimized, setIsSearchMinimized] = useState(false);
-    const [uploadedDocs, setUploadedDocs] = useState<{[key: string]: File}>({});
+    const [uploadedDocs, setUploadedDocs] = useState<{[key: string]: File | null}>({});
 
 
     useEffect(() => {
@@ -281,6 +282,14 @@ export default function DriverHomePage() {
             description: "El nuevo vehículo se ha añadido a tu perfil.",
         });
     }
+
+    const handleDeleteVehicle = () => {
+        toast({
+            variant: "destructive",
+            title: "Vehículo Eliminado",
+            description: "El vehículo ha sido eliminado de tu perfil.",
+        });
+    };
 
     const surgeZones: { pos: LatLngTuple, rate: string, value: number }[] = [
         { pos: [-27.445, -58.99], rate: "2.9~3.0x", value: 2.95 },
@@ -608,19 +617,61 @@ export default function DriverHomePage() {
                                                                         </DialogHeader>
                                                                         <div className="py-4 space-y-4">
                                                                             <RadioGroup defaultValue="corolla" className="space-y-2">
-                                                                                <Label className="flex items-center p-3 bg-gray-900 rounded-md cursor-pointer hover:bg-gray-700">
-                                                                                    <RadioGroupItem value="corolla" id="v1" className="mr-3" />
-                                                                                    <div>
-                                                                                        <p className="font-medium">Toyota Corolla</p>
-                                                                                        <p className="text-sm text-gray-400">Patente AB 123 CD</p>
+                                                                                <Label className="flex items-center justify-between p-3 bg-gray-900 rounded-md cursor-pointer hover:bg-gray-700 group">
+                                                                                    <div className="flex items-center">
+                                                                                        <RadioGroupItem value="corolla" id="v1" className="mr-3" />
+                                                                                        <div>
+                                                                                            <p className="font-medium">Toyota Corolla</p>
+                                                                                            <p className="text-sm text-gray-400">Patente AB 123 CD</p>
+                                                                                        </div>
                                                                                     </div>
+                                                                                    <AlertDialog>
+                                                                                        <AlertDialogTrigger asChild>
+                                                                                            <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100" onClick={(e) => e.preventDefault()}>
+                                                                                                <Trash2 className="h-4 w-4 text-red-500" />
+                                                                                            </Button>
+                                                                                        </AlertDialogTrigger>
+                                                                                        <AlertDialogContent className="bg-gray-800 text-white border-gray-700">
+                                                                                            <AlertDialogHeader>
+                                                                                                <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                                                                                                <AlertDialogDescription>
+                                                                                                    Esta acción no se puede deshacer. Esto eliminará permanentemente el vehículo de tu perfil.
+                                                                                                </AlertDialogDescription>
+                                                                                            </AlertDialogHeader>
+                                                                                            <AlertDialogFooter>
+                                                                                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                                                                                <AlertDialogAction onClick={handleDeleteVehicle} className="bg-red-600 hover:bg-red-700">Eliminar</AlertDialogAction>
+                                                                                            </AlertDialogFooter>
+                                                                                        </AlertDialogContent>
+                                                                                    </AlertDialog>
                                                                                 </Label>
-                                                                                <Label className="flex items-center p-3 bg-gray-900 rounded-md cursor-pointer hover:bg-gray-700">
-                                                                                    <RadioGroupItem value="onix" id="v2" className="mr-3" />
-                                                                                    <div>
-                                                                                        <p className="font-medium">Chevrolet Onix</p>
-                                                                                        <p className="text-sm text-gray-400">Patente XY 456 ZZ</p>
+                                                                                <Label className="flex items-center justify-between p-3 bg-gray-900 rounded-md cursor-pointer hover:bg-gray-700 group">
+                                                                                    <div className="flex items-center">
+                                                                                        <RadioGroupItem value="onix" id="v2" className="mr-3" />
+                                                                                        <div>
+                                                                                            <p className="font-medium">Chevrolet Onix</p>
+                                                                                            <p className="text-sm text-gray-400">Patente XY 456 ZZ</p>
+                                                                                        </div>
                                                                                     </div>
+                                                                                    <AlertDialog>
+                                                                                        <AlertDialogTrigger asChild>
+                                                                                            <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100" onClick={(e) => e.preventDefault()}>
+                                                                                                <Trash2 className="h-4 w-4 text-red-500" />
+                                                                                            </Button>
+                                                                                        </AlertDialogTrigger>
+                                                                                        <AlertDialogContent className="bg-gray-800 text-white border-gray-700">
+                                                                                            <AlertDialogHeader>
+                                                                                                <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                                                                                                <AlertDialogDescription>
+                                                                                                    Esta acción no se puede deshacer. Esto eliminará permanentemente el vehículo de tu perfil.
+                                                                                                </AlertDialogDescription>
+                                                                                            </AlertDialogHeader>
+                                                                                            <AlertDialogFooter>
+                                                                                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                                                                                <AlertDialogAction onClick={handleDeleteVehicle} className="bg-red-600 hover:bg-red-700">Eliminar</AlertDialogAction>
+                                                                                            </AlertDialogFooter>
+                                                                                        </AlertDialogContent>
+                                                                                    </AlertDialog>
                                                                                 </Label>
                                                                             </RadioGroup>
                                                                             <Dialog>
@@ -947,5 +998,7 @@ export default function DriverHomePage() {
         </div>
     );
 }
+
+    
 
     
