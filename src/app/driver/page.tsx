@@ -377,26 +377,26 @@ export default function DriverHomePage() {
     };
 
      useEffect(() => {
+        let isMounted = true;
         if (navigator.geolocation) {
-            let initialPositionSet = false;
             const watchId = navigator.geolocation.watchPosition(
                 (position) => {
+                    if (!isMounted) return;
                     const { latitude, longitude } = position.coords;
                     const newPos: LatLngTuple = [latitude, longitude];
                     setCurrentPosition(newPos);
                     
-                    if (!initialPositionSet) {
+                    if (!viewPosition) {
                         setViewPosition(newPos);
-                        initialPositionSet = true;
                     }
                 },
                 (error) => {
+                    if (!isMounted) return;
                     console.error("Error getting geolocation:", error);
                     const defaultPos: LatLngTuple = [-27.45, -58.983333];
                     setCurrentPosition(defaultPos);
-                     if (!initialPositionSet) {
+                     if (!viewPosition) {
                         setViewPosition(defaultPos);
-                        initialPositionSet = true;
                     }
                     toast({
                         variant: "destructive",
@@ -412,9 +412,11 @@ export default function DriverHomePage() {
             );
 
             return () => {
+                isMounted = false;
                 navigator.geolocation.clearWatch(watchId);
             };
         } else {
+             if (!isMounted) return;
             const defaultPos: LatLngTuple = [-27.45, -58.983333];
             setCurrentPosition(defaultPos);
             setViewPosition(defaultPos);
@@ -424,7 +426,7 @@ export default function DriverHomePage() {
                 description: "Tu navegador no soporta geolocalización. Mostrando una ubicación por defecto.",
             });
         }
-    }, []);
+    }, [viewPosition]);
     
     useEffect(() => {
       if (startPoint && endPoint) {
@@ -1536,3 +1538,4 @@ export default function DriverHomePage() {
     );
 }
 
+esto es lo que funcionaba antes de tus cambios en el archivo page.tsx borra todo lo que hay en ese archivo y pega esto que te pase
