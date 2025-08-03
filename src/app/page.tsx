@@ -241,7 +241,7 @@ export default function DriverHomePage() {
     const [startPoint, setStartPoint] = useState<LatLngTuple | null>(null);
     const [endPoint, setEndPoint] = useState<LatLngTuple | null>(null);
     const [selecting, setSelecting] = useState<'start' | 'end' | null>(null);
-    const [tripDetails, setTripDetails] = useState<{distance: number, cost: number} | null>(null);
+    const [tripDetails, setTripDetails] = useState<{distance: number; cost: number; duration: number;} | null>(null);
     const [isTripDetailsVisible, setIsTripDetailsVisible] = useState(true);
     const [isSearchMinimized, setIsSearchMinimized] = useState(false);
     const [uploadedDocs, setUploadedDocs] = useState<{[key: string]: File | null}>({});
@@ -249,7 +249,39 @@ export default function DriverHomePage() {
     const [earningsHistory, setEarningsHistory] = useState(initialEarningsHistory);
     const [editingEarning, setEditingEarning] = useState<any | null>(null);
     const [mapType, setMapType] = useState<keyof typeof mapTypes>('dark');
+    const [route, setRoute] = useState<LatLngTuple[]>([]);
+    const [isTripInProgress, setIsTripInProgress] = useState(false);
+    const simulationIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
+    const getRoute = async (start: LatLngTuple, end: LatLngTuple) => {
+        try {
+            const response = await fetch(`https://router.project-osrm.org/route/v1/driving/${start[1]},${start[0]};${end[1]},${end[0]}?overview=full&geometries=geojson`);
+            const data = await response.json();
+            if (data.routes && data.routes.length > 0) {
+                const routeGeometry = data.routes[0].geometry.coordinates.map((coord: number[]) => [coord[1], coord[0]] as LatLngTuple);
+                setRoute(routeGeometry);
+
+                const distance = data.routes[0].distance / 1000; // in km
+                const duration = data.routes[0].duration / 60; // in minutes
+                
+                const costPerKm = 500;
+                const baseFare = 200;
+                const cost = baseFare + distance * costPerKm;
+
+                setTripDetails({ distance: parseFloat(distance.toFixed(1)), cost: parseFloat(cost.toFixed(0)), duration: parseFloat(duration.toFixed(0)) });
+                setIsTripDetailsVisible(true);
+            } else {
+                 toast({ variant: "destructive", title: "Error de ruta", description: "No se pudo encontrar una ruta." });
+                 setTripDetails(null);
+                 setRoute([]);
+            }
+        } catch (error) {
+            console.error("Error fetching route:", error);
+            toast({ variant: "destructive", title: "Error de red", description: "No se pudo conectar al servicio de enrutamiento." });
+            setTripDetails(null);
+            setRoute([]);
+        }
+    };
 
     const toggleMapType = () => {
         const types = Object.keys(mapTypes) as (keyof typeof mapTypes)[];
@@ -300,24 +332,10 @@ export default function DriverHomePage() {
     // Calculate trip details when both points are set
     useEffect(() => {
       if (startPoint && endPoint) {
-        const R = 6371; // Radius of the Earth in km
-        const dLat = (endPoint[0] - startPoint[0]) * Math.PI / 180;
-        const dLon = (endPoint[1] - startPoint[1]) * Math.PI / 180;
-        const a = 
-          Math.sin(dLat/2) * Math.sin(dLat/2) +
-          Math.cos(startPoint[0] * Math.PI / 180) * Math.cos(endPoint[0] * Math.PI / 180) * 
-          Math.sin(dLon/2) * Math.sin(dLon/2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        const distance = R * c; // Distance in km
-
-        const costPerKm = 500;
-        const baseFare = 200;
-        const cost = baseFare + distance * costPerKm;
-
-        setTripDetails({ distance: parseFloat(distance.toFixed(1)), cost: parseFloat(cost.toFixed(0))});
-        setIsTripDetailsVisible(true);
+        getRoute(startPoint, endPoint);
       } else {
         setTripDetails(null);
+        setRoute([]);
       }
     }, [startPoint, endPoint]);
 
@@ -384,6 +402,29 @@ export default function DriverHomePage() {
         });
     };
 
+    const handleConfirmTrip = () => {
+        if (!route.length) return;
+        
+        setIsTripInProgress(true);
+        
+        let currentIndex = 0;
+        simulationIntervalRef.current = setInterval(() => {
+            if (currentIndex < route.length -1) {
+                currentIndex++;
+                const newPosition = route[currentIndex];
+                setCurrentPosition(newPosition);
+                mapRef.current?.panTo(newPosition);
+            } else {
+                if (simulationIntervalRef.current) {
+                    clearInterval(simulationIntervalRef.current);
+                }
+                setIsTripInProgress(false);
+                toast({ title: "Viaje Finalizado", description: "Has llegado a tu destino." });
+                resetTrip();
+            }
+        }, 200); // Update every 200ms
+    };
+
     const surgeZones: { pos: LatLngTuple, rate: string, value: number }[] = [
         { pos: [-27.445, -58.99], rate: "2.9~3.0x", value: 2.95 },
         { pos: [-27.452, -59.00], rate: "2.7~2.9x", value: 2.8 },
@@ -408,6 +449,11 @@ export default function DriverHomePage() {
         setStartPoint(null);
         setEndPoint(null);
         setSelecting(null);
+        setRoute([]);
+        if (simulationIntervalRef.current) {
+            clearInterval(simulationIntervalRef.current);
+            setIsTripInProgress(false);
+        }
     }
     
     if (!currentPosition) {
@@ -439,7 +485,7 @@ export default function DriverHomePage() {
                 
                 {startPoint && <LocationMarker position={startPoint} type="start" />}
                 {endPoint && <LocationMarker position={endPoint} type="end" />}
-                {startPoint && endPoint && <Polyline positions={[startPoint, endPoint]} color="white" dashArray="5, 10" />}
+                {route.length > 0 && <Polyline positions={route} color="white" weight={5} opacity={0.8} />}
 
                 
                 {surgeZones.map((zone, i) => (
@@ -458,42 +504,40 @@ export default function DriverHomePage() {
                         </SheetTrigger>
                         <SheetContent side="left" className="w-full max-w-sm bg-gray-800 text-white border-gray-700 p-0 flex flex-col">
                            <SheetHeader className="p-4 space-y-4 text-left">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center space-x-4">
-                                        <Dialog>
-                                            <DialogTrigger asChild>
-                                                <div className="relative cursor-pointer">
-                                                    <Avatar className="h-16 w-16">
-                                                        <AvatarImage src={avatarUrl} alt="Driver" />
-                                                        <AvatarFallback>U</AvatarFallback>
-                                                    </Avatar>
-                                                    <div className="absolute bottom-0 right-0 bg-gray-600 p-1 rounded-full border-2 border-gray-800">
-                                                        <Edit className="h-3 w-3 text-white" />
-                                                    </div>
+                                <div className="flex items-center space-x-4">
+                                     <Dialog>
+                                        <DialogTrigger asChild>
+                                            <div className="relative cursor-pointer">
+                                                <Avatar className="h-16 w-16">
+                                                    <AvatarImage src={avatarUrl} alt="Driver" />
+                                                    <AvatarFallback>U</AvatarFallback>
+                                                </Avatar>
+                                                <div className="absolute bottom-0 right-0 bg-gray-600 p-1 rounded-full border-2 border-gray-800">
+                                                    <Edit className="h-3 w-3 text-white" />
                                                 </div>
-                                            </DialogTrigger>
-                                            <DialogContent className="bg-gray-800 text-white border-gray-700">
-                                                <DialogHeader>
-                                                    <DialogTitle>Actualizar foto de perfil</DialogTitle>
-                                                    <DialogDescription>
-                                                        Sube una nueva foto para tu perfil.
-                                                    </DialogDescription>
-                                                </DialogHeader>
-                                                <div className="grid w-full max-w-sm items-center gap-1.5 py-4">
-                                                    <Label htmlFor="picture">Foto</Label>
-                                                    <Input id="picture" type="file" className="text-white file:text-white" onChange={handleFileChange}/>
-                                                </div>
-                                                <DialogFooter>
-                                                    <DialogTrigger asChild>
-                                                      <Button type="submit" onClick={handleAvatarUpdate}>Guardar Cambios</Button>
-                                                    </DialogTrigger>
-                                                </DialogFooter>
-                                            </DialogContent>
-                                        </Dialog>
-                                        <div>
-                                            <SheetTitle className="text-xl">Conductor</SheetTitle>
-                                            <p className="text-gray-400">Nivel: Oro</p>
-                                        </div>
+                                            </div>
+                                        </DialogTrigger>
+                                        <DialogContent className="bg-gray-800 text-white border-gray-700">
+                                            <DialogHeader>
+                                                <DialogTitle>Actualizar foto de perfil</DialogTitle>
+                                                <DialogDescription>
+                                                    Sube una nueva foto para tu perfil.
+                                                </DialogDescription>
+                                            </DialogHeader>
+                                            <div className="grid w-full max-w-sm items-center gap-1.5 py-4">
+                                                <Label htmlFor="picture">Foto</Label>
+                                                <Input id="picture" type="file" className="text-white file:text-white" onChange={handleFileChange}/>
+                                            </div>
+                                            <DialogFooter>
+                                                <DialogTrigger asChild>
+                                                    <Button type="submit" onClick={handleAvatarUpdate}>Guardar Cambios</Button>
+                                                </DialogTrigger>
+                                            </DialogFooter>
+                                        </DialogContent>
+                                    </Dialog>
+                                    <div className="flex-grow">
+                                        <SheetTitle className="text-xl">Conductor</SheetTitle>
+                                        <p className="text-gray-400">Nivel: Oro</p>
                                     </div>
                                     <div className="bg-red-600 p-1 rounded-md flex items-center justify-center h-8 w-16 text-white font-bold text-lg tracking-tighter">
                                         <span>TyDy</span>
@@ -1305,7 +1349,7 @@ export default function DriverHomePage() {
                 </div>
 
                  <div className="absolute bottom-0 w-full flex justify-center p-4 pointer-events-auto">
-                    {tripDetails ? (
+                    {tripDetails && !isTripInProgress ? (
                          <div className="bg-gray-900/60 backdrop-blur-lg rounded-2xl w-full max-w-md shadow-2xl border-t border-gray-700/50 transition-all duration-300">
                             <div className="p-4">
                                 <div className="flex justify-between items-center">
@@ -1328,7 +1372,7 @@ export default function DriverHomePage() {
                                            </div>
                                            <Separator orientation="vertical" className="h-8 bg-gray-700" />
                                            <div>
-                                               <p className="text-lg font-bold">~{Math.round(tripDetails.distance * 1.5)} min</p>
+                                               <p className="text-lg font-bold">~{tripDetails.duration} min</p>
                                                <p className="text-xs text-gray-400">Tiempo</p>
                                            </div>
                                            <Separator orientation="vertical" className="h-8 bg-gray-700" />
@@ -1337,8 +1381,8 @@ export default function DriverHomePage() {
                                                <p className="text-xs text-gray-400">Costo</p>
                                            </div>
                                        </div>
-                                        <Button size="lg" className="w-full text-lg h-14 mt-4 rounded-lg font-bold bg-orange-600 hover:bg-orange-700">
-                                            Confirmar Viaje
+                                        <Button size="lg" className="w-full text-lg h-14 mt-4 rounded-lg font-bold bg-orange-600 hover:bg-orange-700" onClick={handleConfirmTrip}>
+                                           Confirmar Viaje
                                         </Button>
                                    </div>
                                )}
@@ -1346,12 +1390,12 @@ export default function DriverHomePage() {
                          </div>
                     ) : (
                     <div className="w-full max-w-xl">
-                       { isConnected ? (
+                       { isConnected && !isTripInProgress ? (
                            <div className="text-center py-4">
                                <p className="text-lg font-semibold">Buscando viajes...</p>
                                <p className="text-sm text-gray-400">Estás conectado y listo para recibir solicitudes.</p>
                            </div>
-                       ) : (
+                       ) : !isTripInProgress && (
                         <div className="transition-all duration-300">
                              <div className="flex justify-end mb-2">
                                 <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setIsSearchMinimized(!isSearchMinimized)}>
@@ -1445,4 +1489,5 @@ export default function DriverHomePage() {
         </div>
     );
 }
+
 
