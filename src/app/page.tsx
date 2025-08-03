@@ -251,7 +251,6 @@ export default function DriverHomePage() {
     const [mapType, setMapType] = useState<keyof typeof mapTypes>('dark');
     const [route, setRoute] = useState<LatLngTuple[]>([]);
     const [isTripInProgress, setIsTripInProgress] = useState(false);
-    const simulationIntervalRef = useRef<NodeJS.Timeout | null>(null);
 
     const getRoute = async (start: LatLngTuple, end: LatLngTuple) => {
         try {
@@ -334,7 +333,6 @@ export default function DriverHomePage() {
                 },
                 (error) => {
                     console.error("Error getting geolocation:", error);
-                    // Fallback to a default position if there's an error
                     setCurrentPosition([-27.45, -58.983333]);
                     toast({
                         variant: "destructive",
@@ -349,12 +347,10 @@ export default function DriverHomePage() {
                 }
             );
 
-            // Cleanup function to clear the watch
             return () => {
                 navigator.geolocation.clearWatch(watchId);
             };
         } else {
-            // Fallback for browsers that don't support Geolocation
             setCurrentPosition([-27.45, -58.983333]);
             toast({
                 variant: "destructive",
@@ -364,7 +360,6 @@ export default function DriverHomePage() {
         }
     }, []);
     
-    // Calculate trip details when both points are set
     useEffect(() => {
       if (startPoint && endPoint) {
         getRoute(startPoint, endPoint);
@@ -461,7 +456,6 @@ export default function DriverHomePage() {
         { pos: [-27.485, -59.015], rate: "1.1~1.9x", value: 1.5 },
         { pos: [-27.49, -59.00], rate: "2.1~3.0x", value: 2.55 },
         { pos: [-27.46, -58.97], rate: "3.0x", value: 3.0 },
-        // Adding more zones for hexagonal grid
         { pos: [-27.440, -58.995], rate: "2.5x", value: 2.5 },
         { pos: [-27.443, -58.985], rate: "2.8x", value: 2.8 },
         { pos: [-27.455, -58.992], rate: "2.6x", value: 2.6 },
@@ -1475,7 +1469,3 @@ export default function DriverHomePage() {
         </div>
     );
 }
-
-
-
-
