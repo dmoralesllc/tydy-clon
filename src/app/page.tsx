@@ -445,41 +445,46 @@ export default function DriverHomePage() {
                             </Button>
                         </SheetTrigger>
                         <SheetContent side="left" className="w-full max-w-sm bg-gray-800 text-white border-gray-700 p-0 flex flex-col">
-                            <SheetHeader className="p-4 space-y-4 text-left">
-                                <div className="flex items-center space-x-4">
-                                    <Dialog>
-                                        <DialogTrigger asChild>
-                                            <div className="relative cursor-pointer">
-                                                <Avatar className="h-16 w-16">
-                                                    <AvatarImage src={avatarUrl} alt="Driver" />
-                                                    <AvatarFallback>U</AvatarFallback>
-                                                </Avatar>
-                                                <div className="absolute bottom-0 right-0 bg-gray-600 p-1 rounded-full border-2 border-gray-800">
-                                                    <Edit className="h-3 w-3 text-white" />
+                           <SheetHeader className="p-4 space-y-4 text-left">
+                                <div className="flex items-center justify-between">
+                                    <div className="flex items-center space-x-4">
+                                        <Dialog>
+                                            <DialogTrigger asChild>
+                                                <div className="relative cursor-pointer">
+                                                    <Avatar className="h-16 w-16">
+                                                        <AvatarImage src={avatarUrl} alt="Driver" />
+                                                        <AvatarFallback>U</AvatarFallback>
+                                                    </Avatar>
+                                                    <div className="absolute bottom-0 right-0 bg-gray-600 p-1 rounded-full border-2 border-gray-800">
+                                                        <Edit className="h-3 w-3 text-white" />
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </DialogTrigger>
-                                        <DialogContent className="bg-gray-800 text-white border-gray-700">
-                                             <DialogHeader>
-                                                <DialogTitle>Actualizar foto de perfil</DialogTitle>
-                                                <DialogDescription>
-                                                    Sube una nueva foto para tu perfil.
-                                                </DialogDescription>
-                                            </DialogHeader>
-                                            <div className="grid w-full max-w-sm items-center gap-1.5 py-4">
-                                                <Label htmlFor="picture">Foto</Label>
-                                                <Input id="picture" type="file" className="text-white file:text-white" onChange={handleFileChange}/>
-                                            </div>
-                                            <DialogFooter>
-                                                <DialogTrigger asChild>
-                                                  <Button type="submit" onClick={handleAvatarUpdate}>Guardar Cambios</Button>
-                                                </DialogTrigger>
-                                            </DialogFooter>
-                                        </DialogContent>
-                                    </Dialog>
-                                    <div>
-                                        <SheetTitle className="text-xl">Conductor</SheetTitle>
-                                        <p className="text-gray-400">Nivel: Oro</p>
+                                            </DialogTrigger>
+                                            <DialogContent className="bg-gray-800 text-white border-gray-700">
+                                                <DialogHeader>
+                                                    <DialogTitle>Actualizar foto de perfil</DialogTitle>
+                                                    <DialogDescription>
+                                                        Sube una nueva foto para tu perfil.
+                                                    </DialogDescription>
+                                                </DialogHeader>
+                                                <div className="grid w-full max-w-sm items-center gap-1.5 py-4">
+                                                    <Label htmlFor="picture">Foto</Label>
+                                                    <Input id="picture" type="file" className="text-white file:text-white" onChange={handleFileChange}/>
+                                                </div>
+                                                <DialogFooter>
+                                                    <DialogTrigger asChild>
+                                                      <Button type="submit" onClick={handleAvatarUpdate}>Guardar Cambios</Button>
+                                                    </DialogTrigger>
+                                                </DialogFooter>
+                                            </DialogContent>
+                                        </Dialog>
+                                        <div>
+                                            <SheetTitle className="text-xl">Conductor</SheetTitle>
+                                            <p className="text-gray-400">Nivel: Oro</p>
+                                        </div>
+                                    </div>
+                                    <div className="bg-red-600 p-2 rounded-lg flex items-center justify-center h-10 w-20">
+                                        <span className="text-white font-bold text-2xl tracking-tighter">TyDy</span>
                                     </div>
                                 </div>
                                 <div className="grid grid-cols-3 gap-2 text-center text-sm">
