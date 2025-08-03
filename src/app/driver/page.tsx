@@ -1385,7 +1385,8 @@ export default function DriverHomePage() {
                     <Shield className="h-5 w-5 text-blue-400" />
                     <span className="font-semibold text-sm">Google</span>
                 </div>
-                <div className="absolute bottom-0 w-full flex justify-center p-4 pointer-events-auto">
+
+                 <div className="absolute bottom-0 w-full flex justify-center p-4 pointer-events-auto">
                     {tripDetails && !isTripInProgress ? (
                          <div className="bg-gray-900/60 backdrop-blur-lg rounded-2xl w-full max-w-md shadow-2xl border-t border-gray-700/50 transition-all duration-300">
                             <div className="p-4">
@@ -1441,56 +1442,58 @@ export default function DriverHomePage() {
                                <p className="text-sm text-gray-400">Estás conectado y listo para recibir solicitudes.</p>
                            </div>
                        ) : (
-                        <div>
-                            <div className="pointer-events-none absolute bottom-0 left-0 w-full p-4 flex justify-center">
-                                <div className="w-full max-w-xl">
-                                    {!isSearchMinimized && (
-                                        <div className="space-y-2 mb-4 opacity-0">
-                                            <Button variant="outline" className="w-full justify-start h-12">
-                                                <MapPin className="mr-3 h-5 w-5" />
-                                            </Button>
-                                            <Button variant="outline" className="w-full justify-start h-12">
-                                                <MapPin className="mr-3 h-5 w-5" />
-                                            </Button>
-                                        </div>
-                                    )}
-                                </div>
+                        <div className="transition-all duration-300">
+                             <div className="flex justify-end mb-2">
+                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setIsSearchMinimized(!isSearchMinimized)}>
+                                    {isSearchMinimized ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+                                </Button>
                             </div>
-                            <div className="w-full max-w-xl mx-auto">
-                                <div className="flex justify-end mb-2"></div>
-                                <div className="flex items-center justify-between">
-                                    <Dialog>
-                                        <DialogTrigger asChild>
-                                            <Button variant="ghost" className="relative">
-                                                <Settings2 className="h-7 w-7" />
-                                                <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500" />
-                                            </Button>
-                                        </DialogTrigger>
-                                        <DialogContent className="bg-gray-900 text-white border-gray-700">
-                                            <DialogHeader>
-                                                <DialogTitle>Preferencias de viaje</DialogTitle>
-                                            </DialogHeader>
-                                            <div className="py-4 space-y-4">
-                                                <div className="flex items-center justify-between p-3 bg-gray-800 rounded-md">
-                                                    <Label htmlFor="accept-cash-dialog">Aceptar efectivo</Label>
-                                                    <Switch id="accept-cash-dialog" defaultChecked />
-                                                </div>
-                                                <div className="flex items-center justify-between p-3 bg-gray-800 rounded-md">
-                                                    <Label htmlFor="auto-accept-dialog">Aceptación automática</Label>
-                                                    <Switch id="auto-accept-dialog" />
-                                                </div>
-                                            </div>
-                                        </DialogContent>
-                                    </Dialog>
-                                    <Button 
-                                        size="lg" 
-                                        className={`w-full max-w-xs text-xl h-14 rounded-full font-bold transition-colors ${isConnected ? 'bg-gray-600 hover:bg-gray-700' : 'bg-red-600 hover:bg-red-700'}`}
-                                        onClick={() => setIsConnected(!isConnected)}
-                                    >
-                                        {isConnected ? 'Desconectarse' : 'Conectarse'}
+                           
+                            {!isSearchMinimized && (
+                                <div className="space-y-2 mb-4">
+                                    <Button variant="outline" className="w-full justify-start h-12 text-left bg-gray-800/80 border-gray-700 hover:bg-gray-800/80" onClick={() => setSelecting('start')}>
+                                        <MapPin className="mr-3 h-5 w-5 text-blue-400" />
+                                        {startPoint ? <span className="text-white">{`Desde: ${startPoint[0].toFixed(4)}, ${startPoint[1].toFixed(4)}`}</span> : <span className="text-gray-400">¿Desde dónde?</span>}
                                     </Button>
-                                    <div className="w-12"></div>
+                                    <Button variant="outline" className="w-full justify-start h-12 text-left bg-gray-800/80 border-gray-700 hover:bg-gray-800/80" onClick={() => setSelecting('end')}>
+                                        <MapPin className="mr-3 h-5 w-5 text-orange-400" />
+                                        {endPoint ? <span className="text-white">{`Hasta: ${endPoint[0].toFixed(4)}, ${endPoint[1].toFixed(4)}`}</span> : <span className="text-gray-400">¿Hacia dónde?</span>}
+                                    </Button>
                                 </div>
+                            )}
+
+                            <div className="flex items-center justify-between">
+                                <Dialog>
+                                    <DialogTrigger asChild>
+                                        <Button variant="ghost" className="relative">
+                                            <Settings2 className="h-7 w-7" />
+                                            <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500" />
+                                        </Button>
+                                    </DialogTrigger>
+                                    <DialogContent className="bg-gray-900 text-white border-gray-700">
+                                        <DialogHeader>
+                                            <DialogTitle>Preferencias de viaje</DialogTitle>
+                                        </DialogHeader>
+                                        <div className="py-4 space-y-4">
+                                            <div className="flex items-center justify-between p-3 bg-gray-800 rounded-md">
+                                                <Label htmlFor="accept-cash-dialog">Aceptar efectivo</Label>
+                                                <Switch id="accept-cash-dialog" defaultChecked />
+                                            </div>
+                                            <div className="flex items-center justify-between p-3 bg-gray-800 rounded-md">
+                                                <Label htmlFor="auto-accept-dialog">Aceptación automática</Label>
+                                                <Switch id="auto-accept-dialog" />
+                                            </div>
+                                        </div>
+                                    </DialogContent>
+                                </Dialog>
+                                <Button 
+                                    size="lg" 
+                                    className={`w-full max-w-xs text-xl h-14 rounded-full font-bold transition-colors ${isConnected ? 'bg-gray-600 hover:bg-gray-700' : 'bg-red-600 hover:bg-red-700'}`}
+                                    onClick={() => setIsConnected(!isConnected)}
+                                >
+                                    {isConnected ? 'Desconectarse' : 'Conectarse'}
+                                </Button>
+                                <div className="w-12"></div>
                             </div>
                         </div>
                        )}
@@ -1499,43 +1502,7 @@ export default function DriverHomePage() {
                 </div>
             </div>
 
-            <Dialog open={!!newTripRequest} onOpenChange={() => setNewTripRequest(null)}>
-                <DialogContent className="bg-gray-800 text-white border-gray-700">
-                    <DialogHeader>
-                        <DialogTitle className="text-2xl text-center">¡Nuevo Viaje!</DialogTitle>
-                        <DialogDescription className="text-center">
-                            Tienes una nueva solicitud de viaje.
-                        </DialogDescription>
-                    </DialogHeader>
-                    <div className="py-4 space-y-4">
-                        <div className="flex justify-around text-center">
-                            <div>
-                                <p className="text-sm text-gray-400">Distancia</p>
-                                <p className="text-lg font-bold">5.2 km</p>
-                            </div>
-                            <div>
-                                <p className="text-sm text-gray-400">Tarifa</p>
-                                <p className="text-lg font-bold">$1250.00</p>
-                            </div>
-                        </div>
-                        <div>
-                            <p className="text-sm text-gray-400">Desde:</p>
-                            <p>Ubicación de Origen</p>
-                        </div>
-                        <div>
-                            <p className="text-sm text-gray-400">Hasta:</p>
-                            <p>Ubicación de Destino</p>
-                        </div>
-                    </div>
-                    <DialogFooter className="grid grid-cols-2 gap-4">
-                        <Button variant="destructive" size="lg" onClick={handleDeclineTrip}>Rechazar</Button>
-                        <Button variant="default" size="lg" className="bg-green-600 hover:bg-green-700" onClick={handleAcceptTrip}>Aceptar</Button>
-                    </DialogFooter>
-                </DialogContent>
-            </Dialog>
-
-            <audio ref={notificationAudioRef} src="/notification.mp3" preload="auto"></audio>
-
+            {/* Dialog for editing an earning */}
             {editingEarning && (
                 <Dialog open={!!editingEarning} onOpenChange={() => setEditingEarning(null)}>
                     <DialogContent className="bg-gray-800 text-white border-gray-700">

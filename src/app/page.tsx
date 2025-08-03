@@ -1333,7 +1333,8 @@ export default function DriverHomePage() {
                     <Shield className="h-5 w-5 text-blue-400" />
                     <span className="font-semibold text-sm">Google</span>
                 </div>
-                <div className="absolute bottom-0 w-full flex justify-center p-4 pointer-events-auto">
+
+                 <div className="absolute bottom-0 w-full flex justify-center p-4 pointer-events-auto">
                     {tripDetails && !isTripInProgress ? (
                          <div className="bg-gray-900/60 backdrop-blur-lg rounded-2xl w-full max-w-md shadow-2xl border-t border-gray-700/50 transition-all duration-300">
                             <div className="p-4">
@@ -1389,111 +1390,96 @@ export default function DriverHomePage() {
                                <p className="text-sm text-gray-400">Estás conectado y listo para recibir solicitudes.</p>
                            </div>
                        ) : (
-                        <div>
-                            <div className="pointer-events-none absolute bottom-0 left-0 w-full p-4 flex justify-center">
-                                <div className="w-full max-w-xl">
-                                    {!isSearchMinimized && (
-                                        <div className="space-y-2">
-                                            <div className="relative">
-                                                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                                                <Button variant="outline" className="w-full justify-start pl-10 h-12 bg-gray-800/80 border-gray-700 hover:bg-gray-700/80" onClick={() => setSelecting('start')}>
-                                                  {startPoint ? <span className="text-white">{`Desde: ${startPoint[0].toFixed(4)}, ${startPoint[1].toFixed(4)}`}</span> : '¿Desde dónde?'}
-                                                </Button>
-                                                {startPoint && (
-                                                    <Button variant="ghost" size="icon" className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8" onClick={() => setStartPoint(null)}><X className="h-4 w-4"/></Button>
-                                                )}
+                        <div className="transition-all duration-300">
+                             <div className="flex justify-end mb-2">
+                                <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setIsSearchMinimized(!isSearchMinimized)}>
+                                    {isSearchMinimized ? <ChevronUp className="h-5 w-5" /> : <ChevronDown className="h-5 w-5" />}
+                                </Button>
+                            </div>
+                           
+                            {!isSearchMinimized && (
+                                <div className="space-y-2 mb-4">
+                                    <Button variant="outline" className="w-full justify-start h-12 text-left bg-gray-800/80 border-gray-700 hover:bg-gray-800/80" onClick={() => setSelecting('start')}>
+                                        <MapPin className="mr-3 h-5 w-5 text-blue-400" />
+                                        {startPoint ? <span className="text-white">{`Desde: ${startPoint[0].toFixed(4)}, ${startPoint[1].toFixed(4)}`}</span> : <span className="text-gray-400">¿Desde dónde?</span>}
+                                    </Button>
+                                    <Button variant="outline" className="w-full justify-start h-12 text-left bg-gray-800/80 border-gray-700 hover:bg-gray-800/80" onClick={() => setSelecting('end')}>
+                                        <MapPin className="mr-3 h-5 w-5 text-orange-400" />
+                                        {endPoint ? <span className="text-white">{`Hasta: ${endPoint[0].toFixed(4)}, ${endPoint[1].toFixed(4)}`}</span> : <span className="text-gray-400">¿Hacia dónde?</span>}
+                                    </Button>
+                                </div>
+                            )}
+
+                            <div className="flex items-center justify-between">
+                                <Dialog>
+                                    <DialogTrigger asChild>
+                                        <Button variant="ghost" className="relative">
+                                            <Settings2 className="h-7 w-7" />
+                                            <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500" />
+                                        </Button>
+                                    </DialogTrigger>
+                                    <DialogContent className="bg-gray-900 text-white border-gray-700">
+                                        <DialogHeader>
+                                            <DialogTitle>Preferencias de viaje</DialogTitle>
+                                        </DialogHeader>
+                                        <div className="py-4 space-y-4">
+                                            <div className="flex items-center justify-between p-3 bg-gray-800 rounded-md">
+                                                <Label htmlFor="accept-cash-dialog">Aceptar efectivo</Label>
+                                                <Switch id="accept-cash-dialog" defaultChecked />
                                             </div>
-                                             <div className="relative">
-                                                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
-                                                <Button variant="outline" className="w-full justify-start pl-10 h-12 bg-gray-800/80 border-gray-700 hover:bg-gray-700/80" onClick={() => setSelecting('end')}>
-                                                    {endPoint ? <span className="text-white">{`Hasta: ${endPoint[0].toFixed(4)}, ${endPoint[1].toFixed(4)}`}</span> : '¿Hacia dónde?'}
-                                                </Button>
-                                                 {endPoint && (
-                                                    <Button variant="ghost" size="icon" className="absolute right-2 top-1/2 -translate-y-1/2 h-8 w-8" onClick={() => setEndPoint(null)}><X className="h-4 w-4"/></Button>
-                                                )}
+                                            <div className="flex items-center justify-between p-3 bg-gray-800 rounded-md">
+                                                <Label htmlFor="auto-accept-dialog">Aceptación automática</Label>
+                                                <Switch id="auto-accept-dialog" />
                                             </div>
                                         </div>
-                                    )}
-                                </div>
-                            </div>
-                            <div className="w-full max-w-xl mx-auto">
-                                <div className="flex justify-end mb-2">
-                                     <Button variant="ghost" size="icon" onClick={() => setIsSearchMinimized(!isSearchMinimized)}>
-                                        {isSearchMinimized ? <ChevronUp /> : <ChevronDown />}
-                                    </Button>
-                                </div>
-                                <div className="flex items-center justify-between">
-                                    <Dialog>
-                                        <DialogTrigger asChild>
-                                            <Button variant="ghost" className="relative">
-                                                <Settings2 className="h-7 w-7" />
-                                                <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-red-500" />
-                                            </Button>
-                                        </DialogTrigger>
-                                        <DialogContent className="bg-gray-900 text-white border-gray-700">
-                                            <DialogHeader>
-                                                <DialogTitle>Preferencias de viaje</DialogTitle>
-                                            </DialogHeader>
-                                            <div className="py-4 space-y-4">
-                                                <div className="flex items-center justify-between p-3 bg-gray-800 rounded-md">
-                                                    <Label htmlFor="accept-cash-dialog">Aceptar efectivo</Label>
-                                                    <Switch id="accept-cash-dialog" defaultChecked />
-                                                </div>
-                                                <div className="flex items-center justify-between p-3 bg-gray-800 rounded-md">
-                                                    <Label htmlFor="auto-accept-dialog">Aceptación automática</Label>
-                                                    <Switch id="auto-accept-dialog" />
-                                                </div>
-                                            </div>
-                                        </DialogContent>
-                                    </Dialog>
-                                    <Button 
-                                        size="lg" 
-                                        className="w-full max-w-xs text-xl h-14 rounded-full font-bold transition-colors bg-red-600 hover:bg-red-700"
-                                        onClick={() => setIsConnected(!isConnected)}
-                                    >
-                                        {isConnected ? 'Desconectarse' : 'Conectarse'}
-                                    </Button>
-                                    <div className="w-12"></div>
-                                </div>
+                                    </DialogContent>
+                                </Dialog>
+                                <Button 
+                                    size="lg" 
+                                    className={`w-full max-w-xs text-xl h-14 rounded-full font-bold transition-colors ${isConnected ? 'bg-gray-600 hover:bg-gray-700' : 'bg-red-600 hover:bg-red-700'}`}
+                                    onClick={() => setIsConnected(!isConnected)}
+                                >
+                                    {isConnected ? 'Desconectarse' : 'Conectarse'}
+                                </Button>
+                                <div className="w-12"></div>
                             </div>
                         </div>
                        )}
                     </div>
                     )}
                 </div>
-
-                 {editingEarning && (
-                    <Dialog open={!!editingEarning} onOpenChange={() => setEditingEarning(null)}>
-                        <DialogContent className="bg-gray-800 text-white border-gray-700">
-                            <DialogHeader>
-                                <DialogTitle>{editingEarning.isNew ? 'Añadir Nuevo Registro' : 'Editar Registro de Ganancia'}</DialogTitle>
-                            </DialogHeader>
-                            <form onSubmit={handleSaveEarning}>
-                                <div className="py-4 space-y-4">
-                                    <div className="space-y-2">
-                                        <Label htmlFor="type">Tipo</Label>
-                                        <Input id="type" name="type" defaultValue={editingEarning.type} className="text-white" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="amount">Monto</Label>
-                                        <Input id="amount" name="amount" type="number" step="0.01" defaultValue={editingEarning.amount} className="text-white" />
-                                    </div>
-                                    <div className="space-y-2">
-                                        <Label htmlFor="time">Fecha/Hora</Label>
-                                        <Input id="time" name="time" defaultValue={editingEarning.time} className="text-white" />
-                                    </div>
-                                </div>
-                                <DialogFooter>
-                                    <Button type="button" variant="ghost" onClick={() => setEditingEarning(null)}>Cancelar</Button>
-                                    <Button type="submit">Guardar Cambios</Button>
-                                </DialogFooter>
-                            </form>
-                        </DialogContent>
-                    </Dialog>
-                )}
             </div>
+
+            {/* Dialog for editing an earning */}
+            {editingEarning && (
+                <Dialog open={!!editingEarning} onOpenChange={() => setEditingEarning(null)}>
+                    <DialogContent className="bg-gray-800 text-white border-gray-700">
+                        <DialogHeader>
+                            <DialogTitle>{editingEarning.isNew ? 'Añadir Nuevo Registro' : 'Editar Registro de Ganancia'}</DialogTitle>
+                        </DialogHeader>
+                        <form onSubmit={handleSaveEarning}>
+                            <div className="py-4 space-y-4">
+                                <div className="space-y-2">
+                                    <Label htmlFor="type">Tipo</Label>
+                                    <Input id="type" name="type" defaultValue={editingEarning.type} className="text-white" />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="amount">Monto</Label>
+                                    <Input id="amount" name="amount" type="number" step="0.01" defaultValue={editingEarning.amount} className="text-white" />
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="time">Fecha/Hora</Label>
+                                    <Input id="time" name="time" defaultValue={editingEarning.time} className="text-white" />
+                                </div>
+                            </div>
+                            <DialogFooter>
+                                <Button type="button" variant="ghost" onClick={() => setEditingEarning(null)}>Cancelar</Button>
+                                <Button type="submit">Guardar Cambios</Button>
+                            </DialogFooter>
+                        </form>
+                    </DialogContent>
+                </Dialog>
+            )}
         </div>
     );
 }
-
-    
