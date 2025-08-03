@@ -462,8 +462,8 @@ export default function DriverHomePage() {
                         </SheetTrigger>
                         <SheetContent side="left" className="w-full max-w-sm bg-gray-800 text-white border-gray-700 p-0 flex flex-col">
                            <SheetHeader className="p-4 space-y-4 text-left">
-                                <div className="flex items-center space-x-4">
-                                    <div className="flex items-center flex-grow space-x-4">
+                                <div className="flex justify-between items-start">
+                                    <div className="flex items-center space-x-4 flex-grow">
                                         <Dialog>
                                             <DialogTrigger asChild>
                                                 <div className="relative cursor-pointer">
@@ -1367,7 +1367,7 @@ export default function DriverHomePage() {
 
                  <div className="absolute bottom-0 w-full flex justify-center p-4 pointer-events-auto">
                     {tripDetails ? (
-                         <div className="bg-gray-900/90 backdrop-blur-sm rounded-2xl w-full max-w-md shadow-2xl border-t border-gray-700/50 transition-all duration-300">
+                         <div className="bg-gray-900/60 backdrop-blur-lg rounded-2xl w-full max-w-md shadow-2xl border-t border-gray-700/50 transition-all duration-300">
                             <div className="p-4">
                                 <div className="flex justify-between items-center">
                                   <h3 className="text-lg font-semibold">Detalles del Viaje</h3>
@@ -1406,7 +1406,7 @@ export default function DriverHomePage() {
                             </div>
                          </div>
                     ) : (
-                    <div className="bg-gray-900/70 backdrop-blur-md rounded-2xl shadow-2xl border-t border-gray-700/50 p-4 w-[95%] max-w-xl">
+                    <div className="bg-gray-900/60 backdrop-blur-lg rounded-2xl shadow-2xl border-t border-gray-700/50 p-4 w-[95%] max-w-xl">
                        { isConnected ? (
                            <div className="text-center py-4">
                                <p className="text-lg font-semibold">Buscando viajes...</p>
