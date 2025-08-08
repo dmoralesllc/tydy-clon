@@ -9,30 +9,30 @@
   "start_url": "/",
   "icons": [
     {
-      "src": "/icon-512x512.png",
-      "sizes": "512x512",
+      "src": "/icons/icon-192x192.png",
+      "sizes": "192x192",
       "type": "image/png",
-      "purpose": "any"
+      "purpose": "any maskable"
     },
     {
-      "src": "/icon-512x512.png",
+      "src": "/icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "maskable"
+      "purpose": "any maskable"
     }
   ],
   "screenshots": [
     {
-      "src": "/screenshot-login.png",
+      "src": "/icons/screenshot-login.jpeg",
       "sizes": "1170x2532",
-      "type": "image/png",
+      "type": "image/jpeg",
       "form_factor": "narrow",
       "label": "Elige tu rol"
     },
     {
-      "src": "/screenshot-driver.png",
+      "src": "/icons/screenshot-driver.jpeg",
       "sizes": "1170x2532",
-      "type": "image/png",
+      "type": "image/jpeg",
       "form_factor": "narrow",
       "label": "Panel del Conductor"
     }
