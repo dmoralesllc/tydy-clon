@@ -1,26 +1,24 @@
 {
   "name": "TyDy",
   "short_name": "TyDy",
-  "id": "/",
   "description": "Tu viaje, a tu manera. La forma más rápida y económica de moverte.",
   "theme_color": "#FF0000",
   "background_color": "#282828",
   "display": "standalone",
-  "orientation": "portrait-primary",
   "scope": "/",
   "start_url": "/",
   "icons": [
     {
-      "src": "/icons/icon-192x192.png",
-      "sizes": "192x192",
+      "src": "/icons/icon-512x512.png",
+      "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "any"
     },
     {
       "src": "/icons/icon-512x512.png",
       "sizes": "512x512",
       "type": "image/png",
-      "purpose": "any maskable"
+      "purpose": "maskable"
     }
   ],
   "screenshots": [
@@ -38,8 +36,5 @@
       "form_factor": "narrow",
       "label": "Panel del Conductor"
     }
-  ],
-  "launch_handler": {
-    "client_mode": "navigate-existing"
-  }
+  ]
 }
