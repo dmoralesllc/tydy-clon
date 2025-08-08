@@ -1,42 +1,40 @@
-
-
 {
-    "name": "TyDy",
-    "short_name": "TyDy",
-    "description": "Tu viaje, a tu manera. La forma más rápida y económica de moverte.",
-    "theme_color": "#FF0000",
-    "background_color": "#282828",
-    "display": "standalone",
-    "scope": "/",
-    "start_url": "/",
-    "icons": [
-      {
-        "src": "/icon-192x192.png",
-        "sizes": "192x192",
-        "type": "image/png",
-        "purpose": "any maskable"
-      },
-      {
-        "src": "/icon-512x512.png",
-        "sizes": "512x512",
-        "type": "image/png",
-        "purpose": "any maskable"
-      }
-    ],
-    "screenshots": [
-      {
-        "src": "/screenshot-login.png",
-        "sizes": "1170x2532",
-        "type": "image/png",
-        "form_factor": "narrow",
-        "label": "Elige tu rol"
-      },
-      {
-        "src": "/screenshot-driver.png",
-        "sizes": "1170x2532",
-        "type": "image/png",
-        "form_factor": "narrow",
-        "label": "Panel del Conductor"
-      }
-    ]
-  }
+  "name": "TyDy",
+  "short_name": "TyDy",
+  "description": "Tu viaje, a tu manera. La forma más rápida y económica de moverte.",
+  "theme_color": "#FF0000",
+  "background_color": "#282828",
+  "display": "standalone",
+  "scope": "/",
+  "start_url": "/",
+  "icons": [
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icon-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "screenshots": [
+    {
+      "src": "/screenshot-login.png",
+      "sizes": "1170x2532",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Elige tu rol"
+    },
+    {
+      "src": "/screenshot-driver.png",
+      "sizes": "1170x2532",
+      "type": "image/png",
+      "form_factor": "narrow",
+      "label": "Panel del Conductor"
+    }
+  ]
+}
