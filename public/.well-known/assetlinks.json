@@ -1,0 +1,8 @@
+[{
+      "relation": ["delegate_permission/common.handle_all_urls"],
+      "target": {
+        "namespace": "android_app",
+        "package_name": "lat.tydy.twa",
+        "sha256_cert_fingerprints": ["92:77:0D:F1:78:66:88:C7:29:72:20:71:31:10:8D:CD:5C:2E:DA:6C:58:77:1F:A3:31:37:A4:C9:10:99:77:1D"]
+      }
+    }]
