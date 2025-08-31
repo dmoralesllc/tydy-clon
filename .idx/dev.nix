@@ -10,8 +10,8 @@
   # Sets environment variables in the workspace
   env = {
     # IMPORTANT: Replace these with your actual Supabase credentials
-    NEXT_PUBLIC_SUPABASE_URL = "your-supabase-url";
-    NEXT_PUBLIC_SUPABASE_ANON_KEY = "your-supabase-anon-key";
+    NEXT_PUBLIC_SUPABASE_URL = "https://bwikuaplwelthiclkokx.supabase.co";
+    NEXT_PUBLIC_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ3aWt1YXBsd2VsdGhpY2xrb2t4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY1MTUzMTUsImV4cCI6MjA3MjA5MTMxNX0.s6z_u1X1-X0EXctWTFCbHaBcnSKKpet52teQYkudFb4";
   };
   idx = {
     # Search for the extensions you want on https://open-vsx.org/ and use "publisher.id"
@@ -37,8 +37,7 @@
       };
       # Runs when the workspace is (re)started
       onStart = {
-        # Example: start a background task to watch and re-build backend code
-        # watch-backend = "npm run watch-backend";
+        dev-server = "npm run dev --prefix tydy-clon";
       };
     };
   };
