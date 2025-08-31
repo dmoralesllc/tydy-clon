@@ -23,8 +23,9 @@
       enable = true;
       previews = {
         web = {
-          command = ["npm" "run" "dev"];
+          command = ["npm" "run" "dev" "--" "--port" "$PORT"];
           manager = "web";
+          cwd = "tydy-clon";
         };
       };
     };
@@ -32,7 +33,7 @@
     workspace = {
       # Runs when a workspace is first created
       onCreate = {
-        npm-install = "npm install";
+        npm-install = "npm install --prefix tydy-clon";
       };
       # Runs when the workspace is (re)started
       onStart = {
