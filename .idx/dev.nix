@@ -6,12 +6,16 @@
   # Use https://search.nixos.org/packages to find packages
   packages = [
     pkgs.nodejs_20
+    # Added Supabase CLI to be able to deploy Edge Functions
+    pkgs.supabase-cli
   ];
   # Sets environment variables in the workspace
   env = {
     # IMPORTANT: Replace these with your actual Supabase credentials
     NEXT_PUBLIC_SUPABASE_URL = "https://bwikuaplwelthiclkokx.supabase.co";
     NEXT_PUBLIC_SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImJ3aWt1YXBsd2VsdGhpY2xrb2t4Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTY1MTUzMTUsImV4cCI6MjA3MjA5MTMxNX0.s6z_u1X1-X0EXctWTFCbHaBcnSKKpet52teQYkudFb4";
+    # Personal Access Token for Supabase CLI. Generate one at https://app.supabase.com/account/tokens
+    SUPABASE_ACCESS_TOKEN = "sbp_9b9231ce3712e61cf11673d12ebe577f61635bdb";
   };
   idx = {
     # Search for the extensions you want on https://open-vsx.org/ and use "publisher.id"
