@@ -13,11 +13,13 @@ import {
   MapPin,
   CreditCard,
   LifeBuoy,
-  Settings
+  Settings,
+  FileText
 } from 'lucide-react';
 
 const sidebarItems = [
   { href: '/passenger/profile', label: 'Perfil', icon: User },
+  { href: '/passenger/documents', label: 'Documentos', icon: FileText },
   { href: '/passenger/history', label: 'Historial', icon: Clock },
   { href: '/passenger/ratings', label: 'Calificaciones', icon: Star },
   { href: '/passenger/rewards', label: 'Recompensas', icon: Award },

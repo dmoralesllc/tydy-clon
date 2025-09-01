@@ -1,19 +1,24 @@
 
-import Link from 'next/link';
-import { ArrowLeft } from 'lucide-react';
+'use client';
 
-export default function SectionLayout({ children }: { children: React.ReactNode }) {
+import { useState } from 'react';
+import PassengerSidebar from '@/components/passenger/PassengerSidebar';
+
+export default function PassengerLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  const [isSidebarOpen, setSidebarOpen] = useState(false);
+
   return (
-    <div>
-      <header className="bg-gray-800 p-4 flex items-center shadow-md">
-        <Link href="/" legacyBehavior>
-          <a className="flex items-center gap-2 text-white hover:text-red-400 transition-colors">
-            <ArrowLeft size={20} />
-            <span className="font-semibold">Volver al Inicio</span>
-          </a>
-        </Link>
-      </header>
-      <main className="p-4">
+    <div className="flex h-screen bg-gray-900 text-white">
+      <PassengerSidebar isOpen={isSidebarOpen} setOpen={setSidebarOpen} />
+      <main
+        className={`flex-1 p-8 transition-all duration-300 ${
+          isSidebarOpen ? 'ml-60' : 'ml-20'
+        }`}
+      >
         {children}
       </main>
     </div>

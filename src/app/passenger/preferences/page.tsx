@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { Bell, EyeOff, Wheelchair, Languages, Sun, Moon } from 'lucide-react';
+import { Bell, EyeOff, Accessibility, Languages, Sun, Moon } from 'lucide-react';
 
 const Toggle = ({ checked, onChange }) => {
   return (
@@ -60,7 +60,7 @@ export default function PreferencesPage() {
 
         {/* Accesibilidad */}
         <section>
-          <h2 className="text-xl font-semibold mb-4 flex items-center gap-3"><Wheelchair />Accesibilidad</h2>
+          <h2 className="text-xl font-semibold mb-4 flex items-center gap-3"><Accessibility />Accesibilidad</h2>
           <div className="space-y-3 pl-8">
             <div className="flex justify-between items-center">
               <span>Vehículo accesible para silla de ruedas</span>
